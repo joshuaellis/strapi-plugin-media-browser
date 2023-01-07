@@ -1,5 +1,5 @@
-import myService from './my-service';
+import upload from "./upload";
 
 export default {
-  myService,
+  upload,
 };

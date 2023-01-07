@@ -1,5 +1,5 @@
-import myController from './my-controller';
+import adminFile from "./admin-file";
 
 export default {
-  myController,
+  "admin-file": adminFile,
 };

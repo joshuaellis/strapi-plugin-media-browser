@@ -5,7 +5,7 @@ import { PLUGIN_NAME } from "./constants";
 
 export default ({ strapi }: { strapi: Strapi }) => {
   strapi.plugin(PLUGIN_NAME).provider = createProvider(
-    strapi.config.get("plugin.upload", {})
+    strapi.config.get(`plugin.${PLUGIN_NAME}`, {})
   );
 
   middleware({ strapi });

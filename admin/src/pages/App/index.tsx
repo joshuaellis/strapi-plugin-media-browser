@@ -1,24 +1,43 @@
-/**
- *
- * This component is the skeleton around the actual pages, and should only
- * contain code that should be seen on all pages. (e.g. navigation bar)
- *
- */
+import React from "react";
+import { NotFound } from "@strapi/helper-plugin";
+import { Switch, Route } from "react-router-dom";
+import { useIntl } from "react-intl";
+import { Helmet } from "react-helmet";
+import { Main } from "@strapi/design-system";
+import { Provider } from "react-redux";
 
-import React from 'react';
-import { Switch, Route } from 'react-router-dom';
-import { NotFound } from '@strapi/helper-plugin';
-import pluginId from '../../pluginId';
-import HomePage from '../HomePage';
+import { Finder, finderReducer } from "../Finder";
+
+import { prefixTranslation } from "../../helpers/translations";
+
+import pluginId from "../../pluginId";
+
+import { createStore } from "../../store";
+
+import { Header } from "../../components/Header";
+
+const store = createStore({
+  finder: finderReducer,
+});
 
 const App: React.FunctionComponent = () => {
+  const { formatMessage } = useIntl();
+  const title = formatMessage({
+    id: prefixTranslation("plugin.name"),
+    defaultMessage: "Media Library",
+  });
+
   return (
-    <div>
-      <Switch>
-        <Route path={`/plugins/${pluginId}`} component={HomePage} exact />
-        <Route component={NotFound} />
-      </Switch>
-    </div>
+    <Provider store={store}>
+      <Main>
+        <Helmet title={title} />
+        <Header></Header>
+        <Switch>
+          <Route exact path={`/plugins/${pluginId}`} component={Finder} />
+          <Route component={NotFound} />
+        </Switch>
+      </Main>
+    </Provider>
   );
 };
 
