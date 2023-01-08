@@ -13,5 +13,6 @@ export const strapiAdminApi = createApi({
       Authorization: `Bearer ${auth.getToken()}`,
     },
   }),
+  tagTypes: ["Folders"],
   endpoints: () => ({}),
 });

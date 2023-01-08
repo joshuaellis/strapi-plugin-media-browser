@@ -3,8 +3,8 @@ const PLUGIN_PREFIX = `plugin::${PLUGIN_NAME}`;
 
 const ACTIONS = {
   read: `${PLUGIN_PREFIX}.read`,
-  create: `${PLUGIN_PREFIX}.create`,
-  update: `${PLUGIN_PREFIX}.update`,
+  create: `${PLUGIN_PREFIX}.assets.create`,
+  update: `${PLUGIN_PREFIX}.assets.update`,
 };
 
 const FOLDER_MODEL_UID = `${PLUGIN_PREFIX}.ml-folder`;

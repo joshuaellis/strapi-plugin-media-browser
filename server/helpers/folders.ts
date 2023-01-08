@@ -6,6 +6,7 @@ export const validateFolderNameIsUnique = async (name: string) => {
     const doesExist = await checkFolderExists({ name });
     return !doesExist;
   } catch (e) {
+    console.error("Error trying to check if folder exists", e);
     return false;
   }
 };

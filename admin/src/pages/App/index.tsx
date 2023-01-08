@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { NotFound } from "@strapi/helper-plugin";
 import { Switch, Route } from "react-router-dom";
 import { useIntl } from "react-intl";
@@ -14,10 +15,8 @@ import pluginId from "../../pluginId";
 
 import { createStore } from "../../store";
 
-import { Header } from "../../components/Header";
-
 const store = createStore({
-  finder: finderReducer,
+  // finder: finderReducer,
 });
 
 const App: React.FunctionComponent = () => {
@@ -29,16 +28,24 @@ const App: React.FunctionComponent = () => {
 
   return (
     <Provider store={store}>
-      <Main>
+      <MediaMain>
         <Helmet title={title} />
-        <Header></Header>
         <Switch>
-          <Route exact path={`/plugins/${pluginId}`} component={Finder} />
+          <Route path={`/plugins/${pluginId}`} component={Finder} />
           <Route component={NotFound} />
         </Switch>
-      </Main>
+      </MediaMain>
     </Provider>
   );
 };
+
+const MediaMain = styled(Main)`
+  background-color: #171717;
+  color: #fafafa;
+  display: grid;
+  grid-template-columns: min-content 1fr 1fr;
+  grid-template-rows: 60px 1fr;
+  height: 100vh;
+`;
 
 export default App;
