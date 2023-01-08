@@ -25,9 +25,7 @@ export default {
 
     const query = pm.addPermissionsQueryTo({ ...defaultQuery, ...ctx.query });
 
-    const { results, pagination } = await getService(strapi, "upload").findPage(
-      query
-    );
+    const { results, pagination } = await getService("upload").findPage(query);
 
     const sanitizedResults = await pm.sanitizeOutput(results);
 

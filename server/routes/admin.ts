@@ -27,5 +27,21 @@ export default {
         ],
       },
     },
+    {
+      method: "POST",
+      path: "/folders",
+      handler: "admin-folder.create",
+      config: {
+        policies: [
+          "admin::isAuthenticatedAdmin",
+          {
+            name: "admin::hasPermissions",
+            config: {
+              actions: ["plugin::upload.assets.create"],
+            },
+          },
+        ],
+      },
+    },
   ],
 };
