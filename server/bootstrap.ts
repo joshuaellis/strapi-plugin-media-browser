@@ -21,8 +21,15 @@ const registerPermissionActions = async () => {
     },
     {
       section: "plugins",
-      displayName: "Update (crop, details, replace) + delete",
+      displayName: "Update (crop, details, replace)",
       uid: "assets.update",
+      subCategory: "assets",
+      pluginName: PLUGIN_NAME,
+    },
+    {
+      section: "plugins",
+      displayName: "Delete",
+      uid: "assets.delete",
       subCategory: "assets",
       pluginName: PLUGIN_NAME,
     },
@@ -38,12 +45,6 @@ const registerPermissionActions = async () => {
       displayName: "Copy link",
       uid: "assets.copy-link",
       subCategory: "assets",
-      pluginName: PLUGIN_NAME,
-    },
-    {
-      section: "plugins",
-      displayName: "Configure view",
-      uid: "configure-view",
       pluginName: PLUGIN_NAME,
     },
     {

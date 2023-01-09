@@ -9,6 +9,17 @@ const finderApi = strapiAdminApi.injectEndpoints({
     getAllFiles: build.query({
       query: () => ({ url: "files" }),
     }),
+    getAllFolders: build.query<Folder[], undefined>({
+      query: () => ({ url: "folders" }),
+      transformResponse: (res: Partial<Folder>[]) => {
+        const foldersWithNamesAndIds = res.filter(
+          (folder) => folder.name && folder.id && folder.path
+        ) as Folder[];
+
+        return foldersWithNamesAndIds;
+      },
+      providesTags: ["Folders"],
+    }),
     postNewFolder: build.mutation<CreateFolderResponse, CreateFolderBody>({
       query: (body) => ({
         url: "folders",
@@ -17,16 +28,28 @@ const finderApi = strapiAdminApi.injectEndpoints({
       }),
       invalidatesTags: ["Folders"],
     }),
-    getAllFolders: build.query<Folder[], undefined>({
-      query: () => ({ url: "folders" }),
-      transformResponse: (res: Partial<Folder>[]) => {
-        const foldersWithNamesAndIds = res.filter(
-          (folder) => folder.name && folder.id
-        ) as Folder[];
-
-        return foldersWithNamesAndIds;
-      },
-      providesTags: ["Folders"],
+    // TODO: type this return type?
+    deleteFolder: build.mutation<unknown, string>({
+      query: (id) => ({
+        url: `folders/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Folders"],
+    }),
+    // TODO: type this return type?
+    updateFolder: build.mutation<
+      unknown,
+      { id: string; patch?: Partial<Folder> }
+    >({
+      query: ({ id, patch = {} }) => ({
+        url: "folders",
+        method: "PUT",
+        body: {
+          id,
+          patch,
+        },
+      }),
+      invalidatesTags: ["Folders"],
     }),
   }),
   overrideExisting: false,
@@ -36,4 +59,18 @@ export const {
   useGetAllFilesQuery,
   usePostNewFolderMutation,
   useGetAllFoldersQuery,
+  useDeleteFolderMutation,
+  useUpdateFolderMutation,
 } = finderApi;
+
+export const useFolderMutationApi = () => {
+  const [postNewFolder] = usePostNewFolderMutation();
+  const [deleteFolder] = useDeleteFolderMutation();
+  const [updateFolder] = useUpdateFolderMutation();
+
+  return {
+    postNewFolder,
+    deleteFolder,
+    updateFolder,
+  };
+};

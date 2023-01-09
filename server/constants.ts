@@ -5,6 +5,7 @@ const ACTIONS = {
   read: `${PLUGIN_PREFIX}.read`,
   create: `${PLUGIN_PREFIX}.assets.create`,
   update: `${PLUGIN_PREFIX}.assets.update`,
+  delete: `${PLUGIN_PREFIX}.assets.delete`,
 };
 
 const FOLDER_MODEL_UID = `${PLUGIN_PREFIX}.ml-folder`;

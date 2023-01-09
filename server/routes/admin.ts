@@ -51,5 +51,37 @@ export default {
         ],
       },
     },
+    {
+      method: "DELETE",
+      path: "/folders/:id",
+      handler: "admin-folder.delete",
+      config: {
+        policies: [
+          "admin::isAuthenticatedAdmin",
+          {
+            name: "admin::hasPermissions",
+            config: {
+              actions: [ACTIONS.delete],
+            },
+          },
+        ],
+      },
+    },
+    {
+      method: "PUT",
+      path: "/folders",
+      handler: "admin-folder.update",
+      config: {
+        policies: [
+          "admin::isAuthenticatedAdmin",
+          {
+            name: "admin::hasPermissions",
+            config: {
+              actions: [ACTIONS.update],
+            },
+          },
+        ],
+      },
+    },
   ],
 };

@@ -3,6 +3,8 @@ import styled from "styled-components";
 import {
   useGetAllFoldersQuery,
   usePostNewFolderMutation,
+  useDeleteFolderMutation,
+  useFolderMutationApi,
 } from "../data/finderApi";
 
 import { Folder } from "./Folder/Folder";
@@ -25,7 +27,7 @@ import { Plus } from "./Icons/Plus";
  * TODO: handle letting assets be dropped in a folder to re-organise where the folders should be.
  */
 export const SideBar = () => {
-  const [postNewFolder] = usePostNewFolderMutation();
+  const { postNewFolder, deleteFolder, updateFolder } = useFolderMutationApi();
   const { data: folderData } = useGetAllFoldersQuery(undefined);
 
   const [showNewFolder, setShowNewFolder] = React.useState(false);
@@ -91,6 +93,34 @@ export const SideBar = () => {
     }
   };
 
+  const handleDeleteClick = async (id: number) => {
+    const res = await deleteFolder(id.toString());
+
+    if ("error" in res) {
+      // TODO: handle error
+    }
+  };
+
+  const handleRename = async (folderId: number, newName: string) => {
+    const res = await updateFolder({
+      id: folderId.toString(),
+      patch: {
+        name: newName,
+      },
+    });
+
+    if ("data" in res) {
+      return true;
+    } else {
+      if ("error" in res) {
+        // TODO: handle error
+      }
+      return false;
+    }
+  };
+
+  console.log(folderData);
+
   return (
     <Aside>
       <Space />
@@ -116,7 +146,12 @@ export const SideBar = () => {
           <ul>
             {folderData.map((folder) => (
               <li key={folder.id}>
-                <Folder title={folder.name} />
+                <Folder
+                  title={folder.name}
+                  id={folder.id}
+                  onDeleteClick={handleDeleteClick}
+                  onRename={handleRename}
+                />
               </li>
             ))}
           </ul>
