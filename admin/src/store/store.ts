@@ -1,20 +1,25 @@
-import { configureStore, ReducersMapObject } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
+
+import { finderReducer } from "../pages/Finder/slice";
+
 import { strapiAdminApi } from "./api";
+import { listenerMiddleware } from "./middleware";
 
-export const createStore = (reducers: ReducersMapObject = {}) =>
-  configureStore({
-    reducer: {
-      // Add the generated reducer as a specific top-level slice
-      [strapiAdminApi.reducerPath]: strapiAdminApi.reducer,
-      ...reducers,
-    },
-    // Adding the api middleware enables caching, invalidation, polling,
-    // and other useful features of `rtk-query`.
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(strapiAdminApi.middleware),
-  });
+export const store = configureStore({
+  reducer: {
+    // Add the generated reducer as a specific top-level slice
+    [strapiAdminApi.reducerPath]: strapiAdminApi.reducer,
+    finder: finderReducer,
+  },
+  // Adding the api middleware enables caching, invalidation, polling,
+  // and other useful features of `rtk-query`.
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware()
+      .prepend(listenerMiddleware.middleware)
+      .concat(strapiAdminApi.middleware),
+});
 
-export type CreatedStore = ReturnType<typeof createStore>;
+export type CreatedStore = typeof store;
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<CreatedStore["getState"]>;

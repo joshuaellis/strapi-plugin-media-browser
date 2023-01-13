@@ -1,24 +1,56 @@
 import * as React from "react";
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 import { IconButton } from "../components/IconButton";
+import { useTypedDispatch, useTypedSelector } from "../store";
 import { LeftArrow } from "./Icons/LeftArrow";
 import { RightArrow } from "./Icons/RightArrow";
 import { Search } from "./Icons/Search";
 
 interface HeaderProps {
   children: React.ReactNode;
+  onBackClick?: () => void;
+  onForwardClick?: () => void;
+  backButtonDisabled?: boolean;
+  forwardButtonDisabled?: boolean;
 }
 
-export const Header = ({ children }: HeaderProps) => {
+export const Header = ({
+  children,
+  onBackClick,
+  onForwardClick,
+  backButtonDisabled,
+  forwardButtonDisabled,
+}: HeaderProps) => {
+  const handleBackClick = () => {
+    if (onBackClick) {
+      onBackClick();
+    }
+  };
+
+  const handleForwardClick = () => {
+    if (onForwardClick) {
+      onForwardClick();
+    }
+  };
+
   return (
     <Head>
       <HeaderLeft>
         <HeaderArrows>
-          <IconButton label="Back">
+          <IconButton
+            disabled={backButtonDisabled}
+            label="Back"
+            onClick={handleBackClick}
+          >
             <LeftArrow />
           </IconButton>
-          <IconButton label="Forward">
+          <IconButton
+            disabled={forwardButtonDisabled}
+            label="Forward"
+            onClick={handleForwardClick}
+          >
             <RightArrow />
           </IconButton>
         </HeaderArrows>

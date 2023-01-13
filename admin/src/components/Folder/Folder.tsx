@@ -1,5 +1,7 @@
 import * as React from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { BASE_URL } from "../../constants";
 
 import { IconButton } from "../IconButton";
 
@@ -91,7 +93,7 @@ export const Folder = ({ title, id, onDeleteClick, onRename }: FolderProps) => {
   return (
     <FolderBase.Base>
       <FolderBase.Left>
-        <FolderName>{title}</FolderName>
+        <FolderLink to={`${BASE_URL}/${title}`}>{title}</FolderLink>
       </FolderBase.Left>
       <FolderBase.Right>
         {/* <DimmedIconButton
@@ -117,8 +119,14 @@ export const Folder = ({ title, id, onDeleteClick, onRename }: FolderProps) => {
   );
 };
 
-const FolderName = styled.span`
-  cursor: pointer;
+const FolderLink = styled(Link)`
+  color: inherit;
+  text-decoration: none;
+  padding: 5px 0;
+
+  &:visited {
+    color: inherit;
+  }
 `;
 
 const DimmedIconButton = styled(IconButton)`

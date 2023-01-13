@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import styled from "styled-components";
 import { NotFound } from "@strapi/helper-plugin";
 import { Switch, Route } from "react-router-dom";
@@ -7,17 +7,12 @@ import { Helmet } from "react-helmet";
 import { Main } from "@strapi/design-system";
 import { Provider } from "react-redux";
 
-import { Finder, finderReducer } from "../Finder";
+import { Finder } from "../Finder";
 
 import { prefixTranslation } from "../../helpers/translations";
 
-import pluginId from "../../pluginId";
-
-import { createStore } from "../../store";
-
-const store = createStore({
-  // finder: finderReducer,
-});
+import { store } from "../../store";
+import { BASE_URL } from "../../constants";
 
 const App: React.FunctionComponent = () => {
   const { formatMessage } = useIntl();
@@ -31,7 +26,7 @@ const App: React.FunctionComponent = () => {
       <MediaMain>
         <Helmet title={title} />
         <Switch>
-          <Route path={`/plugins/${pluginId}`} component={Finder} />
+          <Route path={BASE_URL} component={Finder} />
           <Route component={NotFound} />
         </Switch>
       </MediaMain>

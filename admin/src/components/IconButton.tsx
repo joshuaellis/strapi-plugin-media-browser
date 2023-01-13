@@ -7,10 +7,11 @@ interface IconButtonProps {
   className?: string;
   label: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
 }
 
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ children, className, label, onClick }, ref) => {
+  ({ children, className, label, onClick, disabled }, ref) => {
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
       if (onClick) {
         onClick(e);
@@ -23,6 +24,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         className={className}
         type="button"
         onClick={handleClick}
+        aria-disabled={disabled}
       >
         <AccessibleIcon label={label}>{children}</AccessibleIcon>
       </Button>
@@ -45,7 +47,12 @@ const Button = styled.button`
     width: 20px;
   }
 
-  &:hover {
+  &[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not([aria-disabled="true"]):hover {
     filter: brightness(70%);
   }
 `;

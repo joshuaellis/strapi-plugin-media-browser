@@ -119,8 +119,6 @@ export const SideBar = () => {
     }
   };
 
-  console.log(folderData);
-
   return (
     <Aside>
       <Space />

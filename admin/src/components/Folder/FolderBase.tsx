@@ -32,7 +32,6 @@ const FolderLeft = styled.div`
   justify-content: flex-start;
   align-items: center;
   gap: 10px;
-  padding: 5px 0;
 
   & > svg {
     width: 20px;

@@ -55,6 +55,9 @@ const finderApi = strapiAdminApi.injectEndpoints({
   overrideExisting: false,
 });
 
+export const useGetAllFilesQueryState =
+  finderApi.endpoints.getAllFolders.useQueryState;
+
 export const {
   useGetAllFilesQuery,
   usePostNewFolderMutation,
