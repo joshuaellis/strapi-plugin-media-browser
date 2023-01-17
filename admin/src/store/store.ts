@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import { finderReducer } from "../pages/Finder/slice";
+import { finderReducer } from "../modules/finder";
+import { uploadReducer } from "../modules/upload";
 
 import { strapiAdminApi } from "./api";
 import { listenerMiddleware } from "./middleware";
@@ -10,6 +11,7 @@ export const store = configureStore({
     // Add the generated reducer as a specific top-level slice
     [strapiAdminApi.reducerPath]: strapiAdminApi.reducer,
     finder: finderReducer,
+    upload: uploadReducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.

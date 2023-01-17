@@ -1,11 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import {
-  useGetAllFoldersQuery,
-  usePostNewFolderMutation,
-  useDeleteFolderMutation,
-  useFolderMutationApi,
-} from "../data/finderApi";
+import { useGetAllFoldersQuery, useFolderMutationApi } from "../data/finderApi";
 
 import { Folder } from "./Folder/Folder";
 import { FolderNew } from "./Folder/FolderNew";
@@ -14,8 +9,6 @@ import { IconButton } from "./IconButton";
 import { Plus } from "./Icons/Plus";
 
 /**
- * TODO: make the new folder button look the same as the folder items.
- *
  * TODO: don't remove the "new folder" when the form is submit, rather move it to the alphabetically correct position.
  *
  * TODO: handle nested foldering and let the folders change the route so files specific to the folder can be found.

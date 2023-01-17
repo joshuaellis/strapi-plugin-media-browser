@@ -11,7 +11,7 @@ import { Finder } from "../Finder";
 
 import { prefixTranslation } from "../../helpers/translations";
 
-import { store } from "../../store";
+import { store } from "../../store/store";
 import { BASE_URL } from "../../constants";
 
 const App: React.FunctionComponent = () => {

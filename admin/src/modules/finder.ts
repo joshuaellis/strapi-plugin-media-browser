@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-import { startTypedListening } from "../../store/middleware";
+import { startTypedListening } from "../store/middleware";
 
 export interface FinderState {
   folderHistory: string[];
@@ -35,7 +35,6 @@ export const finderSlice = createSlice({
       state.currentPlaceIndex = newIndex;
     },
     pushState(state, action: PayloadAction<string>) {
-      console.log(state.currentPlaceIndex, state.folderHistory.length);
       if (state.currentPlaceIndex === state.folderHistory.length) {
         // add the new place
         state.folderHistory = [...state.folderHistory, action.payload];
@@ -59,6 +58,8 @@ export const finderSlice = createSlice({
     },
   },
 });
+
+export const finderReducer = finderSlice.reducer;
 
 // Action creators are generated for each case reducer function
 export const { goBack, goForward, pushState } = finderSlice.actions;
@@ -93,5 +94,3 @@ startTypedListening({
     api.dispatch(finderSlice.actions.setAbilityToNavigate(payload));
   },
 });
-
-export const finderReducer = finderSlice.reducer;

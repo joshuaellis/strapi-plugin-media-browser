@@ -7,15 +7,16 @@
 import React from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
+import { FileBrowser } from "../../components/FileBrowser";
 
 import { Header } from "../../components/Header";
 import { SideBar } from "../../components/SidePanel";
 
 import { useGetAllFilesQueryState } from "../../data/finderApi";
 
-import { useTypedDispatch, useTypedSelector } from "../../store";
+import { useTypedDispatch, useTypedSelector } from "../../store/hooks";
 
-import { goBack, goForward, pushState } from "./slice";
+import { goBack, goForward, pushState } from "../../modules/finder";
 
 export const Finder: React.FunctionComponent = () => {
   const location = useLocation();
@@ -48,7 +49,7 @@ export const Finder: React.FunctionComponent = () => {
       return;
     } else {
       // this should only occur on link movements, not back/forward clicks
-      dispatch(pushState(subroute));
+      dispatch(pushState(subroute ?? "root"));
     }
   }, [subroute]);
 
@@ -100,7 +101,9 @@ export const Finder: React.FunctionComponent = () => {
         {subroute ? subroute : "All files"}
       </Header>
       <SideBar />
-      <Container>hello world</Container>
+      <Container>
+        <FileBrowser />
+      </Container>
     </>
   );
 };
@@ -108,8 +111,5 @@ export const Finder: React.FunctionComponent = () => {
 const Container = styled.div`
   grid-column: 2 / 4;
   grid-row: 2 / 3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   color: #fafafa66;
 `;

@@ -1,4 +1,4 @@
-import { strapiAdminApi } from "../store";
+import { strapiAdminApi } from "../store/api";
 
 import { CreateFolderBody } from "../../../server/controllers/admin-folder";
 

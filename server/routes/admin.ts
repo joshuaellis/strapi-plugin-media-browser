@@ -20,6 +20,14 @@ export default {
       },
     },
     {
+      method: "POST",
+      path: "/files",
+      handler: "admin-file.upload",
+      config: {
+        policies: ["admin::isAuthenticatedAdmin"],
+      },
+    },
+    {
       method: "GET",
       path: "/folders",
       handler: "admin-folder.find",

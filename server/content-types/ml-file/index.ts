@@ -40,10 +40,6 @@ export default {
         type: "integer",
         configurable: false,
       },
-      formats: {
-        type: "json",
-        configurable: false,
-      },
       hash: {
         type: "string",
         configurable: false,

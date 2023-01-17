@@ -59,10 +59,6 @@ const isFolderNameUniqueInParent = (id?: string | number | null) =>
     message: "A folder with this name already exists",
   });
 
-const deleteFolderBodySchema = z.object({
-  id: z.custom<string | number>(validateValueIsStrapiId),
-});
-
 export default {
   async create(ctx) {
     const { user, userAbility } = ctx.state;
