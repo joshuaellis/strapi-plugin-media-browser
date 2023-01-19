@@ -18,6 +18,11 @@ export default {
       },
     },
     attributes: {
+      uuid: {
+        type: "string",
+        configurable: false,
+        required: true,
+      },
       name: {
         type: "string",
         min: 1,

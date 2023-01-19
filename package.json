@@ -22,11 +22,13 @@
     "koa-range": "^0.3.0",
     "koa-static": "^5.0.0",
     "mime-types": "^2.1.35",
+    "nanoid": "3.3.4",
     "react": "17",
     "react-dom": "17",
     "react-dropzone": "^14.2.3",
     "react-helmet": "^6.1.0",
     "react-router-dom": "5.3.4",
+    "react-virtuoso": "^4.0.3",
     "styled-components": "^5.3.6",
     "zod": "^3.20.2"
   },

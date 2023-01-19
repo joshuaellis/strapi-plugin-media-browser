@@ -2,6 +2,7 @@ import { Strapi } from "@strapi/strapi";
 import fse from "fs-extra";
 import path from "path";
 import { extension } from "mime-types";
+import { nanoid } from "nanoid";
 
 import {
   CREATED_BY_ATTRIBUTE,
@@ -27,7 +28,8 @@ export interface UploadFile {
 }
 
 export interface FileEntity {
-  _type: "image" | "file";
+  uuid: string;
+  assetType: "image" | "file" | "video";
   name: string;
   // TODO: Add setting a folder & folderPath
   folder: null;
@@ -49,7 +51,7 @@ interface FormatFileInfoMeta {
 
 export default ({ strapi }: { strapi: Strapi }) => ({
   findPage(query) {
-    return strapi.entityService.findPage(FILE_MODEL_UID, query);
+    return strapi.entityService.findMany(FILE_MODEL_UID, query);
   },
   async upload(
     { data, files }: { data: UploadFileBody; files: UploadFile },
@@ -122,7 +124,8 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     const usedName = file.name.normalize();
 
     const entity: FileEntity = {
-      _type: fileInfo.assetType,
+      uuid: nanoid(),
+      assetType: fileInfo.assetType,
       name: usedName,
       // TODO: Add setting a folder & folderPath
       folder: null,
@@ -151,7 +154,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       provider: config.provider,
     };
 
-    if (file._type === "image") {
+    if (file.assetType === "image") {
       const imageWithDimensions = await getService("images").uploadImage(file);
 
       dataForEntityCreation = {

@@ -7,12 +7,12 @@ import { generatePreviewBlobUrl } from "../helpers/images";
 import { createTypedAsyncThunk } from "../store/middleware";
 
 export interface UploadItem {
-  assetType: "image" | "file";
+  assetType: "image" | "file" | "video";
   hash: string;
   name: string;
   size: number;
   status: "queued" | "uploading" | "complete";
-  objectUrl?: string;
+  url?: string;
   percent?: number;
 }
 
@@ -37,7 +37,7 @@ const uploadSlice = createSlice({
       }>
     ) {
       const { hash, previewUrl, folder } = action.payload;
-      state.currentUploads[folder][hash].objectUrl = previewUrl;
+      state.currentUploads[folder][hash].url = previewUrl;
     },
     uploadStart(
       state,
@@ -109,7 +109,12 @@ export const uploadAssetThunk = createTypedAsyncThunk<
    * We distinguish between images and files because we want to be able to support
    * an image pipeline in the future.
    */
-  const assetType = file.type.indexOf("image") >= 0 ? "image" : "file";
+  const assetType =
+    file.type.indexOf("image") >= 0
+      ? "image"
+      : file.type.indexOf("video") >= 0
+      ? "video"
+      : "file";
 
   const uploadItem: UploadItem = {
     assetType,
@@ -134,8 +139,10 @@ export const uploadAssetThunk = createTypedAsyncThunk<
   const uploadAction = await dispatch(
     uploadApi.endpoints.uploadFile.initiate({
       file,
-      assetType,
-      hash,
+      fileInfo: {
+        assetType,
+        hash,
+      },
     })
   );
 

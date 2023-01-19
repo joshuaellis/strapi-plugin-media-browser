@@ -5,6 +5,22 @@ export default {
   routes: [
     {
       method: "GET",
+      path: "/files/:folder",
+      handler: "admin-file.find",
+      config: {
+        policies: [
+          "admin::isAuthenticatedAdmin",
+          {
+            name: "admin::hasPermissions",
+            config: {
+              actions: [ACTIONS.read],
+            },
+          },
+        ],
+      },
+    },
+    {
+      method: "GET",
       path: "/files",
       handler: "admin-file.find",
       config: {

@@ -19,6 +19,16 @@ export default {
       },
     },
     attributes: {
+      uuid: {
+        type: "string",
+        configurable: false,
+        required: true,
+      },
+      assetType: {
+        type: "string",
+        configurable: false,
+        required: true,
+      },
       name: {
         type: "string",
         configurable: false,

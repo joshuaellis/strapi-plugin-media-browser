@@ -7118,7 +7118,7 @@ nanoclone@^0.2.1:
   resolved "https://registry.yarnpkg.com/nanoclone/-/nanoclone-0.2.1.tgz#dd4090f8f1a110d26bb32c49ed2f5b9235209ed4"
   integrity sha512-wynEP02LmIbLpcYw8uBKpcfF6dmg2vcpKqxeH5UcoKEYdExslsdUA4ugFauuaeYdTB76ez6gJW8XAZ6CgkXYxA==
 
-nanoid@^3.3.4:
+nanoid@3.3.4, nanoid@^3.3.4:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
   integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
@@ -8236,6 +8236,11 @@ react-transition-group@^4.3.0:
     dom-helpers "^5.0.1"
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
+
+react-virtuoso@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-4.0.3.tgz#0dc8b10978095852d985b064157639b9fb9d9b1e"
+  integrity sha512-tyqt8FBWxO+smve/kUgJbhCI2MEOvH2hHgFYPKWBMA2cJmV+cHIDDh1BL/6w4pg/dcCdlHCNVwi6aiztPxWttw==
 
 react-window@1.8.7:
   version "1.8.7"

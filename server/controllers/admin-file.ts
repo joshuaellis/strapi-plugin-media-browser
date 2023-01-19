@@ -1,17 +1,17 @@
 import type { GenericController } from "@strapi/strapi/lib/core-api/controller";
 import { errors } from "@strapi/utils";
 import { z } from "zod";
+import { isEmpty } from "lodash";
 
 import { getService } from "../helpers/strapi";
 
 import { ACTIONS, FILE_MODEL_UID } from "../constants";
-import { isEmpty } from "lodash";
 
 const { ApplicationError } = errors;
 
 const uploadFileBodySchema = z.object({
   hash: z.string(),
-  assetType: z.enum(["image", "file"]),
+  assetType: z.enum(["image", "file", "video"]),
 });
 
 export type UploadFileBody = z.infer<typeof uploadFileBodySchema>;
@@ -20,9 +20,15 @@ export default {
   async find(ctx) {
     const {
       state: { userAbility },
+      params: { folder },
     } = ctx;
 
-    const defaultQuery = { populate: { folder: true } };
+    const defaultQuery = {
+      populate: { folder: true },
+      filters: {
+        folder: !folder ? null : folder,
+      },
+    };
 
     // @ts-ignore it does exist thx
     const pm = strapi.admin.services.permission.createPermissionsManager({
@@ -35,13 +41,16 @@ export default {
       return ctx.forbidden();
     }
 
-    const query = pm.addPermissionsQueryTo({ ...defaultQuery, ...ctx.query });
+    const query = pm.addPermissionsQueryTo({
+      ...defaultQuery,
+      ...ctx.query,
+    });
 
-    const { results, pagination } = await getService("files").findPage(query);
+    const results = await getService("files").findPage(query);
 
     const sanitizedResults = await pm.sanitizeOutput(results);
 
-    return { results: sanitizedResults, pagination };
+    return sanitizedResults;
   },
   async uploadFiles(ctx) {
     const {

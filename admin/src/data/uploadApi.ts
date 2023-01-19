@@ -1,9 +1,9 @@
+import { UploadItem } from "../modules/upload";
 import { strapiAdminApi } from "../store/api";
 
 interface UploadFileData {
   file: File;
-  assetType: "image" | "file";
-  hash: string;
+  fileInfo: Pick<UploadItem, "assetType" | "hash">;
 }
 
 export interface UploadFileResponse {
@@ -31,12 +31,14 @@ export interface UploadFileResponse {
 export const uploadApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
     uploadFile: build.mutation<UploadFileResponse, UploadFileData>({
-      query: ({ assetType, hash, file }) => {
+      query: ({ file, fileInfo }) => {
         const formData = new FormData();
 
         formData.append("files", file);
-        formData.append("hash", hash);
-        formData.append("assetType", assetType);
+
+        Object.entries(fileInfo).forEach(([key, val]) => {
+          formData.append(key, val as string);
+        });
 
         return {
           url: "files",

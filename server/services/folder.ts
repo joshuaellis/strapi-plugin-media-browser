@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { Strapi } from "@strapi/strapi";
 import { setCreatorFields, joinBy } from "@strapi/utils";
 
@@ -241,6 +242,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
 
     return {
       ...folder,
+      uuid: nanoid(),
       pathId,
       path: joinBy("/", parentPath, pathId),
     };
