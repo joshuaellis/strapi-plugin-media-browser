@@ -10,42 +10,126 @@ import {
   UpdateFolderPatch,
 } from "../controllers/admin-folder";
 
-import { getService } from "../helpers/strapi";
+import { StrapiUser } from "../types/strapi";
 
-import { Folder, StrapiUser } from "../types/strapi";
+export interface FolderEntity {
+  name: string;
+  createdAt: string;
+  id: number;
+  path: string;
+  pathId: number;
+  updatedAt: string;
+}
 
-export default ({ strapi }: { strapi: Strapi }) => ({
-  async checkFolderExists(
-    filters: { name?: string; id?: string | number } = {}
-  ) {
-    const count = await strapi
+interface StrapiQueryFolderFilters {
+  name?: string;
+  id?: string | number;
+}
+
+interface IFolderService {
+  /**
+   * Create a new folder
+   */
+  create: (
+    parsedBody: CreateFolderBody,
+    user?: StrapiUser
+  ) => Promise<FolderEntity>;
+  /**
+   * Update a folder based on it's ID and a patch file
+   */
+  update: (
+    id: UpdateFolderId,
+    { name, parent }: UpdateFolderPatch,
+    user?: StrapiUser
+  ) => Promise<FolderEntity | undefined>;
+  /**
+   * Delete folders based on IDs
+   */
+  delete: (id: string[]) => Promise<{
+    folders: FolderEntity[];
+    totalFolderNumber: number;
+    totalFileNumber: number;
+  }>;
+  /**
+   * Get the path of a folder based on it's id
+   */
+  getPath: (folderId?: string) => Promise<string>;
+  /**
+   * Check if a folder exists based on a query
+   */
+  checkFolderExists(filters?: StrapiQueryFolderFilters): Promise<boolean>;
+}
+
+class FolderService implements IFolderService {
+  private strapi: Strapi;
+
+  constructor(strapi: Strapi) {
+    this.strapi = strapi;
+  }
+
+  checkFolderExists = async (filters = {}) => {
+    const count = await this.strapi
       .query(FOLDER_MODEL_UID)
       .count({ where: filters });
     return count > 0;
-  },
-  async create(parsedBody: CreateFolderBody, user?: StrapiUser) {
-    const folderService = getService("folder");
+  };
 
-    let enrichedFolder = await folderService.setPathIdAndPath(parsedBody);
+  getPath = async (folderId?: string): Promise<string> => {
+    if (!folderId) return "/";
+
+    const parentFolder = await this.strapi.entityService.findOne(
+      FOLDER_MODEL_UID,
+      folderId
+    );
+
+    return parentFolder.path;
+  };
+
+  create = async (parsedBody: CreateFolderBody, user?: StrapiUser) => {
+    const { max } = await this.strapi.db
+      //  @ts-ignore it does exist thx
+      .queryBuilder(FOLDER_MODEL_UID)
+      .max("pathId")
+      .first()
+      .execute();
+
+    const pathId = max + 1;
+    let parentPath = "/";
+
+    if (parsedBody.parent) {
+      const parentFolder = await this.strapi.entityService.findOne(
+        FOLDER_MODEL_UID,
+        parsedBody.parent
+      );
+      parentPath = parentFolder.path;
+    }
+
+    let enrichedFolder = {
+      ...parsedBody,
+      uuid: nanoid(),
+      pathId,
+      path: joinBy("/", parentPath, pathId),
+    };
 
     if (user) {
       enrichedFolder = await setCreatorFields({ user })(enrichedFolder);
     }
 
-    const folder = await strapi.entityService.create(FOLDER_MODEL_UID, {
+    const folder = await this.strapi.entityService.create(FOLDER_MODEL_UID, {
       data: enrichedFolder,
     });
 
     return folder;
-  },
-  async update(
+  };
+
+  update = async (
     id: UpdateFolderId,
     { name, parent }: UpdateFolderPatch,
     user?: StrapiUser
-  ) {
+  ): Promise<FolderEntity | undefined> => {
     // only name is updated
     if (parent === undefined) {
-      const existingFolder = await strapi.entityService.findOne(
+      const existingFolder = await this.strapi.entityService.findOne(
         FOLDER_MODEL_UID,
         id
       );
@@ -60,18 +144,22 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       });
 
       if (parent === undefined) {
-        const folder = await strapi.entityService.update(FOLDER_MODEL_UID, id, {
-          data: newFolder,
-        });
+        const folder = await this.strapi.entityService.update(
+          FOLDER_MODEL_UID,
+          id,
+          {
+            data: newFolder,
+          }
+        );
         return folder;
       }
       // location is updated => using transaction
     } else {
       // @ts-ignore
-      const trx = await strapi.db.transaction();
+      const trx = await this.strapi.db.transaction();
       try {
         // fetch existing folder
-        const existingFolder = await strapi.db
+        const existingFolder = await this.strapi.db
           // @ts-ignore
           .queryBuilder(FOLDER_MODEL_UID)
           .select(["pathId", "path"])
@@ -84,8 +172,8 @@ export default ({ strapi }: { strapi: Strapi }) => ({
         // update parent folder (delete + insert; upsert not possible)
         const { joinTable } =
           // @ts-ignore
-          strapi.db.metadata.get(FOLDER_MODEL_UID).attributes.parent;
-        await strapi.db
+          this.strapi.db.metadata.get(FOLDER_MODEL_UID).attributes.parent;
+        await this.strapi.db
           // @ts-ignore
           .queryBuilder(joinTable.name)
           .transacting(trx)
@@ -94,7 +182,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
           .execute();
 
         if (parent !== null) {
-          await strapi.db
+          await this.strapi.db
             // @ts-ignore
             .queryBuilder(joinTable.name)
             .transacting(trx)
@@ -109,7 +197,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
         // fetch destinationFolder path
         let destinationFolderPath = "/";
         if (parent !== null) {
-          const destinationFolder = await strapi.db
+          const destinationFolder = await this.strapi.db
             // @ts-ignore
             .queryBuilder(FOLDER_MODEL_UID)
             .select("path")
@@ -120,18 +208,20 @@ export default ({ strapi }: { strapi: Strapi }) => ({
           destinationFolderPath = destinationFolder.path;
         }
 
-        const folderTable = strapi.getModel(FOLDER_MODEL_UID).collectionName;
-        const fileTable = strapi.getModel(FILE_MODEL_UID).collectionName;
+        const folderTable =
+          this.strapi.getModel(FOLDER_MODEL_UID).collectionName;
+        const fileTable = this.strapi.getModel(FILE_MODEL_UID).collectionName;
         const folderPathColumnName =
           // @ts-ignore
-          strapi.db.metadata.get(FILE_MODEL_UID).attributes.folderPath
+          this.strapi.db.metadata.get(FILE_MODEL_UID).attributes.folderPath
             .columnName;
         const pathColumnName =
           // @ts-ignore
-          strapi.db.metadata.get(FOLDER_MODEL_UID).attributes.path.columnName;
+          this.strapi.db.metadata.get(FOLDER_MODEL_UID).attributes.path
+            .columnName;
 
         // update folders below
-        await strapi.db
+        await this.strapi.db
           // @ts-ignore
           .getConnection(folderTable)
           .transacting(trx)
@@ -140,7 +230,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
           .update(
             pathColumnName,
             // @ts-ignore
-            strapi.db.connection.raw("REPLACE(??, ?, ?)", [
+            this.strapi.db.connection.raw("REPLACE(??, ?, ?)", [
               pathColumnName,
               existingFolder.path,
               joinBy("/", destinationFolderPath, existingFolder.pathId),
@@ -148,7 +238,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
           );
 
         // update files below
-        await strapi.db
+        await this.strapi.db
           // @ts-ignore
           .getConnection(fileTable)
           .transacting(trx)
@@ -157,7 +247,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
           .update(
             folderPathColumnName,
             // @ts-ignore
-            strapi.db.connection.raw("REPLACE(??, ?, ?)", [
+            this.strapi.db.connection.raw("REPLACE(??, ?, ?)", [
               folderPathColumnName,
               existingFolder.path,
               joinBy("/", destinationFolderPath, existingFolder.pathId),
@@ -172,17 +262,23 @@ export default ({ strapi }: { strapi: Strapi }) => ({
 
       // update less critical information (name + updatedBy)
       const newFolder = setCreatorFields({ user, isEdition: true })({ name });
-      const folder = await strapi.entityService.update(FOLDER_MODEL_UID, id, {
-        data: newFolder,
-      });
+
+      const folder = await this.strapi.entityService.update(
+        FOLDER_MODEL_UID,
+        id,
+        {
+          data: newFolder,
+        }
+      );
+
       return folder;
     }
-  },
-  async deleteByIds(ids: string[]) {
-    console.log(ids);
-    const folders = (await strapi.db
+  };
+
+  async delete(ids: string[]) {
+    const folders = (await this.strapi.db
       .query(FOLDER_MODEL_UID)
-      .findMany({ where: { id: { $in: ids } } })) as Folder[];
+      .findMany({ where: { id: { $in: ids } } })) as FolderEntity[];
 
     if (folders.length === 0) {
       return {
@@ -195,7 +291,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     const pathsToDelete = folders.map((fold) => fold.path);
 
     // delete files
-    const filesToDelete = await strapi.db.query(FILE_MODEL_UID).findMany({
+    const filesToDelete = await this.strapi.db.query(FILE_MODEL_UID).findMany({
       where: {
         $or: pathsToDelete.map((path) => ({
           folderPath: { $startsWith: path },
@@ -207,7 +303,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     // await Promise.all(filesToDelete.map((file) => getService('upload').remove(file)));
 
     // delete folders
-    const { count: totalFolderNumber } = await strapi.db
+    const { count: totalFolderNumber } = await this.strapi.db
       .query(FOLDER_MODEL_UID)
       .deleteMany({
         where: {
@@ -220,31 +316,17 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       totalFolderNumber,
       totalFileNumber: filesToDelete.length,
     };
-  },
-  async setPathIdAndPath(folder: CreateFolderBody) {
-    const { max } = await strapi.db
-      //  @ts-ignore it does exist thx
-      .queryBuilder(FOLDER_MODEL_UID)
-      .max("pathId")
-      .first()
-      .execute();
+  }
+}
 
-    const pathId = max + 1;
-    let parentPath = "/";
+export default ({ strapi }: { strapi: Strapi }): IFolderService => {
+  const service = new FolderService(strapi);
 
-    if (folder.parent) {
-      const parentFolder = await strapi.entityService.findOne(
-        FOLDER_MODEL_UID,
-        folder.parent
-      );
-      parentPath = parentFolder.path;
-    }
-
-    return {
-      ...folder,
-      uuid: nanoid(),
-      pathId,
-      path: joinBy("/", parentPath, pathId),
-    };
-  },
-});
+  return {
+    create: service.create,
+    update: service.update,
+    delete: service.delete,
+    getPath: service.getPath,
+    checkFolderExists: service.checkFolderExists,
+  };
+};

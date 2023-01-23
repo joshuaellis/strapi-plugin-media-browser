@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { useGetAllFilesAtFolderQuery } from "../data/finderApi";
 
-import { uploadAssetThunk } from "../modules/upload";
+import { uploadAssetThunk, UploadItem } from "../modules/upload";
 
 import { useTypedDispatch, useTypedSelector } from "../store/hooks";
 import { selectUploadsBasedOnRoute } from "../store/selectors";
@@ -24,7 +24,9 @@ export const FileBrowser = () => {
     );
   };
 
-  const cards = [...uploads, ...files];
+  const TEST_ITEM: UploadItem = { status: "uploading" };
+
+  const cards = [TEST_ITEM, ...uploads, ...files];
 
   console.log(cards);
 

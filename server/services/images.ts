@@ -1,45 +1,57 @@
 import { errors } from "@strapi/utils";
 
-import { streamToBuffer } from "../helpers/files";
+import { streamToBuffer } from "../helpers/streaming";
 import { getService } from "../helpers/strapi";
 
 import { FileEntity } from "./files";
 
 const { ApplicationError } = errors;
 
-const uploadImage = async (fileData: FileEntity) => {
-  // Store width and height of the original image
-  const { width, height } = await getDimensions(fileData);
+interface IImagesService {
+  upload: (fileData: FileEntity) => Promise<FileEntity>;
+}
 
-  // Make sure this is assigned before calling any upload
-  // That way it can mutate the width and height
-  const fileDataWithDimensions = {
-    ...fileData,
-    width,
-    height,
+class ImageService implements IImagesService {
+  upload = async (fileData: FileEntity): Promise<FileEntity> => {
+    // Store width and height of the original image
+    const { width, height } = await this.getDimensions(fileData);
+
+    // Make sure this is assigned before calling any upload
+    // That way it can mutate the width and height
+    const fileDataWithDimensions = {
+      ...fileData,
+      width,
+      height,
+    };
+
+    // Wait for all uploads to finish
+    const uploadedImage = await getService("provider").upload(
+      fileDataWithDimensions
+    );
+
+    return { ...fileDataWithDimensions, ...uploadedImage };
   };
 
-  // Wait for all uploads to finish
-  const uploadedImage = await getService("provider").upload(
-    fileDataWithDimensions
-  );
+  private getDimensions = async (
+    file: FileEntity
+  ): Promise<{ width: number; height: number }> => {
+    if (!file.getStream) {
+      throw new ApplicationError("File stream is not available");
+    }
 
-  return { ...fileDataWithDimensions, ...uploadedImage };
-};
+    const buffer = await streamToBuffer(file.getStream());
 
-const getDimensions = async (file: FileEntity) => {
-  if (!file.getStream) {
-    throw new ApplicationError("File stream is not available");
-  }
+    return {
+      height: Math.abs(buffer.readInt32LE(22)),
+      width: buffer.readUInt32LE(18),
+    };
+  };
+}
 
-  const buffer = await streamToBuffer(file.getStream());
+export default (): IImagesService => {
+  const service = new ImageService();
 
   return {
-    height: Math.abs(buffer.readInt32LE(22)),
-    width: buffer.readUInt32LE(18),
+    upload: service.upload,
   };
 };
-
-export default () => ({
-  uploadImage,
-});

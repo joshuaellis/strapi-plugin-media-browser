@@ -1,29 +1,26 @@
 import { Strapi } from "@strapi/strapi";
 import fse from "fs-extra";
 import path from "path";
+import os from "os";
 import { extension } from "mime-types";
 import { nanoid } from "nanoid";
 
 import {
   CREATED_BY_ATTRIBUTE,
   FILE_MODEL_UID,
-  FOLDER_MODEL_UID,
+  PLUGIN_NAME,
   UPDATED_BY_ATTRIBUTE,
 } from "../constants";
 
 import { UploadFileBody } from "../controllers/admin-file";
 
-import {
-  bytesToKbytes,
-  createAndAssignTmpWorkingDirectoryToFiles,
-} from "../helpers/files";
 import { getService } from "../helpers/strapi";
+import { StrapiUser } from "../types/strapi";
 
 export interface UploadFile {
   readonly size: number;
   readonly type: string;
   readonly name: string;
-  tmpWorkingDirectory: string;
   path: string;
 }
 
@@ -45,83 +42,72 @@ export interface FileEntity {
   provider?: string;
 }
 
-interface FormatFileInfoMeta {
-  tmpWorkingDirectory?: string;
+interface IFilesService {
+  /**
+   * upload a file with it's additional metadata
+   */
+  upload: (
+    { data, file }: { data: UploadFileBody; file: UploadFile },
+    user?: StrapiUser
+  ) => Promise<FileEntity | undefined>;
+  /**
+   * Find many files based on a query or omit the query
+   * to find all files in the DB.
+   */
+  findAll: (query?: any) => Promise<FileEntity[]>;
 }
+class FilesService implements IFilesService {
+  private strapi: Strapi;
 
-export default ({ strapi }: { strapi: Strapi }) => ({
-  findPage(query) {
-    return strapi.entityService.findMany(FILE_MODEL_UID, query);
-  },
-  async upload(
-    { data, files }: { data: UploadFileBody; files: UploadFile },
-    // TODO: Type this
-    user?: any
-  ) {
+  constructor(strapi: Strapi) {
+    this.strapi = strapi;
+  }
+
+  /**
+   * Upload handling
+   */
+  upload = async (
+    { data, file }: { data: UploadFileBody; file: UploadFile },
+    user?: StrapiUser
+  ): Promise<FileEntity | undefined> => {
     // create temporary folder to store files for stream manipulation
-    const tmpWorkingDirectory = await createAndAssignTmpWorkingDirectoryToFiles(
-      files
+    const tmpWorkingDirectory = await fse.mkdtemp(
+      path.join(os.tmpdir(), "strapi-ml-")
     );
 
-    let uploadedFile;
-
-    const { enhanceFile, uploadFileAndPersist } = getService("files");
+    let uploadedFile: FileEntity | undefined = undefined;
 
     try {
       const { hash, assetType } = data;
 
-      const fileData: FileEntity = await enhanceFile(files, {
+      const fileData: FileEntity = await this.enhanceFile(file, {
         hash,
         assetType,
+        tmpWorkingDirectory,
       });
 
-      uploadedFile = await uploadFileAndPersist(fileData, user);
+      uploadedFile = await this.uploadFileAndPersist(fileData, user);
     } finally {
       // delete temporary folder
-      console.log("deleting temp folder");
       await fse.remove(tmpWorkingDirectory);
     }
 
     return uploadedFile;
-  },
-  async enhanceFile(
+  };
+
+  private enhanceFile = async (
     file: UploadFile,
-    fileInfo: UploadFileBody
-  ): Promise<FileEntity> {
-    const currentFile: FileEntity = await getService("files").formatFileInfo(
-      file,
-      fileInfo,
-      {
-        tmpWorkingDirectory: file.tmpWorkingDirectory,
-      }
-    );
-
-    console.log(file.path);
-
-    currentFile.getStream = () => fse.createReadStream(file.path);
-
-    return currentFile;
-  },
-  async getFolderPath(folderId?: string) {
-    if (!folderId) return "/";
-
-    const parentFolder = await strapi.entityService.findOne(
-      FOLDER_MODEL_UID,
-      folderId
-    );
-
-    return parentFolder.path;
-  },
-  async formatFileInfo(
-    file: UploadFile,
-    fileInfo: UploadFileBody,
-    meta: FormatFileInfoMeta = {}
-  ) {
+    fileInfo: UploadFileBody & { tmpWorkingDirectory: string }
+  ): Promise<FileEntity> => {
     let ext = path.extname(file.name);
+
     if (!ext) {
       ext = `.${extension(file.type)}`;
     }
+
     const usedName = file.name.normalize();
+
+    const { getPath } = getService("folder");
 
     const entity: FileEntity = {
       uuid: nanoid(),
@@ -129,25 +115,25 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       name: usedName,
       // TODO: Add setting a folder & folderPath
       folder: null,
-      folderPath: await getService("files").getFolderPath(null),
+      folderPath: await getPath(),
       hash: fileInfo.hash,
       ext,
       mime: file.type,
-      size: bytesToKbytes(file.size),
+      size: Math.round((file.size / 1000) * 100) / 100,
+      tmpWorkingDirectory: fileInfo.tmpWorkingDirectory,
     };
 
-    if (meta.tmpWorkingDirectory) {
-      entity.tmpWorkingDirectory = meta.tmpWorkingDirectory;
-    }
+    entity.getStream = () => fse.createReadStream(file.path);
 
     return entity;
-  },
-  async uploadFileAndPersist(
+  };
+
+  private uploadFileAndPersist = async (
     file: FileEntity,
     // TODO: Type this
     user?: any
-  ) {
-    const config = strapi.config.get("plugin.upload");
+  ) => {
+    const config = this.strapi.config.get(`plugin.${PLUGIN_NAME}`);
 
     let dataForEntityCreation: FileEntity = {
       ...file,
@@ -170,19 +156,31 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       };
     }
 
-    // Persist file(s)
-    return getService("files").add(dataForEntityCreation, user);
-  },
-
-  async add(values: FileEntity, user?: any) {
-    const fileValues = { ...values };
     if (user) {
-      fileValues[UPDATED_BY_ATTRIBUTE] = user.id;
-      fileValues[CREATED_BY_ATTRIBUTE] = user.id;
+      dataForEntityCreation[UPDATED_BY_ATTRIBUTE] = user.id;
+      dataForEntityCreation[CREATED_BY_ATTRIBUTE] = user.id;
     }
 
-    const res = await strapi.query(FILE_MODEL_UID).create({ data: fileValues });
+    const res = await this.strapi
+      .query(FILE_MODEL_UID)
+      .create({ data: dataForEntityCreation });
 
     return res;
-  },
-});
+  };
+
+  /**
+   * Fetching
+   */
+  findAll = async (query: unknown) => {
+    return await this.strapi.entityService.findMany(FILE_MODEL_UID, query);
+  };
+}
+
+export default ({ strapi }: { strapi: Strapi }) => {
+  const service = new FilesService(strapi);
+
+  return {
+    upload: service.upload,
+    findAll: service.findAll,
+  };
+};
