@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useGetAllFilesAtFolderQuery } from "../data/finderApi";
+import { useGetAllFilesAtFolderQuery } from "../data/fileApi";
 
 import { uploadAssetThunk, UploadItem } from "../modules/upload";
 

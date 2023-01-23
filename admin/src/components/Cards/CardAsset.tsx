@@ -2,7 +2,7 @@ import * as React from "react";
 import { prefixFileUrlWithBackendUrl } from "@strapi/helper-plugin";
 import styled from "styled-components";
 
-import { MediaFile } from "../../data/finderApi";
+import { MediaFile } from "../../data/fileApi";
 
 import { Image } from "../Media/Image";
 import { VisuallyHidden } from "../VisuallyHidden";

@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useGetAllFoldersQuery, useFolderMutationApi } from "../data/finderApi";
+import { useGetAllFoldersQuery, useFolderMutationApi } from "../data/folderApi";
 
 import { Folder } from "./Folder/Folder";
 import { FolderNew } from "./Folder/FolderNew";

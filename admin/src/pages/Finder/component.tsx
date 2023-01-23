@@ -12,7 +12,7 @@ import { FileBrowser } from "../../components/FileBrowser";
 import { Header } from "../../components/Header";
 import { SideBar } from "../../components/SidePanel";
 
-import { useGetAllFilesQueryState } from "../../data/finderApi";
+import { useGetAllFilesQueryState } from "../../data/folderApi";
 
 import { useTypedDispatch, useTypedSelector } from "../../store/hooks";
 

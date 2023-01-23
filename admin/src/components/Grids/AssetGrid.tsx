@@ -2,7 +2,7 @@ import * as React from "react";
 import { VirtuosoGrid } from "react-virtuoso";
 import styled from "styled-components";
 
-import type { MediaFile } from "../../data/finderApi";
+import type { MediaFile } from "../../data/fileApi";
 import { UploadItem } from "../../modules/upload";
 import { CardAsset } from "../Cards/CardAsset";
 
