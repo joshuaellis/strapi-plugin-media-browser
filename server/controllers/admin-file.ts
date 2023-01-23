@@ -6,6 +6,7 @@ import { isEmpty } from "lodash";
 import { getService } from "../helpers/strapi";
 
 import { ACTIONS, FILE_MODEL_UID } from "../constants";
+import { IFilesService } from "../services/files";
 
 const { ApplicationError } = errors;
 
@@ -46,7 +47,9 @@ export default {
       ...ctx.query,
     });
 
-    const results = await getService("files").findPage(query);
+    const fileService: IFilesService = getService("files");
+
+    const results = await fileService.findAll(query);
 
     const sanitizedResults = await pm.sanitizeOutput(results);
 
@@ -59,7 +62,7 @@ export default {
       request: { body, files: { files } = {} },
     } = ctx;
 
-    const { upload } = getService("files");
+    const { upload }: IFilesService = getService("files");
     const permissionsManager =
       // @ts-ignore it does exist thx
       strapi.admin.services.permission.createPermissionsManager({
@@ -73,7 +76,7 @@ export default {
     }
 
     const data = await uploadFileBodySchema.parseAsync(body);
-    const uploadedFiles = await upload({ data, files }, user);
+    const uploadedFiles = await upload({ data, file: files }, user);
 
     const output = await permissionsManager.sanitizeOutput(uploadedFiles);
 

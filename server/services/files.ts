@@ -42,7 +42,7 @@ export interface FileEntity {
   provider?: string;
 }
 
-interface IFilesService {
+export interface IFilesService {
   /**
    * upload a file with it's additional metadata
    */

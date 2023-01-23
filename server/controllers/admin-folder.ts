@@ -10,6 +10,8 @@ import {
 
 import { FOLDER_MODEL_UID } from "../constants";
 
+import { IFolderService } from "../services/folder";
+
 const NO_SLASH_REGEX = /^[^/]+$/;
 
 const createFolderBodySchema = z
@@ -70,7 +72,7 @@ export default {
       parsedBody.name
     );
 
-    const { create } = getService("folder");
+    const { create }: IFolderService = getService("folder");
 
     const folder = await create(parsedBody, user);
 
@@ -141,7 +143,7 @@ export default {
         model: FOLDER_MODEL_UID,
       });
 
-    const { update } = getService("folder");
+    const { update }: IFolderService = getService("folder");
 
     const updatedFolder = await update(id, patch, user);
 
@@ -164,9 +166,9 @@ export default {
         model: FOLDER_MODEL_UID,
       });
 
-    const { deleteByIds } = getService("folder");
+    const { delete: deleteFolder }: IFolderService = getService("folder");
 
-    const deletedFolders = await deleteByIds([id]);
+    const deletedFolders = await deleteFolder([id]);
 
     if (deletedFolders.folders.length === 0) {
       return ctx.notFound("folder not found");

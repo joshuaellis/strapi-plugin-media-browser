@@ -26,7 +26,7 @@ interface StrapiQueryFolderFilters {
   id?: string | number;
 }
 
-interface IFolderService {
+export interface IFolderService {
   /**
    * Create a new folder
    */
