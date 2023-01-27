@@ -7,12 +7,14 @@ import { getService } from "../helpers/strapi";
 
 import { ACTIONS, FILE_MODEL_UID } from "../constants";
 import { IFilesService } from "../services/files";
+import { IFolderService } from "../services/folder";
 
 const { ApplicationError } = errors;
 
 const uploadFileBodySchema = z.object({
   hash: z.string(),
   assetType: z.enum(["image", "file", "video"]),
+  folder: z.string(),
 });
 
 export type UploadFileBody = z.infer<typeof uploadFileBodySchema>;
@@ -21,13 +23,17 @@ export default {
   async find(ctx) {
     const {
       state: { userAbility },
-      params: { folder },
+      params: { folder: folderName },
     } = ctx;
+
+    const { getFolderByName } = getService<IFolderService>("folder");
+
+    const { id } = (await getFolderByName(folderName)) ?? {};
 
     const defaultQuery = {
       populate: { folder: true },
       filters: {
-        folder: !folder ? null : folder,
+        folder: !id ? null : id,
       },
       sort: { createdAt: "desc" },
     };

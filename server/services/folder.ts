@@ -54,6 +54,7 @@ export interface IFolderService {
    * Get the path of a folder based on it's id
    */
   getPath: (folderId?: string) => Promise<string>;
+  getFolderByName: (name: string) => Promise<Pick<FolderEntity, "id" | "name">>;
   /**
    * Check if a folder exists based on a query
    */
@@ -72,6 +73,22 @@ class FolderService implements IFolderService {
       .query(FOLDER_MODEL_UID)
       .count({ where: filters });
     return count > 0;
+  };
+
+  getFolderByName = async (name: string) => {
+    const [folder] = await this.strapi.entityService.findMany(
+      FOLDER_MODEL_UID,
+      {
+        fields: ["id", "name"],
+        filters: {
+          name,
+        },
+      }
+    );
+
+    console.log(folder);
+
+    return folder;
   };
 
   getPath = async (folderId?: string): Promise<string> => {
@@ -108,7 +125,7 @@ class FolderService implements IFolderService {
       ...parsedBody,
       uuid: nanoid(),
       pathId,
-      path: joinBy("/", parentPath, pathId),
+      path: joinBy("/", parentPath, parsedBody.name),
     };
 
     if (user) {
@@ -328,5 +345,6 @@ export default ({ strapi }: { strapi: Strapi }): IFolderService => {
     delete: service.delete,
     getPath: service.getPath,
     checkFolderExists: service.checkFolderExists,
+    getFolderByName: service.getFolderByName,
   };
 };

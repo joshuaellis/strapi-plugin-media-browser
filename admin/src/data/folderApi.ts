@@ -52,7 +52,7 @@ const folderApi = strapiAdminApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const useGetAllFilesQueryState =
+export const useGetAllFoldersQueryState =
   folderApi.endpoints.getAllFolders.useQueryState;
 
 export const {

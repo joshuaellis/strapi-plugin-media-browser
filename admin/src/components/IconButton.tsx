@@ -19,7 +19,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     };
 
     return (
-      <Button
+      <IconButtonBase
         ref={ref}
         className={className}
         type="button"
@@ -27,12 +27,12 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         aria-disabled={disabled}
       >
         <AccessibleIcon label={label}>{children}</AccessibleIcon>
-      </Button>
+      </IconButtonBase>
     );
   }
 );
 
-const Button = styled.button`
+export const IconButtonBase = styled.button`
   padding: 5px;
   border: none;
   background: transparent;

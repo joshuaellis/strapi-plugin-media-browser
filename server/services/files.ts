@@ -79,12 +79,13 @@ class FilesService implements IFilesService {
     let uploadedFile: FileEntity | undefined = undefined;
 
     try {
-      const { hash, assetType } = data;
+      const { hash, assetType, folder } = data;
 
       const fileData: FileEntity = await this.enhanceFile(file, {
         hash,
         assetType,
         tmpWorkingDirectory,
+        folder,
       });
 
       uploadedFile = await this.uploadFileAndPersist(fileData, user);
@@ -108,15 +109,17 @@ class FilesService implements IFilesService {
 
     const usedName = file.name.normalize();
 
-    const { getPath } = getService("folder");
+    const { getPath, getFolderByName } = getService("folder");
+
+    const { id: folderId } = (await getFolderByName(fileInfo.folder)) ?? {};
 
     const entity: FileEntity = {
       uuid: nanoid(),
       assetType: fileInfo.assetType,
       name: usedName,
       // TODO: Add setting a folder & folderPath
-      folder: null,
-      folderPath: await getPath(),
+      folder: folderId ? folderId : null,
+      folderPath: await getPath(folderId),
       hash: fileInfo.hash,
       ext,
       mime: file.type,

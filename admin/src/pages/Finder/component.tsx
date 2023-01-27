@@ -12,7 +12,7 @@ import { FileBrowser } from "../../components/FileBrowser";
 import { Header } from "../../components/Header";
 import { SideBar } from "../../components/SidePanel";
 
-import { useGetAllFilesQueryState } from "../../data/folderApi";
+import { useGetAllFoldersQueryState } from "../../data/folderApi";
 
 import { useTypedDispatch, useTypedSelector } from "../../store/hooks";
 
@@ -53,7 +53,7 @@ export const Finder: React.FunctionComponent = () => {
     }
   }, [subroute]);
 
-  const { data } = useGetAllFilesQueryState(undefined, {
+  const { data } = useGetAllFoldersQueryState(undefined, {
     selectFromResult: (res) => ({
       ...res,
       data: !subroute
@@ -61,8 +61,6 @@ export const Finder: React.FunctionComponent = () => {
         : res.data?.filter((file) => file.name === subroute),
     }),
   });
-
-  const [currentFolderData] = data ?? [];
 
   const handleBackClick = () => {
     if (canGoBack) {

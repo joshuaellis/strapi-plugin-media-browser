@@ -1,10 +1,16 @@
 import * as React from "react";
 import styled from "styled-components";
+import * as Toolbar from "@radix-ui/react-toolbar";
 
 import { IconButton } from "./IconButton";
 import { LeftArrow } from "./Icons/LeftArrow";
 import { RightArrow } from "./Icons/RightArrow";
 import { Search } from "./Icons/Search";
+import { FiltersToolbarButton } from "./Filters";
+import { Download } from "./Icons/Download";
+import { TagsToolbarButton } from "./Tags";
+import { ActionsToolbarButton } from "./Actions";
+import { ToolbarButton } from "./ToolbarButton";
 
 interface HeaderProps {
   children: React.ReactNode;
@@ -54,11 +60,18 @@ export const Header = ({
         </HeaderArrows>
         <HeaderTitle>{children}</HeaderTitle>
       </HeaderLeft>
-      <div>
-        <IconButton label="Search">
+      <ToolbarRoot>
+        <FiltersToolbarButton />
+        <ToolbarButton>
+          <Download />
+        </ToolbarButton>
+        <TagsToolbarButton />
+        <ActionsToolbarButton />
+        <ToolbarSep />
+        <ToolbarButton>
           <Search />
-        </IconButton>
-      </div>
+        </ToolbarButton>
+      </ToolbarRoot>
     </Head>
   );
 };
@@ -90,4 +103,14 @@ const HeaderTitle = styled.h1`
   margin: 0;
   font-size: 20px;
   line-height: 100%;
+`;
+
+const ToolbarRoot = styled(Toolbar.Root)`
+  display: flex;
+  min-width: max-content;
+  gap: 10px;
+`;
+
+const ToolbarSep = styled(Toolbar.Separator)`
+  width: 20px;
 `;

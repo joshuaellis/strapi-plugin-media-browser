@@ -16,7 +16,11 @@ export const FileBrowser = () => {
   const dispatch = useTypedDispatch();
   const abortRefs = React.useRef<Map<string, () => void>>(new Map());
 
-  const { data: files = [] } = useGetAllFilesAtFolderQuery("");
+  const { data: files = [] } = useGetAllFilesAtFolderQuery(
+    folder === "root" ? "" : folder
+  );
+
+  console.log(files);
 
   const handleFileDrop = async (files: File[]) => {
     await Promise.all(
@@ -54,9 +58,7 @@ export const FileBrowser = () => {
     dispatch(deleteUploadItems(itemsToRemove));
   }, [files, uploads]);
 
-  // const TEST_ITEM: UploadItem = { status: "uploading", name: "test" };
-
-  const cards = [/*TEST_ITEM,*/ ...uploads, ...files];
+  const cards = [...uploads, ...files];
 
   return (
     <UploadDropzone onFileDrop={handleFileDrop}>
