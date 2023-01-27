@@ -1,11 +1,10 @@
 import * as React from "react";
-import { prefixFileUrlWithBackendUrl } from "@strapi/helper-plugin";
-import styled from "styled-components";
 
 import { MediaFile } from "../../data/fileApi";
 
-import { Image } from "../Media/Image";
 import { VisuallyHidden } from "../VisuallyHidden";
+
+import * as CardBase from "./CardBase";
 
 export const CardAsset = ({
   name,
@@ -22,69 +21,34 @@ export const CardAsset = ({
   };
 
   return (
-    <CardWrapper
-      $isChecked={isChecked}
-      onDoubleClick={(e) => {
-        /**
-         * TODO: this should open a modal with the image and it's details
-         */
-        e.preventDefault();
-        console.log("double clicked");
-      }}
-      onClick={handleClick}
-    >
-      <Flex>
-        {assetType === "image" ? (
-          <Image
-            draggable={false}
-            src={prefixFileUrlWithBackendUrl(url)}
-            alt={alternativeText ?? ""}
-          />
-        ) : null}
-      </Flex>
-      <CardLabel>
-        <VisuallyHidden
-          as="input"
-          type="checkbox"
-          // Noop to shut react up – is this still accessible? Does it need to be?
-          onChange={() => {}}
-          checked={isChecked}
+    <CardBase.Root $isChecked={isChecked}>
+      <CardBase.Container
+        onDoubleClick={(e) => {
+          /**
+           * TODO: this should open a modal with the image and it's details
+           */
+          e.preventDefault();
+        }}
+        onClick={handleClick}
+      >
+        <CardBase.Media
+          /* @ts-expect-error TODO: when we have all the file types, remove me. */
+          type={assetType}
+          alt={alternativeText ?? ""}
+          src={url}
         />
-        <VisuallyHidden>{`Select `}</VisuallyHidden>
-        {name}
-      </CardLabel>
-    </CardWrapper>
+        <CardBase.Label>
+          <VisuallyHidden
+            as="input"
+            type="checkbox"
+            // Noop to shut react up – is this still accessible? Does it need to be?
+            onChange={() => {}}
+            checked={isChecked}
+          />
+          <VisuallyHidden>{`Select `}</VisuallyHidden>
+          {name}
+        </CardBase.Label>
+      </CardBase.Container>
+    </CardBase.Root>
   );
 };
-
-const CardWrapper = styled.label<{ $isChecked: boolean }>`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  width: 100%;
-  border-radius: 10px;
-  padding: 20px;
-  padding-bottom: 12px;
-  transition: background-color 200ms ease-out;
-  cursor: pointer;
-
-  background-color: ${(props) =>
-    props.$isChecked ? "#fafafa33" : "transparent"};
-`;
-
-const Flex = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  width: 100%;
-`;
-
-const CardLabel = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 10px;
-  color: #fafafa;
-`;

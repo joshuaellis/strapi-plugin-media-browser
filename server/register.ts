@@ -1,4 +1,5 @@
 import type { Strapi } from "@strapi/strapi";
+import { mapValues } from "lodash";
 
 import middleware from "./middlewares";
 import { PLUGIN_NAME } from "./constants";
@@ -58,11 +59,11 @@ const createProvider = (config) => {
     );
   }
 
-  const wrappedProvider = Object.entries(providerInstance).map(
-    ([methodName]) =>
-      (file: any, options = actionOptions[methodName]) =>
-        providerInstance[methodName](file, options)
-  );
+  const wrappedProvider = mapValues(providerInstance, (method, methodName) => {
+    return async function (file, options = actionOptions[methodName]) {
+      return providerInstance[methodName](file, options);
+    };
+  });
 
   return Object.assign(Object.create(baseProvider), wrappedProvider);
 };

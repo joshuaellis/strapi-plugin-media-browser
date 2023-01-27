@@ -1,9 +1,13 @@
+import type { CancelToken } from "axios";
+
 import { UploadItem } from "../modules/upload";
+
 import { strapiAdminApi } from "../store/api";
 
 interface UploadFileData {
   file: File;
-  fileInfo: Pick<UploadItem, "assetType" | "hash">;
+  fileInfo: Pick<UploadItem, "assetType" | "hash" | "folder">;
+  cancelToken?: CancelToken;
 }
 
 export interface UploadFileResponse {
@@ -31,7 +35,7 @@ export interface UploadFileResponse {
 export const uploadApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
     uploadFile: build.mutation<UploadFileResponse, UploadFileData>({
-      query: ({ file, fileInfo }) => {
+      query: ({ file, fileInfo, cancelToken }) => {
         const formData = new FormData();
 
         formData.append("files", file);
@@ -47,12 +51,10 @@ export const uploadApi = strapiAdminApi.injectEndpoints({
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          onUploadProgress: (progressEvent) => {
-            // TODO: update upload progress
-            console.log(progressEvent);
-          },
+          cancelToken,
         };
       },
+      invalidatesTags: (res) => [{ type: "Files", folder: res?.folderPath }],
     }),
   }),
   overrideExisting: false,

@@ -2,7 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import { AccessibleIcon } from "./AccessibleIcon";
 
-interface IconButtonProps {
+export interface IconButtonProps {
   children: React.ReactNode;
   className?: string;
   label: string;
@@ -41,7 +41,9 @@ const Button = styled.button`
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: filter 200ms ease-out;
+  border-radius: 5px;
+  transition: background-color 200ms ease-out;
+  pointer-events: all;
 
   & > svg {
     width: 20px;
@@ -53,6 +55,6 @@ const Button = styled.button`
   }
 
   &:not([aria-disabled="true"]):hover {
-    filter: brightness(70%);
+    background-color: #fafafa33;
   }
 `;

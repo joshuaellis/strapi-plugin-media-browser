@@ -16,6 +16,7 @@ import { UploadFileBody } from "../controllers/admin-file";
 
 import { getService } from "../helpers/strapi";
 import { StrapiUser } from "../types/strapi";
+import { IImagesService } from "./images";
 
 export interface UploadFile {
   readonly size: number;
@@ -37,8 +38,8 @@ export interface FileEntity {
   size: number;
   tmpWorkingDirectory?: string;
   getStream?: () => fse.ReadStream;
-  width?: string;
-  height?: string;
+  width?: number;
+  height?: number;
   provider?: string;
 }
 
@@ -141,7 +142,9 @@ class FilesService implements IFilesService {
     };
 
     if (file.assetType === "image") {
-      const imageWithDimensions = await getService("images").uploadImage(file);
+      const imageWithDimensions = await getService<IImagesService>(
+        "images"
+      ).upload(file);
 
       dataForEntityCreation = {
         ...dataForEntityCreation,

@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
 
-import { IconButton } from "../components/IconButton";
+import { IconButton } from "./IconButton";
 import { LeftArrow } from "./Icons/LeftArrow";
 import { RightArrow } from "./Icons/RightArrow";
 import { Search } from "./Icons/Search";

@@ -29,6 +29,7 @@ export default {
       filters: {
         folder: !folder ? null : folder,
       },
+      sort: { createdAt: "desc" },
     };
 
     // @ts-ignore it does exist thx

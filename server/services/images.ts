@@ -4,10 +4,11 @@ import { streamToBuffer } from "../helpers/streaming";
 import { getService } from "../helpers/strapi";
 
 import { FileEntity } from "./files";
+import { IProviderService } from "./provider";
 
 const { ApplicationError } = errors;
 
-interface IImagesService {
+export interface IImagesService {
   upload: (fileData: FileEntity) => Promise<FileEntity>;
 }
 
@@ -25,7 +26,7 @@ class ImageService implements IImagesService {
     };
 
     // Wait for all uploads to finish
-    const uploadedImage = await getService("provider").upload(
+    const uploadedImage = await getService<IProviderService>("provider").upload(
       fileDataWithDimensions
     );
 

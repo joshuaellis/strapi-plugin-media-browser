@@ -3,14 +3,22 @@ import { VirtuosoGrid } from "react-virtuoso";
 import styled from "styled-components";
 
 import type { MediaFile } from "../../data/fileApi";
+
+import { useCallbackRef } from "../../hooks/useCallbackRef";
+
 import { UploadItem } from "../../modules/upload";
+
 import { CardAsset } from "../Cards/CardAsset";
+import { CardUpload } from "../Cards/CardUpload";
 
 interface AssetGridProps {
   cards: Array<MediaFile | UploadItem>;
+  onCancelClick: (name: string) => void;
 }
 
-export const AssetGrid = ({ cards }: AssetGridProps) => {
+export const AssetGrid = ({ cards, onCancelClick }: AssetGridProps) => {
+  const handleCancelClick = useCallbackRef(onCancelClick);
+
   return (
     <Container>
       <VirtuosoGrid
@@ -24,7 +32,7 @@ export const AssetGrid = ({ cards }: AssetGridProps) => {
         }}
         itemContent={(index) => {
           const item = cards[index];
-          return <VirtualCell item={item} />;
+          return <VirtualCell item={item} onCancelClick={handleCancelClick} />;
         }}
         // TODO: implement load more so change the fetch call to return pagination...
         //   overscan={48}
@@ -35,11 +43,11 @@ export const AssetGrid = ({ cards }: AssetGridProps) => {
   );
 };
 
-interface VirtualCellProps {
+interface VirtualCellProps extends Pick<AssetGridProps, "onCancelClick"> {
   item: MediaFile | UploadItem;
 }
 
-const VirtualCell = React.memo(({ item }: VirtualCellProps) => {
+const VirtualCell = React.memo(({ item, onCancelClick }: VirtualCellProps) => {
   if ("id" in item) {
     /**
      * It's a file from the DB
@@ -51,7 +59,7 @@ const VirtualCell = React.memo(({ item }: VirtualCellProps) => {
     /**
      * It's being uploaded
      */
-    // return <CardUpload id={item.id} />;
+    return <CardUpload {...item} onCancelClick={onCancelClick} />;
   }
 
   return null;

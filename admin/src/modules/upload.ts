@@ -1,10 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
+
 import { uploadApi, UploadFileResponse } from "../data/uploadApi";
 
 import { hashFile } from "../helpers/files";
 import { generatePreviewBlobUrl } from "../helpers/images";
 
-import { createTypedAsyncThunk } from "../store/middleware";
+import {
+  createTypedAsyncThunk,
+  startTypedListening,
+} from "../store/middleware";
 
 export interface UploadItem {
   assetType: "image" | "file" | "video";
@@ -14,6 +19,7 @@ export interface UploadItem {
   status: "queued" | "uploading" | "complete";
   url?: string;
   percent?: number;
+  folder?: string;
 }
 
 export interface UploadState {
@@ -38,45 +44,56 @@ const uploadSlice = createSlice({
     ) {
       const { hash, previewUrl, folder } = action.payload;
       state.currentUploads[folder][hash].url = previewUrl;
+      state.currentUploads[folder][hash].status = "uploading";
     },
-    uploadStart(
-      state,
-      action: PayloadAction<{ uploadItem: UploadItem; folder: string }>
-    ) {
-      const { folder, uploadItem } = action.payload;
-      state.currentUploads[folder][uploadItem.hash] = uploadItem;
+    uploadStart(state, action: PayloadAction<UploadItem>) {
+      const { folder, hash } = action.payload;
+      state.currentUploads[folder!][hash] = action.payload;
     },
     createFolderInCurrentUploads(state, action: PayloadAction<string>) {
       const folder = action.payload;
       state.currentUploads[folder] = {};
     },
-    // TODO: you should be able to cancel an upload
+    deleteUploadItems(state, action: PayloadAction<UploadItem[]>) {
+      action.payload.forEach(({ name, folder }) => {
+        if (!folder) {
+          return;
+        }
+
+        Object.entries(state.currentUploads[folder]).forEach(([hash, item]) => {
+          if (item.name === name) {
+            delete state.currentUploads[folder][hash];
+          }
+        });
+      });
+    },
   },
   extraReducers(builder) {
     builder.addCase(uploadAssetThunk.rejected, (state, action) => {
-      // TODO: handle upload failure
+      const { folder } = action.meta.arg;
 
-      console.log("FAILED UPLOAD");
+      Object.entries(state.currentUploads[folder]).forEach(([hash, item]) => {
+        if (item.name === action.meta.arg.file.name) {
+          delete state.currentUploads[folder][hash];
+        }
+      });
+      // TODO: show error message in the console.
     });
     builder.addCase(uploadAssetThunk.fulfilled, (state, action) => {
-      console.log("FUFILLED", action.payload);
-
       if ("data" in action.payload) {
         const { data } = action.payload;
-        let { hash, folder } = data;
+        let { hash, folderPath } = data;
 
-        if (!folder) {
-          folder = "root";
+        if (folderPath === "/") {
+          folderPath = "root";
         }
 
         if (
-          state.currentUploads[folder] &&
-          state.currentUploads[folder][hash]
+          state.currentUploads[folderPath] &&
+          state.currentUploads[folderPath][hash]
         ) {
-          state.currentUploads[folder][hash].status = "complete";
+          state.currentUploads[folderPath][hash].status = "complete";
         }
-      } else if ("error" in action.payload) {
-        // TODO: handle this error of the thunk
       }
     });
   },
@@ -87,66 +104,90 @@ export const uploadReducer = uploadSlice.reducer;
 const { previewReady, uploadStart, createFolderInCurrentUploads } =
   uploadSlice.actions;
 
+export const { deleteUploadItems } = uploadSlice.actions;
+
 const UPLOAD_FILE_THUNK = "upload/asset";
 
 export const uploadAssetThunk = createTypedAsyncThunk<
   { data: UploadFileResponse } | { error: unknown },
-  File
->(UPLOAD_FILE_THUNK, async (file, { getState, dispatch }) => {
-  const hash = await hashFile(file);
+  { file: File; folder: string }
+>(
+  UPLOAD_FILE_THUNK,
+  async ({ file, folder }, { getState, dispatch, signal }) => {
+    const source = axios.CancelToken.source();
 
-  const folder = getState().finder.currentPlace;
+    signal.addEventListener("abort", () => {
+      // This will then trigger the `uploadAssetThunk.rejected` case.
+      source.cancel();
+    });
 
-  const currentUploadsForFolder = getState().upload.currentUploads[folder];
+    const hash = await hashFile(file);
 
-  if (currentUploadsForFolder && currentUploadsForFolder[hash]) {
-    return { error: "File already exists" };
-  } else if (!currentUploadsForFolder) {
-    dispatch(createFolderInCurrentUploads(folder));
+    const currentUploadsForFolder = getState().upload.currentUploads[folder];
+
+    if (currentUploadsForFolder && currentUploadsForFolder[hash]) {
+      return { error: "File already exists" };
+    } else if (!currentUploadsForFolder) {
+      dispatch(createFolderInCurrentUploads(folder));
+    }
+
+    /**
+     * We distinguish between images and files because we want to be able to support
+     * an image pipeline in the future.
+     */
+    const assetType =
+      file.type.indexOf("image") >= 0
+        ? "image"
+        : file.type.indexOf("video") >= 0
+        ? "video"
+        : "file";
+
+    const uploadItem: UploadItem = {
+      assetType,
+      hash,
+      name: file.name,
+      size: file.size,
+      status: "queued",
+      folder,
+    };
+
+    /**
+     * Setup the upload item in the store
+     */
+    dispatch(uploadStart(uploadItem));
+
+    const previewUrl = await generatePreviewBlobUrl(file);
+
+    /**
+     * Add a preview version of the URL for now to the store
+     */
+    dispatch(previewReady({ hash, previewUrl, folder }));
+
+    /**
+     * DEBUG
+     */
+    await new Promise<void>((res) => {
+      setTimeout(() => {
+        res();
+      }, 5000);
+    });
+
+    const uploadAction = await dispatch(
+      uploadApi.endpoints.uploadFile.initiate({
+        file,
+        fileInfo: {
+          assetType,
+          hash,
+          folder: folder === "root" ? "/" : folder,
+        },
+        cancelToken: source.token,
+      })
+    );
+
+    if ("error" in uploadAction) {
+      throw new Error("Upload failed");
+    }
+
+    return uploadAction;
   }
-
-  /**
-   * We distinguish between images and files because we want to be able to support
-   * an image pipeline in the future.
-   */
-  const assetType =
-    file.type.indexOf("image") >= 0
-      ? "image"
-      : file.type.indexOf("video") >= 0
-      ? "video"
-      : "file";
-
-  const uploadItem: UploadItem = {
-    assetType,
-    hash,
-    name: file.name,
-    size: file.size,
-    status: "queued",
-  };
-
-  /**
-   * Setup the upload item in the store
-   */
-  dispatch(uploadStart({ uploadItem, folder }));
-
-  const previewUrl = await generatePreviewBlobUrl(file);
-
-  /**
-   * Add a preview version of the URL for now to the store
-   */
-  dispatch(previewReady({ hash, previewUrl, folder }));
-
-  const uploadAction = await dispatch(
-    uploadApi.endpoints.uploadFile.initiate({
-      file,
-      fileInfo: {
-        assetType,
-        hash,
-      },
-    })
-  );
-
-  console.log("UPLOAD RES", uploadAction);
-
-  return uploadAction;
-});
+);

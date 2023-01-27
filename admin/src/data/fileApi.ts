@@ -37,6 +37,10 @@ const fileApi = strapiAdminApi.injectEndpoints({
             return fileSchema.safeParse(file).success;
           })
           .map((file) => fileSchema.parse(file)),
+      providesTags: (res) =>
+        res
+          ? res.map((file) => ({ type: "Files", folder: file.folderPath }))
+          : [{ type: "Files", folder: "" }],
     }),
   }),
   overrideExisting: false,

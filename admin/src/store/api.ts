@@ -15,20 +15,13 @@ const axiosBaseQuery =
       method?: AxiosRequestConfig["method"];
       data?: AxiosRequestConfig["data"];
       params?: AxiosRequestConfig["params"];
-      onUploadProgress?: AxiosRequestConfig["onUploadProgress"];
       headers?: AxiosRequestConfig["headers"];
+      cancelToken?: AxiosRequestConfig["cancelToken"];
     },
     unknown,
     unknown
   > =>
-  async ({
-    url,
-    method = "GET",
-    data,
-    params,
-    onUploadProgress,
-    headers = {},
-  }) => {
+  async ({ url, method = "GET", data, params, headers = {}, cancelToken }) => {
     try {
       const result = await axios({
         url: `${baseUrl}/${url}`,
@@ -41,7 +34,7 @@ const axiosBaseQuery =
         method,
         data,
         params,
-        onUploadProgress,
+        cancelToken,
       });
       return { data: result.data };
     } catch (axiosError) {
@@ -60,6 +53,6 @@ export const strapiAdminApi = createApi({
   baseQuery: axiosBaseQuery(
     `${process.env.STRAPI_ADMIN_BACKEND_URL}/${pluginId}`
   ),
-  tagTypes: ["Folders"],
+  tagTypes: ["Folders", "Files"],
   endpoints: () => ({}),
 });

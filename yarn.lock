@@ -1898,12 +1898,20 @@
     "@strapi/utils" "4.5.5"
     sendmail "^1.6.1"
 
-"@strapi/provider-upload-local@4.5.5", "@strapi/provider-upload-local@^4.5.5":
+"@strapi/provider-upload-local@4.5.5":
   version "4.5.5"
   resolved "https://registry.yarnpkg.com/@strapi/provider-upload-local/-/provider-upload-local-4.5.5.tgz#1c60502c2b7defd35ee616ec0ff2de6f775c1f30"
   integrity sha512-zdG7/S2dHADXHmhLVQJbLevbOQ1qJAnqPjJtvFCwerml5oGGZI+3rosR52unOv8bC4ugH2a6jJyljFaKarsDKA==
   dependencies:
     "@strapi/utils" "4.5.5"
+    fs-extra "10.0.0"
+
+"@strapi/provider-upload-local@^4.6.0":
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@strapi/provider-upload-local/-/provider-upload-local-4.6.0.tgz#8b358b2fbc9a0cb0a5f923df711ef9d21adfc9bc"
+  integrity sha512-HdqCIux5AsZhzOOkI+XR0gHzdJv9c5MK4U/gbzVP3Ph50nKUKqlhPd+mlMHnF05Et/oIGntu9hWZSfxRk7NMjg==
+  dependencies:
+    "@strapi/utils" "4.6.0"
     fs-extra "10.0.0"
 
 "@strapi/strapi@^4.5.5":
@@ -1981,6 +1989,17 @@
   version "4.5.5"
   resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.5.5.tgz#129ea73e02a55ae61d6aaaeb3581701569fbc134"
   integrity sha512-Kqdt8wYc6w7RW9JIw0wi6SNDw6OQxmAcUIsZL4IPteRY7x/ACbgqPvfq0LymUc9VE/gAocbm5jG/fRmbbfJcwA==
+  dependencies:
+    "@sindresorhus/slugify" "1.1.0"
+    date-fns "2.29.3"
+    http-errors "1.8.1"
+    lodash "4.17.21"
+    yup "0.32.9"
+
+"@strapi/utils@4.6.0":
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.6.0.tgz#d2deec97fd21f9b802c858aa7a19c5d05850a467"
+  integrity sha512-zJfcGVlGLVGTs4Lc5OH+g4vO/+MD5UA6DzMzlSvJ1gsObYpA/a+IMRIMG90nfEKZ9R52LLdaYyGU8ALzxulEmQ==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.29.3"

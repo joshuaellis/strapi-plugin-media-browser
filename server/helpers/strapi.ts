@@ -1,6 +1,6 @@
 import { PLUGIN_NAME } from "../constants";
 
-export const getService = (name: string) =>
+export const getService = <T extends any = any>(name: string): T =>
   strapi.plugin(PLUGIN_NAME).service(name);
 
 export const validateValueIsStrapiId = (value: unknown) => {

@@ -19,7 +19,7 @@ export interface ProviderUploadFile extends FileEntity {
 /**
  * Interacts
  */
-interface IProviderService {
+export interface IProviderService {
   /**
    * Upload a file via the configured provider.
    */
