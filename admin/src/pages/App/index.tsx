@@ -41,6 +41,10 @@ const MediaMain = styled(Main)`
   grid-template-columns: min-content 1fr 1fr;
   grid-template-rows: 60px 1fr;
   height: 100vh;
+
+  & *:focus-visible {
+    outline: 2px solid #0855c9;
+  }
 `;
 
 export default App;

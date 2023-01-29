@@ -123,6 +123,7 @@ const FolderLink = styled(Link)`
   color: inherit;
   text-decoration: none;
   padding: 5px 0;
+  border-radius: 5px;
 
   &:visited {
     color: inherit;

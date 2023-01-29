@@ -35,7 +35,7 @@ export const Filter = (props: React.SVGAttributes<SVGElement>) => (
       y2="176"
       stroke="currentColor"
       strokeLinecap="round"
-      stroke-Linejoin="round"
+      strokeLinejoin="round"
       strokeWidth="16"
     ></line>
   </svg>

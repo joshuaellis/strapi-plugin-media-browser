@@ -6,10 +6,10 @@ import { IconButton } from "./IconButton";
 import { LeftArrow } from "./Icons/LeftArrow";
 import { RightArrow } from "./Icons/RightArrow";
 import { Search } from "./Icons/Search";
-import { FiltersToolbarButton } from "./Filters";
+import { FiltersToolbarButton } from "./Toolbar/Filters";
 import { Download } from "./Icons/Download";
-import { TagsToolbarButton } from "./Tags";
-import { ActionsToolbarButton } from "./Actions";
+import { TagsToolbarButton } from "./Toolbar/Tags";
+import { ActionsToolbarButton } from "./Toolbar/Actions";
 import { ToolbarButton } from "./ToolbarButton";
 
 interface HeaderProps {
@@ -62,11 +62,11 @@ export const Header = ({
       </HeaderLeft>
       <ToolbarRoot>
         <FiltersToolbarButton />
-        <ToolbarButton>
+        <ToolbarButton aria-disabled disabled>
           <Download />
         </ToolbarButton>
-        <TagsToolbarButton />
-        <ActionsToolbarButton />
+        <TagsToolbarButton disabled />
+        <ActionsToolbarButton disabled />
         <ToolbarSep />
         <ToolbarButton>
           <Search />

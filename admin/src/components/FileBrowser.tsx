@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { useGetAllFilesAtFolderQuery } from "../data/fileApi";
+import { useQuery } from "../hooks/useQuery";
 
 import { uploadAssetThunk, deleteUploadItems } from "../modules/upload";
 
@@ -14,11 +15,13 @@ export const FileBrowser = () => {
   const uploads = useTypedSelector(selectUploadsBasedOnRoute);
   const folder = useTypedSelector((state) => state.finder.currentPlace);
   const dispatch = useTypedDispatch();
+  const [query] = useQuery();
   const abortRefs = React.useRef<Map<string, () => void>>(new Map());
 
-  const { data: files = [] } = useGetAllFilesAtFolderQuery(
-    folder === "root" ? "" : folder
-  );
+  const { data: files = [] } = useGetAllFilesAtFolderQuery({
+    folder: folder === "root" ? "" : folder,
+    sortBy: query.get("sortBy") ?? "none",
+  });
 
   console.log(files);
 
@@ -55,7 +58,9 @@ export const FileBrowser = () => {
       files.some((file) => file.hash === upload.hash)
     );
 
-    dispatch(deleteUploadItems(itemsToRemove));
+    if (itemsToRemove.length > 0) {
+      dispatch(deleteUploadItems(itemsToRemove));
+    }
   }, [files, uploads]);
 
   const cards = [...uploads, ...files];

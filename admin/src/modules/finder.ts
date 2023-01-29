@@ -9,6 +9,7 @@ export interface FinderState {
   currentPlace: string;
   canGoForward: boolean;
   canGoBack: boolean;
+  sortBy: typeof FILTERS[number];
 }
 
 const initialState: FinderState = {
@@ -17,6 +18,7 @@ const initialState: FinderState = {
   currentPlace: "",
   canGoForward: false,
   canGoBack: false,
+  sortBy: "none",
 };
 
 export const finderSlice = createSlice({

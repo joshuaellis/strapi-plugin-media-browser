@@ -1,14 +1,18 @@
 import * as React from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 
-import { Tag } from "./Icons/Tag";
-import { ToolbarButton } from "./ToolbarButton";
+import { Tag } from "../Icons/Tag";
+import { ToolbarButton } from "../ToolbarButton";
 
-export const TagsToolbarButton = () => {
+interface TagsToolbarButtonProps {
+  disabled?: boolean;
+}
+
+export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
   return (
     <Dialog.Root>
-      <ToolbarButton asChild>
-        <Dialog.Trigger>
+      <ToolbarButton asChild aria-disabled={disabled}>
+        <Dialog.Trigger disabled={disabled}>
           <Tag />
         </Dialog.Trigger>
       </ToolbarButton>

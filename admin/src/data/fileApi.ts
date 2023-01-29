@@ -39,9 +39,16 @@ export type MediaFile = z.infer<typeof fileSchema>;
 
 const fileApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
-    getAllFilesAtFolder: build.query<MediaFile[], string>({
-      query: (folder) => {
-        return { url: `files/${folder}` };
+    getAllFilesAtFolder: build.query<
+      MediaFile[],
+      { folder: string; sortBy: string }
+    >({
+      query: ({ folder, sortBy }) => {
+        return {
+          url: `files/${folder}?sort=${
+            sortBy === "none" ? "createdAt%3Adesc" : `${sortBy}%3Aasc`
+          }`,
+        };
       },
       transformResponse: (res: Partial<MediaFile>[]) =>
         res

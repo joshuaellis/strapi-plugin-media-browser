@@ -44,6 +44,11 @@ export const Right = styled.div`
   align-items: center;
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
+
+  &:focus-visible,
+  &:focus-within {
+    opacity: 1;
+  }
 `;
 
 const FolderContainer = styled.div`

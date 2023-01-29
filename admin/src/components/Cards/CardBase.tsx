@@ -23,6 +23,10 @@ export const Root = styled.div<{
 
   background-color: ${(props) =>
     props.$isChecked ? "#fafafa33" : "transparent"};
+
+  &:focus-within {
+    background-color: #fafafa33;
+  }
 `;
 
 export const Container = styled.label`
