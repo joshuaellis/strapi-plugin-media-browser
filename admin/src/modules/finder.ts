@@ -9,7 +9,7 @@ export interface FinderState {
   currentPlace: string;
   canGoForward: boolean;
   canGoBack: boolean;
-  sortBy: typeof FILTERS[number];
+  selectedItems: string[];
 }
 
 const initialState: FinderState = {
@@ -18,7 +18,7 @@ const initialState: FinderState = {
   currentPlace: "",
   canGoForward: false,
   canGoBack: false,
-  sortBy: "none",
+  selectedItems: [],
 };
 
 export const finderSlice = createSlice({
@@ -58,13 +58,40 @@ export const finderSlice = createSlice({
       state.canGoForward = action.payload.canGoForward;
       state.canGoBack = action.payload.canGoBack;
     },
+    addSelectedItem(state, action: PayloadAction<string>) {
+      if (!state.selectedItems.includes(action.payload)) {
+        state.selectedItems = [...state.selectedItems, action.payload];
+      }
+    },
+    replaceSelectedItems(state, action: PayloadAction<string | undefined>) {
+      if (!action.payload) {
+        state.selectedItems = [];
+        return;
+      }
+
+      if (!state.selectedItems.includes(action.payload)) {
+        state.selectedItems = [action.payload];
+      }
+    },
+    removeSelectedItem(state, action: PayloadAction<string>) {
+      state.selectedItems = state.selectedItems.filter(
+        (item) => item !== action.payload
+      );
+    },
   },
 });
 
 export const finderReducer = finderSlice.reducer;
 
 // Action creators are generated for each case reducer function
-export const { goBack, goForward, pushState } = finderSlice.actions;
+export const {
+  goBack,
+  goForward,
+  pushState,
+  addSelectedItem,
+  removeSelectedItem,
+  replaceSelectedItems,
+} = finderSlice.actions;
 
 /**
  * A little overengineered, but interesting to try out listeners.

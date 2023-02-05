@@ -8,19 +8,27 @@ import { useCallbackRef } from "../../hooks/useCallbackRef";
 
 import { UploadItem } from "../../modules/upload";
 
-import { CardAsset } from "../Cards/CardAsset";
+import { CardAsset, CardAssetProps } from "../Cards/CardAsset";
 import { CardUpload } from "../Cards/CardUpload";
 
-interface AssetGridProps {
+export interface AssetGridProps {
   cards: Array<MediaFile | UploadItem>;
   onCancelClick: (name: string) => void;
+  onCardSelect: Pick<CardAssetProps, "onClick">["onClick"];
+  onContainerClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
-export const AssetGrid = ({ cards, onCancelClick }: AssetGridProps) => {
+export const AssetGrid = ({
+  cards,
+  onCancelClick,
+  onCardSelect,
+  onContainerClick,
+}: AssetGridProps) => {
   const handleCancelClick = useCallbackRef(onCancelClick);
+  const handleCardSelect = useCallbackRef(onCardSelect);
 
   return (
-    <Container>
+    <Container onClick={onContainerClick}>
       <VirtuosoGrid
         computeItemKey={(index) => {
           const item = cards[index];
@@ -32,7 +40,13 @@ export const AssetGrid = ({ cards, onCancelClick }: AssetGridProps) => {
         }}
         itemContent={(index) => {
           const item = cards[index];
-          return <VirtualCell item={item} onCancelClick={handleCancelClick} />;
+          return (
+            <VirtualCell
+              item={item}
+              onCancelClick={handleCancelClick}
+              onCardSelect={handleCardSelect}
+            />
+          );
         }}
         // TODO: implement load more so change the fetch call to return pagination...
         //   overscan={48}
@@ -43,27 +57,30 @@ export const AssetGrid = ({ cards, onCancelClick }: AssetGridProps) => {
   );
 };
 
-interface VirtualCellProps extends Pick<AssetGridProps, "onCancelClick"> {
+interface VirtualCellProps
+  extends Pick<AssetGridProps, "onCancelClick" | "onCardSelect"> {
   item: MediaFile | UploadItem;
 }
 
-const VirtualCell = React.memo(({ item, onCancelClick }: VirtualCellProps) => {
-  if ("id" in item) {
-    /**
-     * It's a file from the DB
-     */
-    return <CardAsset {...item} />;
-  }
+const VirtualCell = React.memo(
+  ({ item, onCancelClick, onCardSelect }: VirtualCellProps) => {
+    if ("id" in item) {
+      /**
+       * It's a file from the DB
+       */
+      return <CardAsset {...item} onClick={onCardSelect} />;
+    }
 
-  if ("status" in item) {
-    /**
-     * It's being uploaded
-     */
-    return <CardUpload {...item} onCancelClick={onCancelClick} />;
-  }
+    if ("status" in item) {
+      /**
+       * It's being uploaded
+       */
+      return <CardUpload {...item} onCancelClick={onCancelClick} />;
+    }
 
-  return null;
-});
+    return null;
+  }
+);
 
 const Container = styled.div`
   width: 100%;

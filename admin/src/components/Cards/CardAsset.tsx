@@ -6,22 +6,30 @@ import { VisuallyHidden } from "../VisuallyHidden";
 
 import * as CardBase from "./CardBase";
 
+export interface CardAssetProps extends MediaFile {
+  isSelected?: boolean;
+  onClick?: (uuid: string, event: React.MouseEvent<HTMLLabelElement>) => void;
+}
+
 export const CardAsset = ({
   name,
   url,
   assetType,
   alternativeText,
-}: MediaFile) => {
-  const [isChecked, setIsChecked] = React.useState(false);
-
+  isSelected = false,
+  onClick,
+  uuid,
+}: CardAssetProps) => {
   const handleClick: React.MouseEventHandler<HTMLLabelElement> = (event) => {
-    if (event.detail === 1) {
-      setIsChecked((prev) => !prev);
+    if (event.detail === 1 && onClick) {
+      onClick(uuid, event);
     }
+
+    event.stopPropagation();
   };
 
   return (
-    <CardBase.Root $isChecked={isChecked}>
+    <CardBase.Root $isChecked={isSelected}>
       <CardBase.Container
         onDoubleClick={(e) => {
           /**
@@ -43,7 +51,7 @@ export const CardAsset = ({
             type="checkbox"
             // Noop to shut react up – is this still accessible? Does it need to be?
             onChange={() => {}}
-            checked={isChecked}
+            checked={isSelected}
           />
           <VisuallyHidden>{`Select `}</VisuallyHidden>
           {name}

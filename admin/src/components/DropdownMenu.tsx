@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as RadixDropdown from "@radix-ui/react-dropdown-menu";
 import styled, { css } from "styled-components";
+
 import { Check } from "./Icons/Check";
 
 export const Content = (props: RadixDropdown.MenuContentProps) => (
@@ -71,3 +72,12 @@ export const Separator = styled(RadixDropdown.Separator)`
   margin: 5px;
   background-color: rgba(255, 255, 255, 0.2);
 `;
+
+export const animationConfig = {
+  from: { opacity: 0, y: 5 },
+  enter: { opacity: 1, y: 0 },
+  leave: { opacity: 0, y: 5 },
+  config: {
+    tension: 320,
+  },
+};
