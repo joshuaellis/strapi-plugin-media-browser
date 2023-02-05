@@ -1,7 +1,6 @@
 import * as React from "react";
 
-import { useGetAllFilesAtFolderQuery } from "../data/fileApi";
-import { useQuery } from "../hooks/useQuery";
+import { MediaFile } from "../data/fileApi";
 
 import { uploadAssetThunk, deleteUploadItems } from "../modules/upload";
 import { addSelectedItem, replaceSelectedItems } from "../modules/finder";
@@ -13,18 +12,15 @@ import { CardAssetProps } from "./Cards/CardAsset";
 import { AssetGrid } from "./Grids/AssetGrid";
 import { UploadDropzone } from "./Upload/UploadDropzone";
 
-export const FileBrowser = () => {
+interface FileBrowserProps {
+  files: MediaFile[];
+}
+
+export const FileBrowser = ({ files }: FileBrowserProps) => {
   const uploads = useTypedSelector(selectUploadsBasedOnRoute);
   const folder = useTypedSelector((state) => state.finder.currentPlace);
-  const selectedUUIDs = useTypedSelector((state) => state.finder.selectedItems);
   const dispatch = useTypedDispatch();
-  const [query] = useQuery();
   const abortRefs = React.useRef<Map<string, () => void>>(new Map());
-
-  const { data: files = [] } = useGetAllFilesAtFolderQuery({
-    folder: folder === "root" ? "" : folder,
-    sortBy: query.get("sortBy") ?? "none",
-  });
 
   const handleFileDrop = async (files: File[]) => {
     await Promise.all(
@@ -79,21 +75,7 @@ export const FileBrowser = () => {
     }
   }, [files, uploads]);
 
-  const cards = [...uploads, ...files].map((card) => {
-    /**
-     * If the UUID is in the selectedItems of the store
-     * then we want to mark the card as selected so the
-     * necessary styles can be applied.
-     */
-    if ("uuid" in card) {
-      return {
-        ...card,
-        isSelected: selectedUUIDs.includes(card.uuid),
-      };
-    }
-
-    return card;
-  });
+  const cards = [...uploads, ...files];
 
   return (
     <UploadDropzone onFileDrop={handleFileDrop}>

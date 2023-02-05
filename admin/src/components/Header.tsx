@@ -18,6 +18,8 @@ interface HeaderProps {
   onForwardClick?: () => void;
   backButtonDisabled?: boolean;
   forwardButtonDisabled?: boolean;
+  canDownload?: boolean;
+  onDownloadClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export const Header = ({
@@ -26,6 +28,8 @@ export const Header = ({
   onForwardClick,
   backButtonDisabled,
   forwardButtonDisabled,
+  canDownload = false,
+  onDownloadClick,
 }: HeaderProps) => {
   const handleBackClick = () => {
     if (onBackClick) {
@@ -36,6 +40,12 @@ export const Header = ({
   const handleForwardClick = () => {
     if (onForwardClick) {
       onForwardClick();
+    }
+  };
+
+  const handleDownloadClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (onDownloadClick) {
+      onDownloadClick(event);
     }
   };
 
@@ -62,7 +72,11 @@ export const Header = ({
       </HeaderLeft>
       <ToolbarRoot>
         <FiltersToolbarButton />
-        <ToolbarButton aria-disabled disabled>
+        <ToolbarButton
+          aria-disabled={!canDownload}
+          disabled={!canDownload}
+          onClick={handleDownloadClick}
+        >
           <Download />
         </ToolbarButton>
         <TagsToolbarButton disabled />
