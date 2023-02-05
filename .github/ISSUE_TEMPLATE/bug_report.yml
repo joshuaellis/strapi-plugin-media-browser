@@ -1,0 +1,53 @@
+name: 🐞 Bug Report 🐛
+description: File a bug report
+title: "[bug]: "
+labels: ["template: bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for filing a bug report!
+
+        Do you need some help?
+        ======================
+        The issue tracker is meant for feature requests and bug reports only. This isn't the best place for
+        support or usage questions. Questions here don't have as much visibility as they do elsewhere. Before
+        you ask a question, here are some resources to get help first:
+
+        - [Read the docs](https://github.com/joshuaellis/strapi-plugin-media-library/wiki)
+        - Look for/ask questions on [Stack Overflow](https://stackoverflow.com/questions/ask)
+        - Ask in [GitHub Discussions](https://github.com/joshuaellis/strapi-plugin-media-library/discussions)
+  - type: input
+    attributes:
+      label: What version of strapi are you using?
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: What version of strapi-plugin-media-library are you using?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "What's Wrong?"
+      description: A concise description of what you expected to happen
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behaviour
+      description: What you expected to happen
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Link to repo
+      description: This is highly encouraged, provide a Github Repo
+    validations:
+      required: true
