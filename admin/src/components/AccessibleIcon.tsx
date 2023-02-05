@@ -1,6 +1,6 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { VisuallyHidden } from "./VisuallyHidden";
+import { VisuallyHidden } from './VisuallyHidden';
 
 interface AccessibleIconProps {
   children?: React.ReactNode;
@@ -11,17 +11,14 @@ interface AccessibleIconProps {
   label: string;
 }
 
-export const AccessibleIcon: React.FC<AccessibleIconProps> = ({
-  children,
-  label,
-}) => {
+export const AccessibleIcon: React.FC<AccessibleIconProps> = ({ children, label }) => {
   const child = React.Children.only(children);
   return (
     <>
       {React.cloneElement(child as React.ReactElement, {
         // accessibility
-        "aria-hidden": "true",
-        focusable: "false", // See: https://allyjs.io/tutorials/focusing-in-svg.html#making-svg-elements-focusable
+        'aria-hidden': 'true',
+        focusable: 'false', // See: https://allyjs.io/tutorials/focusing-in-svg.html#making-svg-elements-focusable
       })}
       <VisuallyHidden>{label}</VisuallyHidden>
     </>

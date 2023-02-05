@@ -32,19 +32,17 @@ const readFile = (file: File) =>
 const hexFromBuffer = (buffer: ArrayBuffer): string => {
   return Array.prototype.map
     .call(new Uint8Array(buffer), (x) => `00${x.toString(16)}`.slice(-2))
-    .join("");
+    .join('');
 };
 
 export const hashFile = async (file: File) => {
   if (!window.crypto || !window.crypto.subtle || !window.FileReader) {
-    throw new Error(
-      "This browser does not support hashing files. Please use a modern browser."
-    );
+    throw new Error('This browser does not support hashing files. Please use a modern browser.');
   }
 
   const fileBuffer = await readFile(file);
 
-  const buffer = await window.crypto.subtle.digest("SHA-1", fileBuffer);
+  const buffer = await window.crypto.subtle.digest('SHA-1', fileBuffer);
 
   return hexFromBuffer(buffer);
 };

@@ -4,14 +4,14 @@ const createBlob = (img: HTMLImageElement): Promise<Blob | null> =>
   new Promise((resolve) => {
     const imageAspect = img.width / img.height;
 
-    const canvas = document.createElement("canvas");
+    const canvas = document.createElement('canvas');
     canvas.width = PREVIEW_WIDTH;
     canvas.height = Math.max(PREVIEW_WIDTH / imageAspect, 1);
 
     try {
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       ctx?.drawImage(img, 0, 0, PREVIEW_WIDTH, PREVIEW_WIDTH / imageAspect);
-      canvas.toBlob(resolve, "image/jpeg");
+      canvas.toBlob(resolve, 'image/jpeg');
     } catch (err) {
       /**
        * Fail silently if we're unable to generate a preview image.
@@ -37,7 +37,7 @@ export const generatePreviewBlobUrl = async (file: File) => {
   const blob = await createBlob(imageEl);
 
   if (!blob) {
-    throw Error("Unable to generate file Blob");
+    throw Error('Unable to generate file Blob');
   }
 
   return window.URL.createObjectURL(blob);

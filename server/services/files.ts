@@ -1,22 +1,22 @@
-import { Strapi } from "@strapi/strapi";
-import fse from "fs-extra";
-import path from "path";
-import os from "os";
-import { extension } from "mime-types";
-import { nanoid } from "nanoid";
+import { Strapi } from '@strapi/strapi';
+import fse from 'fs-extra';
+import path from 'path';
+import os from 'os';
+import { extension } from 'mime-types';
+import { nanoid } from 'nanoid';
 
 import {
   CREATED_BY_ATTRIBUTE,
   FILE_MODEL_UID,
   PLUGIN_NAME,
   UPDATED_BY_ATTRIBUTE,
-} from "../constants";
+} from '../constants';
 
-import { UploadFileBody } from "../controllers/admin-file";
+import { UploadFileBody } from '../controllers/admin-file';
 
-import { getService } from "../helpers/strapi";
-import { StrapiUser } from "../types/strapi";
-import { IImagesService } from "./images";
+import { getService } from '../helpers/strapi';
+import { StrapiUser } from '../types/strapi';
+import { IImagesService } from './images';
 
 export interface UploadFile {
   readonly size: number;
@@ -27,7 +27,7 @@ export interface UploadFile {
 
 export interface FileEntity {
   uuid: string;
-  assetType: "image" | "file" | "video";
+  assetType: 'image' | 'file' | 'video';
   name: string;
   // TODO: Add setting a folder & folderPath
   folder: null;
@@ -72,9 +72,7 @@ class FilesService implements IFilesService {
     user?: StrapiUser
   ): Promise<FileEntity | undefined> => {
     // create temporary folder to store files for stream manipulation
-    const tmpWorkingDirectory = await fse.mkdtemp(
-      path.join(os.tmpdir(), "strapi-ml-")
-    );
+    const tmpWorkingDirectory = await fse.mkdtemp(path.join(os.tmpdir(), 'strapi-ml-'));
 
     let uploadedFile: FileEntity | undefined = undefined;
 
@@ -109,7 +107,7 @@ class FilesService implements IFilesService {
 
     const usedName = file.name.normalize();
 
-    const { getPath, getFolderByName } = getService("folder");
+    const { getPath, getFolderByName } = getService('folder');
 
     const { id: folderId } = (await getFolderByName(fileInfo.folder)) ?? {};
 
@@ -144,17 +142,15 @@ class FilesService implements IFilesService {
       provider: config.provider,
     };
 
-    if (file.assetType === "image") {
-      const imageWithDimensions = await getService<IImagesService>(
-        "images"
-      ).upload(file);
+    if (file.assetType === 'image') {
+      const imageWithDimensions = await getService<IImagesService>('images').upload(file);
 
       dataForEntityCreation = {
         ...dataForEntityCreation,
         ...imageWithDimensions,
       };
     } else {
-      const uploadedFile = await getService("provider").upload(file);
+      const uploadedFile = await getService('provider').upload(file);
 
       dataForEntityCreation = {
         ...dataForEntityCreation,
@@ -167,9 +163,7 @@ class FilesService implements IFilesService {
       dataForEntityCreation[CREATED_BY_ATTRIBUTE] = user.id;
     }
 
-    const res = await this.strapi
-      .query(FILE_MODEL_UID)
-      .create({ data: dataForEntityCreation });
+    const res = await this.strapi.query(FILE_MODEL_UID).create({ data: dataForEntityCreation });
 
     return res;
   };

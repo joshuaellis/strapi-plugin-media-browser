@@ -1,12 +1,12 @@
-import type { CancelToken } from "axios";
+import type { CancelToken } from 'axios';
 
-import { UploadItem } from "../modules/upload";
+import { UploadItem } from '../modules/upload';
 
-import { strapiAdminApi } from "../store/api";
+import { strapiAdminApi } from '../store/api';
 
 interface UploadFileData {
   file: File;
-  fileInfo: Pick<UploadItem, "assetType" | "hash" | "folder">;
+  fileInfo: Pick<UploadItem, 'assetType' | 'hash' | 'folder'>;
   cancelToken?: CancelToken;
 }
 
@@ -18,7 +18,7 @@ export interface UploadFileResponse {
   // TODO: type this
   folder?: string;
   folderPath: string;
-  hash: "7ae793572400cd637013ffaf404f65769d33e1dd";
+  hash: '7ae793572400cd637013ffaf404f65769d33e1dd';
   height: number;
   id: number;
   mime: string;
@@ -38,23 +38,23 @@ export const uploadApi = strapiAdminApi.injectEndpoints({
       query: ({ file, fileInfo, cancelToken }) => {
         const formData = new FormData();
 
-        formData.append("files", file);
+        formData.append('files', file);
 
         Object.entries(fileInfo).forEach(([key, val]) => {
           formData.append(key, val as string);
         });
 
         return {
-          url: "files",
-          method: "POST",
+          url: 'files',
+          method: 'POST',
           data: formData,
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
           cancelToken,
         };
       },
-      invalidatesTags: (res) => [{ type: "Files", folder: res?.folderPath }],
+      invalidatesTags: (res) => [{ type: 'Files', folder: res?.folderPath }],
     }),
   }),
   overrideExisting: false,

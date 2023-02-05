@@ -1,32 +1,27 @@
-import * as React from "react";
-import styled from "styled-components";
-import { useDropzone, DropEvent } from "react-dropzone";
+import * as React from 'react';
+import styled from 'styled-components';
+import { useDropzone, DropEvent } from 'react-dropzone';
 
-import { filterFilesFromDropzone } from "../../helpers/files";
+import { filterFilesFromDropzone } from '../../helpers/files';
 
 interface UploadDropzoneProps {
   children: React.ReactNode;
   onFileDrop?: (files: File[]) => void;
 }
 
-export const UploadDropzone = ({
-  children,
-  onFileDrop,
-}: UploadDropzoneProps) => {
+export const UploadDropzone = ({ children, onFileDrop }: UploadDropzoneProps) => {
   const handleDrop = (acceptedFiles: File[]) => {
     if (onFileDrop) {
       onFileDrop(acceptedFiles);
     }
   };
 
-  const handleFileGetter = async (
-    event: DropEvent
-  ): Promise<(File | DataTransferItem)[]> => {
+  const handleFileGetter = async (event: DropEvent): Promise<(File | DataTransferItem)[]> => {
     let fileList: FileList | undefined;
-    if (event.type === "drop" && "dataTransfer" in event) {
+    if (event.type === 'drop' && 'dataTransfer' in event) {
       fileList = event.dataTransfer?.files;
     }
-    if (event.type === "change") {
+    if (event.type === 'change') {
       const target = event.target as HTMLInputElement;
 
       if (target?.files) {
@@ -50,8 +45,8 @@ export const UploadDropzone = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     // TODO: this should be a setting from the plugin.
     accept: {
-      "image/*": [".png", ".gif", ".jpeg", ".jpg"],
-      "video/*": [".mp4", ".mov", ".avi", ".wmv", ".flv", ".mkv"],
+      'image/*': ['.png', '.gif', '.jpeg', '.jpg'],
+      'video/*': ['.mp4', '.mov', '.avi', '.wmv', '.flv', '.mkv'],
     },
     getFilesFromEvent: handleFileGetter,
     noClick: true,

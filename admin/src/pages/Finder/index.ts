@@ -1,1 +1,1 @@
-export { Finder } from "./component";
+export { Finder } from './component';

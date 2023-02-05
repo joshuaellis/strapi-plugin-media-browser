@@ -1,31 +1,25 @@
-import type { GenericController } from "@strapi/strapi/lib/core-api/controller";
-import { defaultsDeep } from "lodash";
-import { z } from "zod";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import type { GenericController } from '@strapi/strapi/lib/core-api/controller';
+import { defaultsDeep } from 'lodash';
+import { z } from 'zod';
 
-import { getService, validateValueIsStrapiId } from "../helpers/strapi";
-import {
-  validateFolderNameIsUnique,
-  validateFolderExists,
-} from "../helpers/folders";
+import { getService, validateValueIsStrapiId } from '../helpers/strapi';
+import { validateFolderNameIsUnique, validateFolderExists } from '../helpers/folders';
 
-import { FOLDER_MODEL_UID } from "../constants";
+import { FOLDER_MODEL_UID } from '../constants';
 
-import { IFolderService } from "../services/folder";
+import { IFolderService } from '../services/folder';
 
 const NO_SLASH_REGEX = /^[^/]+$/;
 
 const createFolderBodySchema = z
   .object({
-    name: z
-      .string()
-      .min(1)
-      .regex(NO_SLASH_REGEX, "name cannot contain slashes")
-      .trim(),
+    name: z.string().min(1).regex(NO_SLASH_REGEX, 'name cannot contain slashes').trim(),
     parent: z
       .custom<string | number>(validateValueIsStrapiId)
       .nullable()
       .refine(validateFolderExists, {
-        message: "parent folder does not exist",
+        message: 'parent folder does not exist',
       }),
   })
   .required();
@@ -35,17 +29,12 @@ export type CreateFolderBody = z.infer<typeof createFolderBodySchema>;
 const updateFolderBodySchema = z.object({
   id: z.custom<string | number>(validateValueIsStrapiId),
   patch: z.object({
-    name: z
-      .string()
-      .min(1)
-      .regex(NO_SLASH_REGEX, "name cannot contain slashes")
-      .trim()
-      .optional(),
+    name: z.string().min(1).regex(NO_SLASH_REGEX, 'name cannot contain slashes').trim().optional(),
     parent: z
       .custom<string | number>(validateValueIsStrapiId)
       .nullable()
       .refine(validateFolderExists, {
-        message: "parent folder does not exist",
+        message: 'parent folder does not exist',
       })
       .optional(),
   }),
@@ -53,12 +42,12 @@ const updateFolderBodySchema = z.object({
 
 type UpdateFolderBody = z.infer<typeof updateFolderBodySchema>;
 
-export type UpdateFolderId = UpdateFolderBody["id"];
-export type UpdateFolderPatch = UpdateFolderBody["patch"];
+export type UpdateFolderId = UpdateFolderBody['id'];
+export type UpdateFolderPatch = UpdateFolderBody['patch'];
 
 const isFolderNameUniqueInParent = (id?: string | number | null) =>
   z.string().refine(validateFolderNameIsUnique(id?.toString()), {
-    message: "A folder with this name already exists",
+    message: 'A folder with this name already exists',
   });
 
 export default {
@@ -68,11 +57,9 @@ export default {
 
     const parsedBody = await createFolderBodySchema.parseAsync(body);
 
-    await isFolderNameUniqueInParent(parsedBody.parent).parseAsync(
-      parsedBody.name
-    );
+    await isFolderNameUniqueInParent(parsedBody.parent).parseAsync(parsedBody.name);
 
-    const { create }: IFolderService = getService("folder");
+    const { create }: IFolderService = getService('folder');
 
     const folder = await create(parsedBody, user);
 
@@ -96,24 +83,21 @@ export default {
         model: FOLDER_MODEL_UID,
       });
 
-    const results = await strapi.entityService.findWithRelationCounts(
-      FOLDER_MODEL_UID,
-      {
-        ...defaultsDeep(
-          {
-            populate: {
-              children: {
-                count: true,
-              },
-              files: {
-                count: true,
-              },
+    const results = await strapi.entityService.findWithRelationCounts(FOLDER_MODEL_UID, {
+      ...defaultsDeep(
+        {
+          populate: {
+            children: {
+              count: true,
+            },
+            files: {
+              count: true,
             },
           },
-          query
-        ),
-      }
-    );
+        },
+        query
+      ),
+    });
 
     const parsedResults = await permissionsManager.sanitizeOutput(results);
 
@@ -126,14 +110,11 @@ export default {
     const { id, patch } = updateFolderBodySchema.parse(body);
 
     if (patch.name || patch.parent) {
-      const currentFolder = await strapi.entityService.findOne(
-        FOLDER_MODEL_UID,
-        id
-      );
+      const currentFolder = await strapi.entityService.findOne(FOLDER_MODEL_UID, id);
 
-      await isFolderNameUniqueInParent(
-        patch.parent ?? currentFolder.parent
-      ).parseAsync(patch.name ?? currentFolder.name);
+      await isFolderNameUniqueInParent(patch.parent ?? currentFolder.parent).parseAsync(
+        patch.name ?? currentFolder.name
+      );
     }
 
     const permissionsManager =
@@ -143,12 +124,12 @@ export default {
         model: FOLDER_MODEL_UID,
       });
 
-    const { update }: IFolderService = getService("folder");
+    const { update }: IFolderService = getService('folder');
 
     const updatedFolder = await update(id, patch, user);
 
     if (!updatedFolder) {
-      return ctx.notFound("folder not found");
+      return ctx.notFound('folder not found');
     }
 
     const parsedOutput = await permissionsManager.sanitizeOutput(updatedFolder);
@@ -166,17 +147,15 @@ export default {
         model: FOLDER_MODEL_UID,
       });
 
-    const { delete: deleteFolder }: IFolderService = getService("folder");
+    const { delete: deleteFolder }: IFolderService = getService('folder');
 
     const deletedFolders = await deleteFolder([id]);
 
     if (deletedFolders.folders.length === 0) {
-      return ctx.notFound("folder not found");
+      return ctx.notFound('folder not found');
     }
 
-    const parsedOutput = await permissionsManager.sanitizeOutput(
-      deletedFolders
-    );
+    const parsedOutput = await permissionsManager.sanitizeOutput(deletedFolders);
 
     return parsedOutput;
   },

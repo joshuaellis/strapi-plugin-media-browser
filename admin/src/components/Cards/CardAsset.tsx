@@ -1,10 +1,10 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { MediaFile } from "../../data/fileApi";
+import { MediaFile } from '../../data/fileApi';
 
-import { VisuallyHidden } from "../VisuallyHidden";
+import { VisuallyHidden } from '../VisuallyHidden';
 
-import * as CardBase from "./CardBase";
+import * as CardBase from './CardBase';
 
 export interface CardAssetProps extends MediaFile {
   isSelected?: boolean;
@@ -42,7 +42,7 @@ export const CardAsset = ({
         <CardBase.Media
           /* @ts-expect-error TODO: when we have all the file types, remove me. */
           type={assetType}
-          alt={alternativeText ?? ""}
+          alt={alternativeText ?? ''}
           src={url}
         />
         <CardBase.Label>
@@ -50,6 +50,7 @@ export const CardAsset = ({
             as="input"
             type="checkbox"
             // Noop to shut react up – is this still accessible? Does it need to be?
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             onChange={() => {}}
             checked={isSelected}
           />

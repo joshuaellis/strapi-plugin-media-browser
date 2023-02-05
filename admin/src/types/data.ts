@@ -7,8 +7,8 @@ export interface CreateFolderResponse {
   updatedAt?: string;
 }
 
-export type Folder = Omit<CreateFolderResponse, "name" | "id" | "path"> &
-  Required<Pick<CreateFolderResponse, "name" | "id" | "path">> & {
+export type Folder = Omit<CreateFolderResponse, 'name' | 'id' | 'path'> &
+  Required<Pick<CreateFolderResponse, 'name' | 'id' | 'path'>> & {
     children?: { count: number };
     files?: { count: number };
   };

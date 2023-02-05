@@ -1,4 +1,4 @@
-import { PLUGIN_NAME } from "./constants";
+import { PLUGIN_NAME } from './constants';
 
 export default async () => {
   await registerPermissionActions();
@@ -7,55 +7,56 @@ export default async () => {
 const registerPermissionActions = async () => {
   const actions = [
     {
-      section: "plugins",
-      displayName: "Access the Media Library",
-      uid: "read",
+      section: 'plugins',
+      displayName: 'Access the Media Library',
+      uid: 'read',
       pluginName: PLUGIN_NAME,
     },
     {
-      section: "plugins",
-      displayName: "Create (upload)",
-      uid: "assets.create",
-      subCategory: "assets",
+      section: 'plugins',
+      displayName: 'Create (upload)',
+      uid: 'assets.create',
+      subCategory: 'assets',
       pluginName: PLUGIN_NAME,
     },
     {
-      section: "plugins",
-      displayName: "Update (crop, details, replace)",
-      uid: "assets.update",
-      subCategory: "assets",
+      section: 'plugins',
+      displayName: 'Update (crop, details, replace)',
+      uid: 'assets.update',
+      subCategory: 'assets',
       pluginName: PLUGIN_NAME,
     },
     {
-      section: "plugins",
-      displayName: "Delete",
-      uid: "assets.delete",
-      subCategory: "assets",
+      section: 'plugins',
+      displayName: 'Delete',
+      uid: 'assets.delete',
+      subCategory: 'assets',
       pluginName: PLUGIN_NAME,
     },
     {
-      section: "plugins",
-      displayName: "Download",
-      uid: "assets.download",
-      subCategory: "assets",
+      section: 'plugins',
+      displayName: 'Download',
+      uid: 'assets.download',
+      subCategory: 'assets',
       pluginName: PLUGIN_NAME,
     },
     {
-      section: "plugins",
-      displayName: "Copy link",
-      uid: "assets.copy-link",
-      subCategory: "assets",
+      section: 'plugins',
+      displayName: 'Copy link',
+      uid: 'assets.copy-link',
+      subCategory: 'assets',
       pluginName: PLUGIN_NAME,
     },
     {
-      section: "settings",
-      displayName: "Access the Media Library settings page",
-      uid: "settings.read",
-      category: "media library",
+      section: 'settings',
+      displayName: 'Access the Media Library settings page',
+      uid: 'settings.read',
+      category: 'media library',
       pluginName: PLUGIN_NAME,
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore it does exist thx
   await strapi.admin.services.permission.actionProvider.registerMany(actions);
 };

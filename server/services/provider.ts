@@ -1,12 +1,12 @@
-import type { Strapi } from "@strapi/strapi";
-import { errors } from "@strapi/utils";
-import type { ReadStream } from "fs-extra";
-import { isFunction } from "lodash";
+import type { Strapi } from '@strapi/strapi';
+import { errors } from '@strapi/utils';
+import type { ReadStream } from 'fs-extra';
+import { isFunction } from 'lodash';
 
-import { PLUGIN_NAME } from "../constants";
-import { streamToBuffer } from "../helpers/streaming";
+import { PLUGIN_NAME } from '../constants';
+import { streamToBuffer } from '../helpers/streaming';
 
-import { FileEntity } from "./files";
+import { FileEntity } from './files';
 
 const { ApplicationError } = errors;
 
@@ -35,7 +35,7 @@ class ProviderService implements IProviderService {
 
   upload = async (file: FileEntity): Promise<ProviderUploadFile> => {
     if (!file.getStream) {
-      throw new ApplicationError("File stream is not available");
+      throw new ApplicationError('File stream is not available');
     }
 
     const uploadFile: ProviderUploadFile = {

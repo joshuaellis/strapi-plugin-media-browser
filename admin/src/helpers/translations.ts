@@ -1,4 +1,3 @@
-import pluginId from "../pluginId";
+import pluginId from '../pluginId';
 
-export const prefixTranslation = (translationId: string) =>
-  `${pluginId}.${translationId}`;
+export const prefixTranslation = (translationId: string) => `${pluginId}.${translationId}`;

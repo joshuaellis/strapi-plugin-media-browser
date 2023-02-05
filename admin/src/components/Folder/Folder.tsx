@@ -1,15 +1,15 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
-import { BASE_URL } from "../../constants";
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { BASE_URL } from '../../constants';
 
-import { IconButton } from "../IconButton";
+import { IconButton } from '../IconButton';
 
-import { Cross } from "../Icons/Cross";
-import { Pencil } from "../Icons/Pencil";
+import { Cross } from '../Icons/Cross';
+import { Pencil } from '../Icons/Pencil';
 
-import * as FolderBase from "./FolderBase";
-import { FolderNew } from "./FolderNew";
+import * as FolderBase from './FolderBase';
+import { FolderNew } from './FolderNew';
 
 interface FolderProps {
   title: string;
@@ -43,10 +43,8 @@ export const Folder = ({ title, id, onDeleteClick, onRename }: FolderProps) => {
    * this shouldn't be visible.
    */
 
-  const handleRenameInputBlur: React.FocusEventHandler<
-    HTMLInputElement
-  > = async (e) => {
-    if (e.currentTarget.value !== "" && onRename) {
+  const handleRenameInputBlur: React.FocusEventHandler<HTMLInputElement> = async (e) => {
+    if (e.currentTarget.value !== '' && onRename) {
       const updatedFolder = await onRename(id, e.currentTarget.value);
 
       if (!updatedFolder) {
@@ -57,18 +55,12 @@ export const Folder = ({ title, id, onDeleteClick, onRename }: FolderProps) => {
     setIsRenaming(false);
   };
 
-  const handleRenameInputSubmit: React.FormEventHandler<
-    HTMLFormElement
-  > = async (e) => {
+  const handleRenameInputSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     const data = new FormData(e.currentTarget);
 
-    const folderNameValue = data.get("folderName");
+    const folderNameValue = data.get('folderName');
 
-    if (
-      typeof folderNameValue === "string" &&
-      folderNameValue !== "" &&
-      onRename
-    ) {
+    if (typeof folderNameValue === 'string' && folderNameValue !== '' && onRename) {
       const updatedFolder = await onRename(id, folderNameValue);
 
       if (!updatedFolder) {
@@ -102,16 +94,10 @@ export const Folder = ({ title, id, onDeleteClick, onRename }: FolderProps) => {
         >
           <Plus />
         </DimmedIconButton> */}
-        <DimmedIconButton
-          label={`Rename folder – ${title}`}
-          onClick={handleRename}
-        >
+        <DimmedIconButton label={`Rename folder – ${title}`} onClick={handleRename}>
           <Pencil />
         </DimmedIconButton>
-        <DimmedIconButton
-          label={`Delete folder – ${title}`}
-          onClick={handleDeleteClick}
-        >
+        <DimmedIconButton label={`Delete folder – ${title}`} onClick={handleDeleteClick}>
           <Cross />
         </DimmedIconButton>
       </FolderBase.Right>

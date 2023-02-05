@@ -1,17 +1,17 @@
-import { ACTIONS } from "../constants";
+import { ACTIONS } from '../constants';
 
 export default {
-  type: "admin",
+  type: 'admin',
   routes: [
     {
-      method: "GET",
-      path: "/files/:folder",
-      handler: "admin-file.find",
+      method: 'GET',
+      path: '/files/:folder',
+      handler: 'admin-file.find',
       config: {
         policies: [
-          "admin::isAuthenticatedAdmin",
+          'admin::isAuthenticatedAdmin',
           {
-            name: "admin::hasPermissions",
+            name: 'admin::hasPermissions',
             config: {
               actions: [ACTIONS.read],
             },
@@ -20,14 +20,14 @@ export default {
       },
     },
     {
-      method: "GET",
-      path: "/files",
-      handler: "admin-file.find",
+      method: 'GET',
+      path: '/files',
+      handler: 'admin-file.find',
       config: {
         policies: [
-          "admin::isAuthenticatedAdmin",
+          'admin::isAuthenticatedAdmin',
           {
-            name: "admin::hasPermissions",
+            name: 'admin::hasPermissions',
             config: {
               actions: [ACTIONS.read],
             },
@@ -36,22 +36,22 @@ export default {
       },
     },
     {
-      method: "POST",
-      path: "/files",
-      handler: "admin-file.upload",
+      method: 'POST',
+      path: '/files',
+      handler: 'admin-file.upload',
       config: {
-        policies: ["admin::isAuthenticatedAdmin"],
+        policies: ['admin::isAuthenticatedAdmin'],
       },
     },
     {
-      method: "GET",
-      path: "/folders",
-      handler: "admin-folder.find",
+      method: 'GET',
+      path: '/folders',
+      handler: 'admin-folder.find',
       config: {
         policies: [
-          "admin::isAuthenticatedAdmin",
+          'admin::isAuthenticatedAdmin',
           {
-            name: "admin::hasPermissions",
+            name: 'admin::hasPermissions',
             config: {
               actions: [ACTIONS.read],
             },
@@ -60,14 +60,14 @@ export default {
       },
     },
     {
-      method: "POST",
-      path: "/folders",
-      handler: "admin-folder.create",
+      method: 'POST',
+      path: '/folders',
+      handler: 'admin-folder.create',
       config: {
         policies: [
-          "admin::isAuthenticatedAdmin",
+          'admin::isAuthenticatedAdmin',
           {
-            name: "admin::hasPermissions",
+            name: 'admin::hasPermissions',
             config: {
               actions: [ACTIONS.create],
             },
@@ -76,14 +76,14 @@ export default {
       },
     },
     {
-      method: "DELETE",
-      path: "/folders/:id",
-      handler: "admin-folder.delete",
+      method: 'DELETE',
+      path: '/folders/:id',
+      handler: 'admin-folder.delete',
       config: {
         policies: [
-          "admin::isAuthenticatedAdmin",
+          'admin::isAuthenticatedAdmin',
           {
-            name: "admin::hasPermissions",
+            name: 'admin::hasPermissions',
             config: {
               actions: [ACTIONS.delete],
             },
@@ -92,14 +92,14 @@ export default {
       },
     },
     {
-      method: "PUT",
-      path: "/folders",
-      handler: "admin-folder.update",
+      method: 'PUT',
+      path: '/folders',
+      handler: 'admin-folder.update',
       config: {
         policies: [
-          "admin::isAuthenticatedAdmin",
+          'admin::isAuthenticatedAdmin',
           {
-            name: "admin::hasPermissions",
+            name: 'admin::hasPermissions',
             config: {
               actions: [ACTIONS.update],
             },

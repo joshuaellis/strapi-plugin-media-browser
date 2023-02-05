@@ -1,13 +1,13 @@
-import * as React from "react";
-import styled from "styled-components";
-import { prefixFileUrlWithBackendUrl } from "@strapi/helper-plugin";
+import * as React from 'react';
+import styled from 'styled-components';
+import { prefixFileUrlWithBackendUrl } from '@strapi/helper-plugin';
 
-import { Image } from "../Media/Image";
-import { IconButton, IconButtonProps } from "../IconButton";
-import { Cross } from "../Icons/Cross";
-import { Loader as AnimatedLoader } from "../Loader";
+import { Image } from '../Media/Image';
+import { IconButton, IconButtonProps } from '../IconButton';
+import { Cross } from '../Icons/Cross';
+import { Loader as AnimatedLoader } from '../Loader';
 
-import { MediaFile } from "../../data/fileApi";
+import { MediaFile } from '../../data/fileApi';
 
 export const Root = styled.div<{
   $isChecked?: boolean;
@@ -18,11 +18,10 @@ export const Root = styled.div<{
   width: 100%;
   border-radius: 10px;
   transition: background-color 200ms ease-out;
-  cursor: ${(props) => (props.$isUploading ? "default" : "pointer")};
-  pointer-events: ${(props) => (props.$isUploading ? "none" : "default")};
+  cursor: ${(props) => (props.$isUploading ? 'default' : 'pointer')};
+  pointer-events: ${(props) => (props.$isUploading ? 'none' : 'default')};
 
-  background-color: ${(props) =>
-    props.$isChecked ? "#fafafa33" : "transparent"};
+  background-color: ${(props) => (props.$isChecked ? '#fafafa33' : 'transparent')};
 
   &:focus-within {
     background-color: #fafafa33;
@@ -40,29 +39,26 @@ export const Container = styled.label`
 `;
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  type: "image";
+  type: 'image';
 }
 
-type MediaProps<TType extends Pick<MediaFile, "assetType">["assetType"]> =
-  TType extends "image" ? ImageProps : never;
+type MediaProps<TType extends Pick<MediaFile, 'assetType'>['assetType']> = TType extends 'image'
+  ? ImageProps
+  : never;
 
 interface FlexProps {
   isUploading?: boolean;
 }
 
-export const Media = <TType extends Pick<MediaFile, "assetType">["assetType"]>({
+export const Media = <TType extends Pick<MediaFile, 'assetType'>['assetType']>({
   isUploading,
   type,
   src,
   ...restProps
 }: MediaProps<TType> & FlexProps) => (
   <Flex $isUploading={isUploading}>
-    {type === "image" ? (
-      <Image
-        draggable={false}
-        src={prefixFileUrlWithBackendUrl(src)}
-        {...restProps}
-      />
+    {type === 'image' ? (
+      <Image draggable={false} src={prefixFileUrlWithBackendUrl(src)} {...restProps} />
     ) : null}
   </Flex>
 );
@@ -92,7 +88,7 @@ const CancelPosition = styled.div`
   z-index: 2;
 `;
 
-export const Cancel = (props: Pick<IconButtonProps, "onClick">) => (
+export const Cancel = (props: Pick<IconButtonProps, 'onClick'>) => (
   <CancelPosition>
     <IconButton label="Cancel upload" {...props}>
       <Cross color="hsla(353, 90%, 65%, 1)" />

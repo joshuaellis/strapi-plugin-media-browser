@@ -1,10 +1,10 @@
-import { errors } from "@strapi/utils";
+import { errors } from '@strapi/utils';
 
-import { streamToBuffer } from "../helpers/streaming";
-import { getService } from "../helpers/strapi";
+import { streamToBuffer } from '../helpers/streaming';
+import { getService } from '../helpers/strapi';
 
-import { FileEntity } from "./files";
-import { IProviderService } from "./provider";
+import { FileEntity } from './files';
+import { IProviderService } from './provider';
 
 const { ApplicationError } = errors;
 
@@ -26,18 +26,16 @@ class ImageService implements IImagesService {
     };
 
     // Wait for all uploads to finish
-    const uploadedImage = await getService<IProviderService>("provider").upload(
+    const uploadedImage = await getService<IProviderService>('provider').upload(
       fileDataWithDimensions
     );
 
     return { ...fileDataWithDimensions, ...uploadedImage };
   };
 
-  private getDimensions = async (
-    file: FileEntity
-  ): Promise<{ width: number; height: number }> => {
+  private getDimensions = async (file: FileEntity): Promise<{ width: number; height: number }> => {
     if (!file.getStream) {
-      throw new ApplicationError("File stream is not available");
+      throw new ApplicationError('File stream is not available');
     }
 
     const buffer = await streamToBuffer(file.getStream());

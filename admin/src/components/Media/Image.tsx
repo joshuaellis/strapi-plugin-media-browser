@@ -1,5 +1,5 @@
-import * as React from "react";
-import styled, { css } from "styled-components";
+import * as React from 'react';
+import styled, { css } from 'styled-components';
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   $showCheckerboard?: boolean;
@@ -20,7 +20,7 @@ const ImageWrapper = styled.span`
   height: 100%;
 `;
 
-const Img = styled.img<Pick<ImageProps, "$showCheckerboard">>`
+const Img = styled.img<Pick<ImageProps, '$showCheckerboard'>>`
   --checkerboard-color: #272a2e;
 
   display: block;
@@ -37,11 +37,7 @@ const Img = styled.img<Pick<ImageProps, "$showCheckerboard">>`
   ${(props) =>
     props.$showCheckerboard &&
     css`
-      background-image: linear-gradient(
-          45deg,
-          var(--checkerboard-color) 25%,
-          transparent 25%
-        ),
+      background-image: linear-gradient(45deg, var(--checkerboard-color) 25%, transparent 25%),
         linear-gradient(-45deg, var(--checkerboard-color) 25%, transparent 25%),
         linear-gradient(45deg, transparent 75%, var(--checkerboard-color) 75%),
         linear-gradient(-45deg, transparent 75%, var(--checkerboard-color) 75%);

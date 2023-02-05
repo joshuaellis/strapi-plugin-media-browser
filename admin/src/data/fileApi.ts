@@ -1,6 +1,6 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-import { strapiAdminApi } from "../store/api";
+import { strapiAdminApi } from '../store/api';
 
 const folderSchema = z.object({
   id: z.number(),
@@ -15,7 +15,7 @@ const folderSchema = z.object({
 const fileSchema = z.object({
   uuid: z.string(),
   alternativeText: z.string().optional().nullable(),
-  assetType: z.enum(["image", "file", "video"]),
+  assetType: z.enum(['image', 'file', 'video']),
   caption: z.string().optional().nullable(),
   createdAt: z.string().optional().nullable(),
   ext: z.string(),
@@ -39,15 +39,10 @@ export type MediaFile = z.infer<typeof fileSchema>;
 
 const fileApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
-    getAllFilesAtFolder: build.query<
-      MediaFile[],
-      { folder: string; sortBy: string }
-    >({
+    getAllFilesAtFolder: build.query<MediaFile[], { folder: string; sortBy: string }>({
       query: ({ folder, sortBy }) => {
         return {
-          url: `files/${folder}?sort=${
-            sortBy === "none" ? "createdAt%3Adesc" : `${sortBy}%3Aasc`
-          }`,
+          url: `files/${folder}?sort=${sortBy === 'none' ? 'createdAt%3Adesc' : `${sortBy}%3Aasc`}`,
         };
       },
       transformResponse: (res: Partial<MediaFile>[]) =>
@@ -58,8 +53,8 @@ const fileApi = strapiAdminApi.injectEndpoints({
           .map((file) => fileSchema.parse(file)),
       providesTags: (res) =>
         res
-          ? res.map((file) => ({ type: "Files", folder: file.folderPath }))
-          : [{ type: "Files", folder: "" }],
+          ? res.map((file) => ({ type: 'Files', folder: file.folderPath }))
+          : [{ type: 'Files', folder: '' }],
     }),
   }),
   overrideExisting: false,

@@ -1,6 +1,6 @@
-import * as React from "react";
-import styled from "styled-components";
-import { AccessibleIcon } from "./AccessibleIcon";
+import * as React from 'react';
+import styled from 'styled-components';
+import { AccessibleIcon } from './AccessibleIcon';
 
 export interface IconButtonProps {
   children: React.ReactNode;
@@ -49,12 +49,12 @@ export const IconButtonBase = styled.button`
     width: 20px;
   }
 
-  &[aria-disabled="true"] {
+  &[aria-disabled='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  &:not([aria-disabled="true"]):hover {
+  &:not([aria-disabled='true']):hover {
     background-color: #fafafa33;
   }
 `;

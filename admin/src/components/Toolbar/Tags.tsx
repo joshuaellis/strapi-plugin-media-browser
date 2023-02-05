@@ -1,8 +1,8 @@
-import * as React from "react";
-import * as Dialog from "@radix-ui/react-dialog";
+import * as React from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
 
-import { Tag } from "../Icons/Tag";
-import { ToolbarButton } from "../ToolbarButton";
+import { Tag } from '../Icons/Tag';
+import { ToolbarButton } from '../ToolbarButton';
 
 interface TagsToolbarButtonProps {
   disabled?: boolean;

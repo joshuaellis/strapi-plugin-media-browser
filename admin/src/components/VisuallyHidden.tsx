@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 export const VisuallyHidden = styled.span`
   // See: https://github.com/twbs/bootstrap/blob/master/scss/mixins/_screen-reader.scss

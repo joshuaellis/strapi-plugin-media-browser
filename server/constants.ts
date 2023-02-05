@@ -1,4 +1,4 @@
-const PLUGIN_NAME = "media-library";
+const PLUGIN_NAME = 'media-library';
 const PLUGIN_PREFIX = `plugin::${PLUGIN_NAME}`;
 
 const ACTIONS = {
@@ -11,8 +11,8 @@ const ACTIONS = {
 const FOLDER_MODEL_UID = `${PLUGIN_PREFIX}.ml-folder`;
 const FILE_MODEL_UID = `${PLUGIN_PREFIX}.ml-file`;
 
-const CREATED_BY_ATTRIBUTE = "createdBy";
-const UPDATED_BY_ATTRIBUTE = "updatedBy";
+const CREATED_BY_ATTRIBUTE = 'createdBy';
+const UPDATED_BY_ATTRIBUTE = 'updatedBy';
 
 export {
   PLUGIN_NAME,

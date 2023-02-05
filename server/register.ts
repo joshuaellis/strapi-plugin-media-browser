@@ -1,8 +1,8 @@
-import type { Strapi } from "@strapi/strapi";
-import { mapValues } from "lodash";
+import type { Strapi } from '@strapi/strapi';
+import { mapValues } from 'lodash';
 
-import middleware from "./middlewares";
-import { PLUGIN_NAME } from "./constants";
+import middleware from './middlewares';
+import { PLUGIN_NAME } from './constants';
 
 export default ({ strapi }: { strapi: Strapi }) => {
   strapi.plugin(PLUGIN_NAME).provider = createProvider(
@@ -22,7 +22,7 @@ const createProvider = (config) => {
   try {
     modulePath = require.resolve(`@strapi/provider-upload-${providerName}`);
   } catch (error) {
-    if (error.code === "MODULE_NOT_FOUND") {
+    if (error.code === 'MODULE_NOT_FOUND') {
       modulePath = providerName;
     } else {
       throw error;
@@ -32,9 +32,7 @@ const createProvider = (config) => {
   try {
     provider = require(modulePath);
   } catch (err) {
-    const newError = new Error(
-      `Could not load upload provider "${providerName}".`
-    );
+    const newError = new Error(`Could not load upload provider "${providerName}".`);
     newError.stack = err.stack;
     throw newError;
   }
@@ -42,9 +40,7 @@ const createProvider = (config) => {
   const providerInstance = provider.init(providerOptions);
 
   if (!providerInstance.delete) {
-    throw new Error(
-      `The upload provider "${providerName}" doesn't implement the delete method.`
-    );
+    throw new Error(`The upload provider "${providerName}" doesn't implement the delete method.`);
   }
 
   if (!providerInstance.upload && !providerInstance.uploadStream) {

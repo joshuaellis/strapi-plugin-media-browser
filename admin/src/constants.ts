@@ -1,3 +1,3 @@
-import pluginId from "./pluginId";
+import pluginId from './pluginId';
 
 export const BASE_URL = `/plugins/${pluginId}`;

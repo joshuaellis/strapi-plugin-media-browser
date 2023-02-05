@@ -1,9 +1,9 @@
-import * as React from "react";
-import styled from "styled-components";
+import * as React from 'react';
+import styled from 'styled-components';
 
-import { VisuallyHidden } from "../VisuallyHidden";
+import { VisuallyHidden } from '../VisuallyHidden';
 
-import * as FolderBase from "./FolderBase";
+import * as FolderBase from './FolderBase';
 
 interface FolderNewProps {
   intialValue?: string;
@@ -52,7 +52,7 @@ const InputLabel = styled.label`
   position: relative;
 
   &::after {
-    content: "";
+    content: '';
     display: block;
     width: 100%;
     height: 1px;

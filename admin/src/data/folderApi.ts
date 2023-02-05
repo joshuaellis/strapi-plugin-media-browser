@@ -1,13 +1,13 @@
-import { strapiAdminApi } from "../store/api";
+import { strapiAdminApi } from '../store/api';
 
-import { CreateFolderBody } from "../../../server/controllers/admin-folder";
+import { CreateFolderBody } from '../../../server/controllers/admin-folder';
 
-import type { CreateFolderResponse, Folder } from "../types/data";
+import type { CreateFolderResponse, Folder } from '../types/data';
 
 const folderApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
     getAllFolders: build.query<Folder[], undefined>({
-      query: () => ({ url: "folders" }),
+      query: () => ({ url: 'folders' }),
       transformResponse: (res: Partial<Folder>[]) => {
         const foldersWithNamesAndIds = res.filter(
           (folder) => folder.name && folder.id && folder.path
@@ -15,45 +15,41 @@ const folderApi = strapiAdminApi.injectEndpoints({
 
         return foldersWithNamesAndIds;
       },
-      providesTags: ["Folders"],
+      providesTags: ['Folders'],
     }),
     postNewFolder: build.mutation<CreateFolderResponse, CreateFolderBody>({
       query: (body) => ({
-        url: "folders",
-        method: "POST",
+        url: 'folders',
+        method: 'POST',
         body,
       }),
-      invalidatesTags: ["Folders"],
+      invalidatesTags: ['Folders'],
     }),
     // TODO: type this return type?
     deleteFolder: build.mutation<unknown, string>({
       query: (id) => ({
         url: `folders/${id}`,
-        method: "DELETE",
+        method: 'DELETE',
       }),
-      invalidatesTags: ["Folders"],
+      invalidatesTags: ['Folders'],
     }),
     // TODO: type this return type?
-    updateFolder: build.mutation<
-      unknown,
-      { id: string; patch?: Partial<Folder> }
-    >({
+    updateFolder: build.mutation<unknown, { id: string; patch?: Partial<Folder> }>({
       query: ({ id, patch = {} }) => ({
-        url: "folders",
-        method: "PUT",
+        url: 'folders',
+        method: 'PUT',
         body: {
           id,
           patch,
         },
       }),
-      invalidatesTags: ["Folders"],
+      invalidatesTags: ['Folders'],
     }),
   }),
   overrideExisting: false,
 });
 
-export const useGetAllFoldersQueryState =
-  folderApi.endpoints.getAllFolders.useQueryState;
+export const useGetAllFoldersQueryState = folderApi.endpoints.getAllFolders.useQueryState;
 
 export const {
   usePostNewFolderMutation,

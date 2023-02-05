@@ -1,16 +1,13 @@
-import { nanoid } from "nanoid";
-import { Strapi } from "@strapi/strapi";
-import { setCreatorFields, joinBy } from "@strapi/utils";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { nanoid } from 'nanoid';
+import { Strapi } from '@strapi/strapi';
+import { setCreatorFields, joinBy } from '@strapi/utils';
 
-import { FILE_MODEL_UID, FOLDER_MODEL_UID } from "../constants";
+import { FILE_MODEL_UID, FOLDER_MODEL_UID } from '../constants';
 
-import {
-  CreateFolderBody,
-  UpdateFolderId,
-  UpdateFolderPatch,
-} from "../controllers/admin-folder";
+import { CreateFolderBody, UpdateFolderId, UpdateFolderPatch } from '../controllers/admin-folder';
 
-import { StrapiUser } from "../types/strapi";
+import { StrapiUser } from '../types/strapi';
 
 export interface FolderEntity {
   name: string;
@@ -30,10 +27,7 @@ export interface IFolderService {
   /**
    * Create a new folder
    */
-  create: (
-    parsedBody: CreateFolderBody,
-    user?: StrapiUser
-  ) => Promise<FolderEntity>;
+  create: (parsedBody: CreateFolderBody, user?: StrapiUser) => Promise<FolderEntity>;
   /**
    * Update a folder based on it's ID and a patch file
    */
@@ -54,7 +48,7 @@ export interface IFolderService {
    * Get the path of a folder based on it's id
    */
   getPath: (folderId?: string) => Promise<string>;
-  getFolderByName: (name: string) => Promise<Pick<FolderEntity, "id" | "name">>;
+  getFolderByName: (name: string) => Promise<Pick<FolderEntity, 'id' | 'name'>>;
   /**
    * Check if a folder exists based on a query
    */
@@ -69,35 +63,25 @@ class FolderService implements IFolderService {
   }
 
   checkFolderExists = async (filters = {}) => {
-    const count = await this.strapi
-      .query(FOLDER_MODEL_UID)
-      .count({ where: filters });
+    const count = await this.strapi.query(FOLDER_MODEL_UID).count({ where: filters });
     return count > 0;
   };
 
   getFolderByName = async (name: string) => {
-    const [folder] = await this.strapi.entityService.findMany(
-      FOLDER_MODEL_UID,
-      {
-        fields: ["id", "name"],
-        filters: {
-          name,
-        },
-      }
-    );
-
-    console.log(folder);
+    const [folder] = await this.strapi.entityService.findMany(FOLDER_MODEL_UID, {
+      fields: ['id', 'name'],
+      filters: {
+        name,
+      },
+    });
 
     return folder;
   };
 
   getPath = async (folderId?: string): Promise<string> => {
-    if (!folderId) return "/";
+    if (!folderId) return '/';
 
-    const parentFolder = await this.strapi.entityService.findOne(
-      FOLDER_MODEL_UID,
-      folderId
-    );
+    const parentFolder = await this.strapi.entityService.findOne(FOLDER_MODEL_UID, folderId);
 
     return parentFolder.path;
   };
@@ -106,12 +90,12 @@ class FolderService implements IFolderService {
     const { max } = await this.strapi.db
       //  @ts-ignore it does exist thx
       .queryBuilder(FOLDER_MODEL_UID)
-      .max("pathId")
+      .max('pathId')
       .first()
       .execute();
 
     const pathId = max + 1;
-    let parentPath = "/";
+    let parentPath = '/';
 
     if (parsedBody.parent) {
       const parentFolder = await this.strapi.entityService.findOne(
@@ -125,7 +109,7 @@ class FolderService implements IFolderService {
       ...parsedBody,
       uuid: nanoid(),
       pathId,
-      path: joinBy("/", parentPath, parsedBody.name),
+      path: joinBy('/', parentPath, parsedBody.name),
     };
 
     if (user) {
@@ -146,10 +130,7 @@ class FolderService implements IFolderService {
   ): Promise<FolderEntity | undefined> => {
     // only name is updated
     if (parent === undefined) {
-      const existingFolder = await this.strapi.entityService.findOne(
-        FOLDER_MODEL_UID,
-        id
-      );
+      const existingFolder = await this.strapi.entityService.findOne(FOLDER_MODEL_UID, id);
 
       if (!existingFolder) {
         return undefined;
@@ -161,13 +142,9 @@ class FolderService implements IFolderService {
       });
 
       if (parent === undefined) {
-        const folder = await this.strapi.entityService.update(
-          FOLDER_MODEL_UID,
-          id,
-          {
-            data: newFolder,
-          }
-        );
+        const folder = await this.strapi.entityService.update(FOLDER_MODEL_UID, id, {
+          data: newFolder,
+        });
         return folder;
       }
       // location is updated => using transaction
@@ -179,7 +156,7 @@ class FolderService implements IFolderService {
         const existingFolder = await this.strapi.db
           // @ts-ignore
           .queryBuilder(FOLDER_MODEL_UID)
-          .select(["pathId", "path"])
+          .select(['pathId', 'path'])
           .where({ id })
           .transacting(trx)
           .forUpdate()
@@ -212,12 +189,12 @@ class FolderService implements IFolderService {
         }
 
         // fetch destinationFolder path
-        let destinationFolderPath = "/";
+        let destinationFolderPath = '/';
         if (parent !== null) {
           const destinationFolder = await this.strapi.db
             // @ts-ignore
             .queryBuilder(FOLDER_MODEL_UID)
-            .select("path")
+            .select('path')
             .where({ id: parent })
             .transacting(trx)
             .first()
@@ -225,17 +202,14 @@ class FolderService implements IFolderService {
           destinationFolderPath = destinationFolder.path;
         }
 
-        const folderTable =
-          this.strapi.getModel(FOLDER_MODEL_UID).collectionName;
+        const folderTable = this.strapi.getModel(FOLDER_MODEL_UID).collectionName;
         const fileTable = this.strapi.getModel(FILE_MODEL_UID).collectionName;
         const folderPathColumnName =
           // @ts-ignore
-          this.strapi.db.metadata.get(FILE_MODEL_UID).attributes.folderPath
-            .columnName;
+          this.strapi.db.metadata.get(FILE_MODEL_UID).attributes.folderPath.columnName;
         const pathColumnName =
           // @ts-ignore
-          this.strapi.db.metadata.get(FOLDER_MODEL_UID).attributes.path
-            .columnName;
+          this.strapi.db.metadata.get(FOLDER_MODEL_UID).attributes.path.columnName;
 
         // update folders below
         await this.strapi.db
@@ -243,14 +217,14 @@ class FolderService implements IFolderService {
           .getConnection(folderTable)
           .transacting(trx)
           .where(pathColumnName, existingFolder.path)
-          .orWhere(pathColumnName, "like", `${existingFolder.path}/%`)
+          .orWhere(pathColumnName, 'like', `${existingFolder.path}/%`)
           .update(
             pathColumnName,
             // @ts-ignore
-            this.strapi.db.connection.raw("REPLACE(??, ?, ?)", [
+            this.strapi.db.connection.raw('REPLACE(??, ?, ?)', [
               pathColumnName,
               existingFolder.path,
-              joinBy("/", destinationFolderPath, existingFolder.pathId),
+              joinBy('/', destinationFolderPath, existingFolder.pathId),
             ])
           );
 
@@ -260,14 +234,14 @@ class FolderService implements IFolderService {
           .getConnection(fileTable)
           .transacting(trx)
           .where(folderPathColumnName, existingFolder.path)
-          .orWhere(folderPathColumnName, "like", `${existingFolder.path}/%`)
+          .orWhere(folderPathColumnName, 'like', `${existingFolder.path}/%`)
           .update(
             folderPathColumnName,
             // @ts-ignore
-            this.strapi.db.connection.raw("REPLACE(??, ?, ?)", [
+            this.strapi.db.connection.raw('REPLACE(??, ?, ?)', [
               folderPathColumnName,
               existingFolder.path,
-              joinBy("/", destinationFolderPath, existingFolder.pathId),
+              joinBy('/', destinationFolderPath, existingFolder.pathId),
             ])
           );
 
@@ -280,13 +254,9 @@ class FolderService implements IFolderService {
       // update less critical information (name + updatedBy)
       const newFolder = setCreatorFields({ user, isEdition: true })({ name });
 
-      const folder = await this.strapi.entityService.update(
-        FOLDER_MODEL_UID,
-        id,
-        {
-          data: newFolder,
-        }
-      );
+      const folder = await this.strapi.entityService.update(FOLDER_MODEL_UID, id, {
+        data: newFolder,
+      });
 
       return folder;
     }
@@ -320,13 +290,11 @@ class FolderService implements IFolderService {
     // await Promise.all(filesToDelete.map((file) => getService('upload').remove(file)));
 
     // delete folders
-    const { count: totalFolderNumber } = await this.strapi.db
-      .query(FOLDER_MODEL_UID)
-      .deleteMany({
-        where: {
-          $or: pathsToDelete.map((path) => ({ path: { $startsWith: path } })),
-        },
-      });
+    const { count: totalFolderNumber } = await this.strapi.db.query(FOLDER_MODEL_UID).deleteMany({
+      where: {
+        $or: pathsToDelete.map((path) => ({ path: { $startsWith: path } })),
+      },
+    });
 
     return {
       folders,

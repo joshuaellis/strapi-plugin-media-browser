@@ -1,19 +1,20 @@
-import type { GenericController } from "@strapi/strapi/lib/core-api/controller";
-import { errors } from "@strapi/utils";
-import { z } from "zod";
-import { isEmpty } from "lodash";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import type { GenericController } from '@strapi/strapi/lib/core-api/controller';
+import { errors } from '@strapi/utils';
+import { z } from 'zod';
+import { isEmpty } from 'lodash';
 
-import { getService } from "../helpers/strapi";
+import { getService } from '../helpers/strapi';
 
-import { ACTIONS, FILE_MODEL_UID } from "../constants";
-import { IFilesService } from "../services/files";
-import { IFolderService } from "../services/folder";
+import { ACTIONS, FILE_MODEL_UID } from '../constants';
+import { IFilesService } from '../services/files';
+import { IFolderService } from '../services/folder';
 
 const { ApplicationError } = errors;
 
 const uploadFileBodySchema = z.object({
   hash: z.string(),
-  assetType: z.enum(["image", "file", "video"]),
+  assetType: z.enum(['image', 'file', 'video']),
   folder: z.string(),
 });
 
@@ -26,7 +27,7 @@ export default {
       params: { folder: folderName },
     } = ctx;
 
-    const { getFolderByName } = getService<IFolderService>("folder");
+    const { getFolderByName } = getService<IFolderService>('folder');
 
     const { id } = (await getFolderByName(folderName)) ?? {};
 
@@ -35,7 +36,7 @@ export default {
       filters: {
         folder: !id ? null : id,
       },
-      sort: { createdAt: "desc" },
+      sort: { createdAt: 'desc' },
     };
 
     // @ts-ignore it does exist thx
@@ -54,7 +55,7 @@ export default {
       ...ctx.query,
     });
 
-    const fileService: IFilesService = getService("files");
+    const fileService: IFilesService = getService('files');
 
     const results = await fileService.findAll(query);
 
@@ -69,7 +70,7 @@ export default {
       request: { body, files: { files } = {} },
     } = ctx;
 
-    const { upload }: IFilesService = getService("files");
+    const { upload }: IFilesService = getService('files');
     const permissionsManager =
       // @ts-ignore it does exist thx
       strapi.admin.services.permission.createPermissionsManager({
@@ -100,7 +101,7 @@ export default {
       if (id) {
         // return this.updateFileInfo(ctx);
       }
-      throw new ApplicationError("Files are empty");
+      throw new ApplicationError('Files are empty');
     }
 
     if (id) {

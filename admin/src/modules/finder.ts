@@ -1,7 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { startTypedListening } from "../store/middleware";
+import { startTypedListening } from '../store/middleware';
 
 export interface FinderState {
   folderHistory: string[];
@@ -15,14 +14,14 @@ export interface FinderState {
 const initialState: FinderState = {
   folderHistory: [],
   currentPlaceIndex: 0,
-  currentPlace: "",
+  currentPlace: '',
   canGoForward: false,
   canGoBack: false,
   selectedItems: [],
 };
 
 export const finderSlice = createSlice({
-  name: "finder",
+  name: 'finder',
   initialState,
   reducers: {
     goBack(state) {
@@ -74,9 +73,7 @@ export const finderSlice = createSlice({
       }
     },
     removeSelectedItem(state, action: PayloadAction<string>) {
-      state.selectedItems = state.selectedItems.filter(
-        (item) => item !== action.payload
-      );
+      state.selectedItems = state.selectedItems.filter((item) => item !== action.payload);
     },
   },
 });
@@ -99,15 +96,12 @@ export const {
 startTypedListening({
   predicate: (_, currentState, previousState) => {
     // Trigger logic after every action if this condition is true
-    return (
-      currentState.finder.currentPlaceIndex !==
-      previousState.finder.currentPlaceIndex
-    );
+    return currentState.finder.currentPlaceIndex !== previousState.finder.currentPlaceIndex;
   },
   effect: (_, api) => {
     const { currentPlaceIndex, folderHistory } = api.getState().finder;
 
-    let payload = {
+    const payload = {
       canGoBack: false,
       canGoForward: false,
     };

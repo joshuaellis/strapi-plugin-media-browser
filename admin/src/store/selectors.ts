@@ -1,5 +1,5 @@
-import { createSelector, Selector } from "@reduxjs/toolkit";
-import { RootState } from "./store";
+import { createSelector, Selector } from '@reduxjs/toolkit';
+import { RootState } from './store';
 
 const createTypedSelector = <TResult>(selector: Selector<RootState, TResult>) =>
   createSelector((state: RootState) => state, selector);

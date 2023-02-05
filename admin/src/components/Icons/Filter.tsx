@@ -1,12 +1,7 @@
-import * as React from "react";
+import * as React from 'react';
 
 export const Filter = (props: React.SVGAttributes<SVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="currentColor"
-    viewBox="0 0 256 256"
-    {...props}
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256" {...props}>
     <rect width="256" height="256" fill="none"></rect>
     <line
       x1="64"

@@ -1,24 +1,24 @@
-import * as React from "react";
-import styled from "styled-components";
-import { NotFound } from "@strapi/helper-plugin";
-import { Switch, Route } from "react-router-dom";
-import { useIntl } from "react-intl";
-import { Helmet } from "react-helmet";
-import { Main } from "@strapi/design-system";
-import { Provider } from "react-redux";
+import * as React from 'react';
+import styled from 'styled-components';
+import { NotFound } from '@strapi/helper-plugin';
+import { Switch, Route } from 'react-router-dom';
+import { useIntl } from 'react-intl';
+import { Helmet } from 'react-helmet';
+import { Main } from '@strapi/design-system';
+import { Provider } from 'react-redux';
 
-import { Finder } from "../Finder";
+import { Finder } from '../Finder';
 
-import { prefixTranslation } from "../../helpers/translations";
+import { prefixTranslation } from '../../helpers/translations';
 
-import { store } from "../../store/store";
-import { BASE_URL } from "../../constants";
+import { store } from '../../store/store';
+import { BASE_URL } from '../../constants';
 
 const App: React.FunctionComponent = () => {
   const { formatMessage } = useIntl();
   const title = formatMessage({
-    id: prefixTranslation("plugin.name"),
-    defaultMessage: "Media Library",
+    id: prefixTranslation('plugin.name'),
+    defaultMessage: 'Media Library',
   });
 
   return (

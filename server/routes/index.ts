@@ -1,4 +1,4 @@
-import admin from "./admin";
+import admin from './admin';
 
 export default {
   admin,

@@ -1,7 +1,7 @@
-import * as React from "react";
-import styled from "styled-components";
+import * as React from 'react';
+import styled from 'styled-components';
 
-import { Folder as FolderIcon } from "../Icons/Folder";
+import { Folder as FolderIcon } from '../Icons/Folder';
 
 interface FolderBaseProps {
   children: React.ReactNode;

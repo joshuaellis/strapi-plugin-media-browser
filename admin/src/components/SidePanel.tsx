@@ -1,12 +1,12 @@
-import * as React from "react";
-import styled from "styled-components";
-import { useGetAllFoldersQuery, useFolderMutationApi } from "../data/folderApi";
+import * as React from 'react';
+import styled from 'styled-components';
+import { useGetAllFoldersQuery, useFolderMutationApi } from '../data/folderApi';
 
-import { Folder } from "./Folder/Folder";
-import { FolderNew } from "./Folder/FolderNew";
+import { Folder } from './Folder/Folder';
+import { FolderNew } from './Folder/FolderNew';
 
-import { IconButton } from "./IconButton";
-import { Plus } from "./Icons/Plus";
+import { IconButton } from './IconButton';
+import { Plus } from './Icons/Plus';
 
 /**
  * TODO: don't remove the "new folder" when the form is submit, rather move it to the alphabetically correct position.
@@ -47,39 +47,35 @@ export const SideBar = () => {
      * Therefore focussing the new folder button.
      */
     if (newFolderRef.current && clearInput) {
-      newFolderRef.current.value = "";
+      newFolderRef.current.value = '';
     }
     setShowNewFolder(false);
     buttonRef.current.focus();
   };
 
-  const handleNewFolderFormSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleNewFolderFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const data = new FormData(e.currentTarget);
 
-    const folderNameValue = data.get("folderName");
+    const folderNameValue = data.get('folderName');
 
-    if (folderNameValue === "") {
+    if (folderNameValue === '') {
       hideNewFolderAndRestoreFocus();
       return;
-    } else if (typeof folderNameValue === "string") {
+    } else if (typeof folderNameValue === 'string') {
       const res = await postNewFolder({
         name: folderNameValue,
         parent: null,
       });
 
-      if ("data" in res) {
+      if ('data' in res) {
         /* This assumes success and we therefore reset the form */
         hideNewFolderAndRestoreFocus(true);
       }
     }
   };
 
-  const handleNewFolderBlur: React.FocusEventHandler<HTMLInputElement> = (
-    e
-  ) => {
-    if (e.currentTarget.value === "") {
+  const handleNewFolderBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
+    if (e.currentTarget.value === '') {
       hideNewFolderAndRestoreFocus();
     } else {
       // TODO: handle blur but also take into account blur happens when the form is submitted
@@ -89,7 +85,7 @@ export const SideBar = () => {
   const handleDeleteClick = async (id: number) => {
     const res = await deleteFolder(id.toString());
 
-    if ("error" in res) {
+    if ('error' in res) {
       // TODO: handle error
     }
   };
@@ -102,10 +98,10 @@ export const SideBar = () => {
       },
     });
 
-    if ("data" in res) {
+    if ('data' in res) {
       return true;
     } else {
-      if ("error" in res) {
+      if ('error' in res) {
         // TODO: handle error
       }
       return false;
@@ -117,11 +113,7 @@ export const SideBar = () => {
       <Space />
       <AsideTop>
         <SidePanelTitle>Folders</SidePanelTitle>
-        <DimmedIconButton
-          ref={buttonRef}
-          label="New folder at root"
-          onClick={handleNewFolderClick}
-        >
+        <DimmedIconButton ref={buttonRef} label="New folder at root" onClick={handleNewFolderClick}>
           <Plus />
         </DimmedIconButton>
       </AsideTop>
