@@ -1,9 +1,10 @@
 import { FOLDER_MODEL_UID } from '../constants';
+import { IFolderService } from '../services/folder';
 import { getService } from './strapi';
 
 export const validateFolderNameIsUnique = (id?: string) => async (name?: string) => {
   try {
-    const { checkFolderExists } = getService('folder');
+    const { checkFolderExists } = getService<IFolderService>('folder');
 
     const filters: { name?: string; id?: { $ne: string } } = { name };
 
@@ -27,7 +28,7 @@ export const validateFolderNameIsUnique = (id?: string) => async (name?: string)
 export const validateFolderExists = async (id: string | number | null) => {
   try {
     if (id === null) return true;
-    const { checkFolderExists } = getService('folder');
+    const { checkFolderExists } = getService<IFolderService>('folder');
 
     const doesExist = await checkFolderExists({ id });
 

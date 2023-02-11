@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import Koa from 'koa';
 import type { GenericController } from '@strapi/strapi/lib/core-api/controller';
 import { errors } from '@strapi/utils';
 import { z } from 'zod';
@@ -19,6 +20,17 @@ const uploadFileBodySchema = z.object({
 });
 
 export type UploadFileBody = z.infer<typeof uploadFileBodySchema>;
+
+interface DeleteContext extends Koa.Context {
+  request: DeleteRequest;
+}
+
+interface DeleteRequest extends Koa.Request {
+  body: {
+    action: 'delete';
+    uuid: string | string[];
+  };
+}
 
 export default {
   async find(ctx) {
@@ -109,6 +121,48 @@ export default {
     }
 
     const parsedOutput = await this.uploadFiles(ctx);
+
+    return parsedOutput;
+  },
+
+  async update(ctx: DeleteContext) {
+    const { body } = ctx.request;
+
+    if (body.action === 'delete') {
+      return this.deleteFile(ctx);
+    }
+  },
+
+  async deleteFile(ctx: DeleteContext) {
+    const {
+      request: { body },
+      state: { userAbility },
+    } = ctx;
+
+    const { uuid } = body;
+
+    const permissionsManager =
+      // @ts-ignore it does exist thx
+      strapi.admin.services.permission.createPermissionsManager({
+        ability: userAbility,
+        model: FILE_MODEL_UID,
+      });
+
+    const { deleteFile } = getService<IFilesService>('files');
+
+    if (!uuid) {
+      return ctx.badRequest('uuid should be a string or an array of strings');
+    }
+
+    const uuidsToDelete = Array.isArray(uuid) ? uuid : [uuid];
+
+    const deletedFiles = await Promise.all(uuidsToDelete.map((id) => deleteFile(id)));
+
+    if (deletedFiles.length === 0) {
+      return ctx.notFound('file not found');
+    }
+
+    const parsedOutput = await permissionsManager.sanitizeOutput(deletedFiles);
 
     return parsedOutput;
   },

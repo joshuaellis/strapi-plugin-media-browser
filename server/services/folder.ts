@@ -20,7 +20,12 @@ export interface FolderEntity {
 
 interface StrapiQueryFolderFilters {
   name?: string;
-  id?: string | number;
+  id?:
+    | string
+    | number
+    | {
+        $ne: string;
+      };
 }
 
 export interface IFolderService {
@@ -47,7 +52,7 @@ export interface IFolderService {
   /**
    * Get the path of a folder based on it's id
    */
-  getPath: (folderId?: string) => Promise<string>;
+  getPath: (folderId?: number) => Promise<string>;
   getFolderByName: (name: string) => Promise<Pick<FolderEntity, 'id' | 'name'>>;
   /**
    * Check if a folder exists based on a query
@@ -78,7 +83,7 @@ class FolderService implements IFolderService {
     return folder;
   };
 
-  getPath = async (folderId?: string): Promise<string> => {
+  getPath = async (folderId?: number): Promise<string> => {
     if (!folderId) return '/';
 
     const parentFolder = await this.strapi.entityService.findOne(FOLDER_MODEL_UID, folderId);

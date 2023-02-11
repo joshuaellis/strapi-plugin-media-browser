@@ -1,8 +1,10 @@
-import * as React from "react";
-import * as RadixDropdown from "@radix-ui/react-dropdown-menu";
-import styled, { css } from "styled-components";
+import * as React from 'react';
+import * as RadixDropdown from '@radix-ui/react-dropdown-menu';
+import styled, { css } from 'styled-components';
 
-import { Check } from "./Icons/Check";
+import { Check } from './Icons/Check';
+
+export type MenuItemProps = RadixDropdown.MenuItemProps;
 
 export const Content = (props: RadixDropdown.MenuContentProps) => (
   <StyledContent align="start" sideOffset={5} {...props} />
@@ -29,10 +31,15 @@ const GenericItemStyles = css`
   background-color: transparent;
   transition: background-color 200ms ease-out;
 
-  &:focus-visible,
-  &:hover {
+  &:focus-visible:not([data-disabled]),
+  &:hover:not([data-disabled]) {
     outline: none !important;
     background-color: #0855c9;
+  }
+
+  &[data-disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 

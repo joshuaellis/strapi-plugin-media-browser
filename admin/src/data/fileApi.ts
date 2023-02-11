@@ -56,8 +56,32 @@ const fileApi = strapiAdminApi.injectEndpoints({
           ? res.map((file) => ({ type: 'Files', folder: file.folderPath }))
           : [{ type: 'Files', folder: '' }],
     }),
+    deleteFiles: build.mutation<MediaFile[], { uuid: string | string[] }>({
+      query: ({ uuid }) => ({
+        url: `files`,
+        method: 'PATCH',
+        data: {
+          action: 'delete',
+          uuid,
+        },
+      }),
+      invalidatesTags: (res) =>
+        res
+          ? res.map((file) => ({ type: 'Files', folder: file.folderPath }))
+          : [{ type: 'Files', folder: '' }],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllFilesAtFolderQuery } = fileApi;
+const { useGetAllFilesAtFolderQuery, useDeleteFilesMutation } = fileApi;
+
+export { useGetAllFilesAtFolderQuery };
+
+export const useFileMutationApi = () => {
+  const [deleteFile] = useDeleteFilesMutation();
+
+  return {
+    deleteFile,
+  };
+};

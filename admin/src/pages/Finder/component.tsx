@@ -4,22 +4,23 @@
  *
  */
 
-import React from "react";
-import { useHistory, useLocation } from "react-router-dom";
-import styled from "styled-components";
+import * as React from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { FileBrowser } from "../../components/FileBrowser";
-import { Header } from "../../components/Header";
-import { SideBar } from "../../components/SidePanel";
+import { FileBrowser } from '../../components/FileBrowser';
+import { Header } from '../../components/Header';
+import { SideBar } from '../../components/SidePanel';
 
-import { useTypedDispatch, useTypedSelector } from "../../store/hooks";
+import { useTypedDispatch, useTypedSelector } from '../../store/hooks';
 
-import { goBack, goForward, pushState } from "../../modules/finder";
+import { goBack, goForward, pushState, replaceSelectedItems } from '../../modules/finder';
 
-import { useGetAllFilesAtFolderQuery } from "../../data/fileApi";
-import { useQuery } from "../../hooks/useQuery";
+import { useFileMutationApi, useGetAllFilesAtFolderQuery } from '../../data/fileApi';
+import { useQuery } from '../../hooks/useQuery';
 
-import axios from "../../utils/axiosInstance";
+import axios from '../../utils/axiosInstance';
+import { ActionItem, ActionsToolbarButtonProps } from '../../components/Toolbar/Actions';
 
 export const Finder: React.FunctionComponent = () => {
   const location = useLocation();
@@ -31,9 +32,11 @@ export const Finder: React.FunctionComponent = () => {
   const [query] = useQuery();
   const selectedUUIDs = useTypedSelector((state) => state.finder.selectedItems);
   const { data: files = [] } = useGetAllFilesAtFolderQuery({
-    folder: folder === "root" ? "" : folder,
-    sortBy: query.get("sortBy") ?? "none",
+    folder: folder === 'root' ? '' : folder,
+    sortBy: query.get('sortBy') ?? 'none',
   });
+
+  const { deleteFile } = useFileMutationApi();
 
   const isGoing = React.useRef({
     forward: false,
@@ -45,7 +48,7 @@ export const Finder: React.FunctionComponent = () => {
     canGoForward: state.finder.canGoForward,
   }));
 
-  const [_, subroute] = location.pathname.split("/plugins/media-library/");
+  const [_, subroute] = location.pathname.split('/plugins/media-library/');
 
   /**
    * TODO: Handle back and forward when the name of the folder has changed (thus the subroute is _incorrect_).
@@ -61,9 +64,9 @@ export const Finder: React.FunctionComponent = () => {
       return;
     } else {
       // this should only occur on link movements, not back/forward clicks
-      dispatch(pushState(subroute ?? "root"));
+      dispatch(pushState(subroute ?? 'root'));
     }
-  }, [subroute]);
+  }, [dispatch, subroute]);
 
   const handleBackClick = () => {
     if (canGoBack) {
@@ -92,9 +95,7 @@ export const Finder: React.FunctionComponent = () => {
   };
 
   const handleDownloadClick = () => {
-    const itemsToDownload = files.filter((file) =>
-      selectedUUIDs.includes(file.uuid)
-    );
+    const itemsToDownload = files.filter((file) => selectedUUIDs.includes(file.uuid));
 
     Promise.all(
       itemsToDownload.map(async (file) => {
@@ -103,26 +104,26 @@ export const Finder: React.FunctionComponent = () => {
            * Get the _actual_ file from the server as a blob
            */
           const response = await axios.get(file.url, {
-            responseType: "blob",
+            responseType: 'blob',
           });
 
-          if ("data" in response) {
+          if ('data' in response) {
             /**
              * Create the blob and object URL
              * Create a link and click it to download the file
              * Revoke the object URL and the anchor
              */
-            const blob = new Blob([response.data], { type: "image/png" });
+            const blob = new Blob([response.data], { type: 'image/png' });
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.style.display = "none";
+            const a = document.createElement('a');
+            a.style.display = 'none';
             a.href = url;
             a.download = file.name;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-          } else if ("error" in response) {
+          } else if ('error' in response) {
             throw response.error;
           }
         } catch (err) {
@@ -140,7 +141,7 @@ export const Finder: React.FunctionComponent = () => {
      * then we want to mark the card as selected so the
      * necessary styles can be applied.
      */
-    if ("uuid" in card) {
+    if ('uuid' in card) {
       return {
         ...card,
         isSelected: selectedUUIDs.includes(card.uuid),
@@ -150,6 +151,41 @@ export const Finder: React.FunctionComponent = () => {
     return card;
   });
 
+  const handleDeleteClick: ActionItem['onClick'] = async () => {
+    const res = await deleteFile({ uuid: selectedItems });
+
+    if ('data' in res) {
+      /**
+       * The files have been deleted and the store should
+       * therefore reflect that the IDS can not be selected
+       * and should be empty.
+       */
+      dispatch(replaceSelectedItems());
+    } else {
+      // res.error
+      // TODO: handle error
+    }
+  };
+
+  const actionItems: ActionsToolbarButtonProps['items'] = [
+    {
+      label: 'Delete',
+      onClick: handleDeleteClick,
+      type: 'item',
+      disabled: selectedItems.length === 0,
+    },
+    {
+      type: 'separator',
+    },
+    {
+      label: 'Get Info',
+      // eslint-disable-next-line no-console
+      onClick: () => console.log('get info'),
+      type: 'item',
+      disabled: selectedItems.length !== 1,
+    },
+  ];
+
   return (
     <>
       <Header
@@ -158,9 +194,11 @@ export const Finder: React.FunctionComponent = () => {
         onBackClick={handleBackClick}
         onForwardClick={handleForwardClick}
         canDownload={selectedItems.length > 0}
+        canUseActions={selectedItems.length > 0}
         onDownloadClick={handleDownloadClick}
+        actionItems={actionItems}
       >
-        {subroute ? subroute : "All files"}
+        {subroute ? subroute : 'All files'}
       </Header>
       <SideBar />
       <Container>

@@ -17,6 +17,8 @@ import { UploadFileBody } from '../controllers/admin-file';
 import { getService } from '../helpers/strapi';
 import { StrapiUser } from '../types/strapi';
 import { IImagesService } from './images';
+import { IFolderService } from './folder';
+import { IProviderService } from './provider';
 
 export interface UploadFile {
   readonly size: number;
@@ -30,7 +32,7 @@ export interface FileEntity {
   assetType: 'image' | 'file' | 'video';
   name: string;
   // TODO: Add setting a folder & folderPath
-  folder: null;
+  folder: number | null;
   folderPath: string;
   hash: string;
   ext: string;
@@ -51,6 +53,10 @@ export interface IFilesService {
     { data, file }: { data: UploadFileBody; file: UploadFile },
     user?: StrapiUser
   ) => Promise<FileEntity | undefined>;
+  /**
+   * Delete a file based on it's UUID
+   */
+  deleteFile: (uuid: string) => Promise<FileEntity | undefined>;
   /**
    * Find many files based on a query or omit the query
    * to find all files in the DB.
@@ -107,7 +113,7 @@ class FilesService implements IFilesService {
 
     const usedName = file.name.normalize();
 
-    const { getPath, getFolderByName } = getService('folder');
+    const { getPath, getFolderByName } = getService<IFolderService>('folder');
 
     const { id: folderId } = (await getFolderByName(fileInfo.folder)) ?? {};
 
@@ -150,7 +156,7 @@ class FilesService implements IFilesService {
         ...imageWithDimensions,
       };
     } else {
-      const uploadedFile = await getService('provider').upload(file);
+      const uploadedFile = await getService<IProviderService>('provider').upload(file);
 
       dataForEntityCreation = {
         ...dataForEntityCreation,
@@ -167,6 +173,35 @@ class FilesService implements IFilesService {
 
     return res;
   };
+  /**
+   * Manipulations
+   */
+  deleteFile = async (uuid: string): Promise<FileEntity | undefined> => {
+    /**
+     * TODO: You shouldn't be able to delete a file when it's used in an actual entity.
+     */
+
+    const [file] = await this.strapi.entityService.findMany(FILE_MODEL_UID, {
+      fields: ['id', 'hash', 'ext'],
+      filters: {
+        uuid,
+      },
+    });
+
+    const { id: fileID } = file;
+
+    if (!fileID) {
+      return undefined;
+    }
+
+    const { delete: deleteFile } = getService<IProviderService>('provider');
+
+    await deleteFile(file);
+
+    const deletedFile = await this.strapi.entityService.delete(FILE_MODEL_UID, fileID);
+
+    return deletedFile;
+  };
 
   /**
    * Fetching
@@ -176,11 +211,12 @@ class FilesService implements IFilesService {
   };
 }
 
-export default ({ strapi }: { strapi: Strapi }) => {
+export default ({ strapi }: { strapi: Strapi }): IFilesService => {
   const service = new FilesService(strapi);
 
   return {
     upload: service.upload,
     findAll: service.findAll,
+    deleteFile: service.deleteFile,
   };
 };

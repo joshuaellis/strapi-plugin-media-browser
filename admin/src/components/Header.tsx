@@ -1,16 +1,16 @@
-import * as React from "react";
-import styled from "styled-components";
-import * as Toolbar from "@radix-ui/react-toolbar";
+import * as React from 'react';
+import styled from 'styled-components';
+import * as Toolbar from '@radix-ui/react-toolbar';
 
-import { IconButton } from "./IconButton";
-import { LeftArrow } from "./Icons/LeftArrow";
-import { RightArrow } from "./Icons/RightArrow";
-import { Search } from "./Icons/Search";
-import { FiltersToolbarButton } from "./Toolbar/Filters";
-import { Download } from "./Icons/Download";
-import { TagsToolbarButton } from "./Toolbar/Tags";
-import { ActionsToolbarButton } from "./Toolbar/Actions";
-import { ToolbarButton } from "./ToolbarButton";
+import { IconButton } from './IconButton';
+import { LeftArrow } from './Icons/LeftArrow';
+import { RightArrow } from './Icons/RightArrow';
+import { Search } from './Icons/Search';
+import { FiltersToolbarButton } from './Toolbar/Filters';
+import { Download } from './Icons/Download';
+import { TagsToolbarButton } from './Toolbar/Tags';
+import { ActionsToolbarButton, ActionsToolbarButtonProps } from './Toolbar/Actions';
+import { ToolbarButton } from './ToolbarButton';
 
 interface HeaderProps {
   children: React.ReactNode;
@@ -20,6 +20,8 @@ interface HeaderProps {
   forwardButtonDisabled?: boolean;
   canDownload?: boolean;
   onDownloadClick?: React.MouseEventHandler<HTMLButtonElement>;
+  canUseActions?: boolean;
+  actionItems?: Pick<ActionsToolbarButtonProps, 'items'>['items'];
 }
 
 export const Header = ({
@@ -29,6 +31,8 @@ export const Header = ({
   backButtonDisabled,
   forwardButtonDisabled,
   canDownload = false,
+  actionItems,
+  canUseActions = false,
   onDownloadClick,
 }: HeaderProps) => {
   const handleBackClick = () => {
@@ -53,18 +57,10 @@ export const Header = ({
     <Head>
       <HeaderLeft>
         <HeaderArrows>
-          <IconButton
-            disabled={backButtonDisabled}
-            label="Back"
-            onClick={handleBackClick}
-          >
+          <IconButton disabled={backButtonDisabled} label="Back" onClick={handleBackClick}>
             <LeftArrow />
           </IconButton>
-          <IconButton
-            disabled={forwardButtonDisabled}
-            label="Forward"
-            onClick={handleForwardClick}
-          >
+          <IconButton disabled={forwardButtonDisabled} label="Forward" onClick={handleForwardClick}>
             <RightArrow />
           </IconButton>
         </HeaderArrows>
@@ -80,7 +76,7 @@ export const Header = ({
           <Download />
         </ToolbarButton>
         <TagsToolbarButton disabled />
-        <ActionsToolbarButton disabled />
+        <ActionsToolbarButton disabled={!canUseActions} items={actionItems} />
         <ToolbarSep />
         <ToolbarButton>
           <Search />

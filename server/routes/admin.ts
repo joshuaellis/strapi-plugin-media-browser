@@ -36,6 +36,22 @@ export default {
       },
     },
     {
+      method: 'PATCH',
+      path: '/files',
+      handler: 'admin-file.update',
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin',
+          {
+            name: 'admin::hasPermissions',
+            config: {
+              actions: [ACTIONS.delete],
+            },
+          },
+        ],
+      },
+    },
+    {
       method: 'POST',
       path: '/files',
       handler: 'admin-file.upload',

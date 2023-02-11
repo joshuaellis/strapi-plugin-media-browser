@@ -24,6 +24,7 @@ export interface IProviderService {
    * Upload a file via the configured provider.
    */
   upload: (file: FileEntity) => Promise<ProviderUploadFile>;
+  delete: (file: FileEntity) => Promise<void>;
 }
 
 class ProviderService implements IProviderService {
@@ -60,6 +61,14 @@ class ProviderService implements IProviderService {
      */
     return uploadFile;
   };
+
+  delete = async (file: FileEntity): Promise<void> => {
+    const { delete: deleteFile } = this.strapi.plugin(PLUGIN_NAME).provider;
+
+    if (isFunction(deleteFile)) {
+      await deleteFile(file);
+    }
+  };
 }
 
 export default ({ strapi }: { strapi: Strapi }): IProviderService => {
@@ -67,5 +76,6 @@ export default ({ strapi }: { strapi: Strapi }): IProviderService => {
 
   return {
     upload: service.upload,
+    delete: service.delete,
   };
 };
