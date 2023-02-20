@@ -14,6 +14,7 @@
     "strapi-server"
   ],
   "dependencies": {
+    "@radix-ui/react-accordion": "^1.1.0",
     "@radix-ui/react-dialog": "^1.0.2",
     "@radix-ui/react-dropdown-menu": "^2.0.2",
     "@radix-ui/react-toolbar": "^1.0.2",
@@ -21,7 +22,6 @@
     "@reduxjs/toolkit": "^1.9.1",
     "@strapi/design-system": "^1.4.1",
     "@strapi/icons": "^1.4.1",
-    "@strapi/provider-upload-local": "^4.6.0",
     "fs-extra": "^11.1.0",
     "koa-range": "^0.3.0",
     "koa-static": "^5.0.0",
@@ -45,6 +45,8 @@
     "@types/koa-range": "^0.3.2",
     "@types/koa-static": "^4.0.2",
     "@types/mime-types": "^2.1.1",
+    "@types/react": "^17.0.53",
+    "@types/react-dom": "^17.0.18",
     "@types/react-helmet": "^6.1.6",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26",

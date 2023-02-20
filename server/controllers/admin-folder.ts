@@ -8,9 +8,9 @@ import { validateFolderNameIsUnique, validateFolderExists } from '../helpers/fol
 
 import { FOLDER_MODEL_UID } from '../constants';
 
-import { IFolderService } from '../services/folder';
+import { NO_SLASH_REGEX } from '../helpers/regex';
 
-const NO_SLASH_REGEX = /^[^/]+$/;
+import { IFolderService } from '../services/folder';
 
 const createFolderBodySchema = z
   .object({

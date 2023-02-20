@@ -65,7 +65,7 @@ export default {
         type: 'unique',
       },
       {
-        name: `${PLUGIN_NAME}"_folders_path_index"}`,
+        name: `${PLUGIN_NAME}_folders_path_index`,
         columns: ['path'],
         type: 'unique',
       },

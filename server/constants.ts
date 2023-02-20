@@ -10,6 +10,7 @@ const ACTIONS = {
 
 const FOLDER_MODEL_UID = `${PLUGIN_PREFIX}.ml-folder`;
 const FILE_MODEL_UID = `${PLUGIN_PREFIX}.ml-file`;
+const TAG_MODEL_UID = `${PLUGIN_PREFIX}.ml-tag`;
 
 const CREATED_BY_ATTRIBUTE = 'createdBy';
 const UPDATED_BY_ATTRIBUTE = 'updatedBy';
@@ -20,6 +21,7 @@ export {
   ACTIONS,
   FOLDER_MODEL_UID,
   FILE_MODEL_UID,
+  TAG_MODEL_UID,
   CREATED_BY_ATTRIBUTE,
   UPDATED_BY_ATTRIBUTE,
 };

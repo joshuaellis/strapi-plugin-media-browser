@@ -123,5 +123,37 @@ export default {
         ],
       },
     },
+    {
+      method: 'GET',
+      path: '/tags',
+      handler: 'admin-tag.find',
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin',
+          {
+            name: 'admin::hasPermissions',
+            config: {
+              actions: [ACTIONS.read],
+            },
+          },
+        ],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/tags',
+      handler: 'admin-tag.create',
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin',
+          {
+            name: 'admin::hasPermissions',
+            config: {
+              actions: [ACTIONS.create],
+            },
+          },
+        ],
+      },
+    },
   ],
 };

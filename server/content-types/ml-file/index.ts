@@ -1,4 +1,4 @@
-import { FOLDER_MODEL_UID, PLUGIN_NAME } from '../../constants';
+import { FOLDER_MODEL_UID, PLUGIN_NAME, TAG_MODEL_UID } from '../../constants';
 
 export default {
   schema: {
@@ -105,11 +105,18 @@ export default {
         required: true,
         private: true,
       },
+      tags: {
+        type: 'relation',
+        relation: 'manyToMany',
+        target: TAG_MODEL_UID,
+        inversedBy: 'files',
+        private: true,
+      },
     },
     // experimental feature:
     indexes: [
       {
-        name: `${PLUGIN_NAME}_files_folder_path_index}`,
+        name: `${PLUGIN_NAME}_files_folder_path_index`,
         columns: ['folder_path'],
         type: null,
       },

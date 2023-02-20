@@ -50,6 +50,6 @@ const axiosBaseQuery =
 export const strapiAdminApi = createApi({
   reducerPath: 'strapiAdminApi',
   baseQuery: axiosBaseQuery(`${process.env.STRAPI_ADMIN_BACKEND_URL}/${pluginId}`),
-  tagTypes: ['Folders', 'Files'],
+  tagTypes: ['Folders', 'Files', 'Tags'],
   endpoints: () => ({}),
 });

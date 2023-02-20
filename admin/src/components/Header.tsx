@@ -75,7 +75,7 @@ export const Header = ({
         >
           <Download />
         </ToolbarButton>
-        <TagsToolbarButton disabled />
+        <TagsToolbarButton />
         <ActionsToolbarButton disabled={!canUseActions} items={actionItems} />
         <ToolbarSep />
         <ToolbarButton>

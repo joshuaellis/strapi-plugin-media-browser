@@ -22,6 +22,8 @@ import { useQuery } from '../../hooks/useQuery';
 import axios from '../../utils/axiosInstance';
 import { ActionItem, ActionsToolbarButtonProps } from '../../components/Toolbar/Actions';
 
+import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
+
 export const Finder: React.FunctionComponent = () => {
   const location = useLocation();
   const history = useHistory();
@@ -201,7 +203,7 @@ export const Finder: React.FunctionComponent = () => {
         {subroute ? subroute : 'All files'}
       </Header>
       <SideBar />
-      <Container>
+      <Container id={FILE_BROWSER_CONTAINER_ID}>
         <FileBrowser files={filesWithSelection} />
       </Container>
     </>
@@ -212,4 +214,5 @@ const Container = styled.div`
   grid-column: 2 / 4;
   grid-row: 2 / 3;
   color: #fafafa66;
+  position: relative;
 `;
