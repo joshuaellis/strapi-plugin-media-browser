@@ -57,7 +57,7 @@ export default {
         },
       },
       orderBy: {
-        name: 'desc',
+        name: 'asc',
       },
     };
 

@@ -267,7 +267,7 @@ class FolderService implements IFolderService {
     }
   };
 
-  async delete(ids: string[]) {
+  delete = async (ids: string[]) => {
     const folders = (await this.strapi.db
       .query(FOLDER_MODEL_UID)
       .findMany({ where: { id: { $in: ids } } })) as FolderEntity[];
@@ -306,7 +306,7 @@ class FolderService implements IFolderService {
       totalFolderNumber,
       totalFileNumber: filesToDelete.length,
     };
-  }
+  };
 }
 
 export default ({ strapi }: { strapi: Strapi }): IFolderService => {

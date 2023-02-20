@@ -21,7 +21,7 @@ const folderApi = strapiAdminApi.injectEndpoints({
       query: (body) => ({
         url: 'folders',
         method: 'POST',
-        body,
+        data: body,
       }),
       invalidatesTags: ['Folders'],
     }),
@@ -38,7 +38,7 @@ const folderApi = strapiAdminApi.injectEndpoints({
       query: ({ id, patch = {} }) => ({
         url: 'folders',
         method: 'PUT',
-        body: {
+        data: {
           id,
           patch,
         },

@@ -75,7 +75,7 @@ export const Folder = ({ title, id, onDeleteClick, onRename }: FolderProps) => {
     return (
       <FolderNew
         ref={inputRef}
-        intialValue={title}
+        initialValue={title}
         onBlur={handleRenameInputBlur}
         onFormSubmit={handleRenameInputSubmit}
       />

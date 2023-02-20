@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import styled, { keyframes } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { animated, useTransition } from '@react-spring/web';
 import * as Accordion from '@radix-ui/react-accordion';
 
@@ -9,12 +9,14 @@ import { ToolbarButton } from '../ToolbarButton';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { Cross } from '../Icons/Cross';
 import { InfoCircle } from '../Icons/InfoCircle';
+import { Pencil } from '../Icons/Pencil';
 import { IconButton } from '../IconButton';
+import { TextButton } from '../TextButton';
+import { TextInput, TextInputProps } from '../TextInput';
 
-import { useGetAllTagsQuery, TagEntity } from '../../data/tagApi';
+import { useGetAllTagsQuery, TagEntity, useTagMutationApi } from '../../data/tagApi';
 
 import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
-import { Pencil } from '../Icons/Pencil';
 
 interface TagsToolbarButtonProps {
   disabled?: boolean;
@@ -23,8 +25,14 @@ interface TagsToolbarButtonProps {
 export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
   const [container, setContainer] = React.useState<HTMLElement | null>(null);
   const [isOpen, setIsOpen] = React.useState(false);
+  const [showNewTagForm, setShowNewTagForm] = React.useState(false);
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null!);
 
   const { data } = useGetAllTagsQuery(undefined);
+
+  const { postNewTag } = useTagMutationApi();
 
   React.useLayoutEffect(() => {
     const container = document.getElementById(FILE_BROWSER_CONTAINER_ID);
@@ -52,8 +60,69 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
     },
   });
 
+  const handleNewTagClick = () => {
+    setShowNewTagForm(true);
+  };
+
+  const hideNewTagAndRestoreFocus = (clearInput = false) => {
+    /**
+     * Restore UI to the state before the new folder form was shown.
+     * Therefore focussing the new folder button.
+     */
+    if (inputRef.current && clearInput) {
+      inputRef.current.value = '';
+    }
+    setShowNewTagForm(false);
+    triggerRef.current.focus();
+  };
+
+  const handleNewTagBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
+    if (e.currentTarget.value === '') {
+      hideNewTagAndRestoreFocus();
+    } else {
+      // TODO: handle blur but also take into account blur happens when the form is submitted
+    }
+  };
+
+  React.useEffect(() => {
+    if (showNewTagForm && inputRef.current) {
+      /**
+       * Focus the input in the form when the form is shown.
+       */
+      inputRef.current.focus();
+    }
+  }, [showNewTagForm]);
+
+  const handleNewTagFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const data = new FormData(e.currentTarget);
+
+    const tagName = data.get('tagName');
+
+    if (tagName === '') {
+      hideNewTagAndRestoreFocus();
+      return;
+    } else if (typeof tagName === 'string') {
+      const res = await postNewTag({
+        name: tagName,
+      });
+
+      if ('data' in res) {
+        /* This assumes success and we therefore reset the form */
+        hideNewTagAndRestoreFocus(true);
+      }
+    }
+  };
+
+  const handleOpenChange = (internalIsOpen: boolean) => {
+    if (!internalIsOpen) {
+      setShowNewTagForm(false);
+    }
+
+    setIsOpen(internalIsOpen);
+  };
+
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
       <ToolbarButton asChild aria-disabled={disabled}>
         <Dialog.Trigger style={{ pointerEvents: isOpen ? 'none' : 'all' }} disabled={disabled}>
           <Tag />
@@ -83,6 +152,15 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                     <Divider />
                     <Accordion.Root type="multiple" asChild>
                       <TagList>
+                        {showNewTagForm ? (
+                          <TagItem $isForm>
+                            <NewTagForm
+                              ref={inputRef}
+                              onBlur={handleNewTagBlur}
+                              onFormSubmit={handleNewTagFormSubmit}
+                            />
+                          </TagItem>
+                        ) : null}
                         {data?.map((tag) => (
                           <TagItem key={tag.uuid}>
                             <TagAccordion {...tag} />
@@ -90,7 +168,16 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                         ))}
                       </TagList>
                     </Accordion.Root>
+                    <Divider />
                   </TagContainer>
+                  <TextButton
+                    ref={triggerRef}
+                    disabled={showNewTagForm}
+                    aria-disabled={showNewTagForm}
+                    onClick={handleNewTagClick}
+                  >
+                    New Tag
+                  </TextButton>
                 </DialogContent>
               </Dialog.Content>
             </>
@@ -114,6 +201,7 @@ const DialogContent = styled(animated.div)`
   display: flex;
   flex-direction: column;
   color: #fafafa;
+  gap: 20px;
 `;
 
 const DialogOverlay = styled(animated.div)`
@@ -141,11 +229,12 @@ const DialogHeader = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
 `;
 
 const TagContainer = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Divider = styled.div`
@@ -157,11 +246,26 @@ const Divider = styled.div`
 
 const TagList = styled.ul`
   padding-top: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 `;
 
-const TagItem = styled.li`
-  background-color: rgba(255, 255, 255, 0.04);
+const TagItem = styled.li<{ $isForm?: boolean }>`
+  background-color: ${(props) => (props.$isForm ? 'transparent' : 'rgba(255, 255, 255, 0.04)')};
   border-radius: 5px;
+  padding: ${(props) => (props.$isForm ? '12px 15px' : '')};
+  border: ${(props) => (props.$isForm ? '1px solid rgba(255, 255, 255, 0.2)' : 'none')};
+
+  ${(props) =>
+    props.$isForm
+      ? css`
+          &:focus-within {
+            outline: 2px solid #0855c9;
+          }
+        `
+      : ''}
 `;
 
 type TagAccordionProps = TagEntity;
@@ -300,3 +404,32 @@ const AccordionListItemFlex = styled.div`
   font-size: 14px;
   opacity: 0.8;
 `;
+
+interface NewTagFormProps extends Pick<TextInputProps, 'onBlur' | 'initialValue'> {
+  onFormSubmit?: React.FormEventHandler<HTMLFormElement>;
+}
+
+const NewTagForm = React.forwardRef<HTMLInputElement, NewTagFormProps>(
+  ({ onFormSubmit, onBlur, initialValue }, ref) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      if (onFormSubmit) {
+        onFormSubmit(e);
+      }
+    };
+
+    return (
+      <form onSubmit={handleSubmit}>
+        <TextInput
+          hasUnderline={false}
+          ref={ref}
+          label="Tag name"
+          onBlur={onBlur}
+          initialValue={initialValue}
+          name="tagName"
+        />
+      </form>
+    );
+  }
+);

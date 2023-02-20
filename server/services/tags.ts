@@ -56,7 +56,14 @@ class TagsService implements ITagsService {
     }
 
     const tagEntity = await this.strapi.db.entityManager.create(TAG_MODEL_UID, {
-      select: ['uuid', 'name', 'createdBy'],
+      select: ['uuid', 'name'],
+      populate: {
+        // @ts-expect-error bad typing from library
+        createdBy: true,
+        files: {
+          count: true,
+        },
+      },
       data: enrichedTag,
     });
 

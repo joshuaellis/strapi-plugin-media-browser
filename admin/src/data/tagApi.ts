@@ -34,14 +34,25 @@ const tagApi = strapiAdminApi.injectEndpoints({
           .map((tag) => tagSchema.parse(tag)),
       providesTags: ['Tags'],
     }),
+    postNewTag: build.mutation<TagEntity[], { name: string }>({
+      query: (body) => ({
+        url: 'tags',
+        method: 'POST',
+        data: body,
+      }),
+      invalidatesTags: ['Tags'],
+    }),
   }),
   overrideExisting: false,
 });
 
-const { useGetAllTagsQuery } = tagApi;
+const { useGetAllTagsQuery, usePostNewTagMutation } = tagApi;
 
 export { useGetAllTagsQuery };
 
 export const useTagMutationApi = () => {
-  return {};
+  const [postNewTag] = usePostNewTagMutation();
+  return {
+    postNewTag,
+  };
 };
