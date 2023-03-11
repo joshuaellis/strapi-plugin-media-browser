@@ -19,8 +19,20 @@ export interface TagEntity {
   };
   name: string;
   updatedAt: string;
-  uuid: string;
+  readonly uuid: string;
 }
+
+export interface TagEntityPatch extends Omit<TagEntity, 'files' | 'uuid'> {
+  files: {
+    connect: string[];
+    disconnect: string[];
+  };
+}
+
+/**
+ * Updated could be that it has been deleted.
+ */
+type UpdatedTag = Pick<TagEntity, 'name' | 'uuid'>;
 
 interface ExtendedFindParams<TEntity> extends Omit<FindParams<TEntity>, 'populate'> {
   populate?: (keyof TEntity)[] | { [Key in keyof TEntity]?: { count: boolean } | boolean };
@@ -28,10 +40,9 @@ interface ExtendedFindParams<TEntity> extends Omit<FindParams<TEntity>, 'populat
 
 export interface ITagsService {
   findAll(query: ExtendedFindParams<TagEntity>): Promise<Partial<TagEntity>[]>;
-  create(data: CreateTagBody, user?: StrapiUser): Promise<Pick<TagEntity, 'name' | 'uuid'>>;
-  delete(
-    uuids: string[]
-  ): Promise<{ totalTagNumber: number; tags: Pick<TagEntity, 'uuid' | 'id'>[] }>;
+  create(data: CreateTagBody, user?: StrapiUser): Promise<UpdatedTag>;
+  delete(uuids: string[]): Promise<{ totalTagNumber: number; tags: UpdatedTag[] }>;
+  update(uuid: string, patch: TagEntityPatch): Promise<UpdatedTag | undefined>;
 }
 
 class TagsService implements ITagsService {
@@ -74,15 +85,10 @@ class TagsService implements ITagsService {
     return tagEntity;
   };
 
-  delete = async (
-    uuids: string[]
-  ): Promise<{ totalTagNumber: number; tags: Pick<TagEntity, 'id' | 'uuid'>[] }> => {
+  delete = async (uuids: string[]): Promise<{ totalTagNumber: number; tags: UpdatedTag[] }> => {
     const tags = (await this.strapi.db
       .query(TAG_MODEL_UID)
-      .findMany({ select: ['id', 'uuid'], where: { uuid: { $in: uuids } } })) as Pick<
-      TagEntity,
-      'id' | 'uuid'
-    >[];
+      .findMany({ select: ['name', 'uuid'], where: { uuid: { $in: uuids } } })) as UpdatedTag[];
 
     if (tags.length === 0) {
       return {
@@ -102,6 +108,28 @@ class TagsService implements ITagsService {
       totalTagNumber,
     };
   };
+
+  update = async (uuid: string, patch: TagEntityPatch): Promise<UpdatedTag | undefined> => {
+    const tag = await this.strapi.db.query(TAG_MODEL_UID).findOne({
+      where: {
+        uuid,
+      },
+    });
+
+    if (!tag) {
+      return undefined;
+    }
+
+    const updatedTag = await this.strapi.db.query(TAG_MODEL_UID).update({
+      select: ['uuid', 'name'],
+      where: {
+        uuid,
+      },
+      data: patch,
+    });
+
+    return updatedTag;
+  };
 }
 
 export default ({ strapi }: { strapi: Strapi }): ITagsService => {
@@ -111,5 +139,6 @@ export default ({ strapi }: { strapi: Strapi }): ITagsService => {
     findAll: tagsService.findAll,
     create: tagsService.create,
     delete: tagsService.delete,
+    update: tagsService.update,
   };
 };

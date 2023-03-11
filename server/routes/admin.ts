@@ -156,6 +156,22 @@ export default {
       },
     },
     {
+      method: 'PUT',
+      path: '/tags',
+      handler: 'admin-tag.update',
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin',
+          {
+            name: 'admin::hasPermissions',
+            config: {
+              actions: [ACTIONS.update],
+            },
+          },
+        ],
+      },
+    },
+    {
       method: 'DELETE',
       path: '/tags/:uuid',
       handler: 'admin-tag.delete',

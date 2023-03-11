@@ -1,11 +1,12 @@
 import type { GenericController } from '@strapi/strapi/lib/core-api/controller';
+import type Koa from 'koa';
 import { z } from 'zod';
 
 import { ACTIONS, TAG_MODEL_UID } from '../constants';
 import { NO_SLASH_REGEX } from '../helpers/regex';
 import { getService } from '../helpers/strapi';
 import { validateTagNameIsUnique } from '../helpers/tags';
-import type { ITagsService } from '../services/tags';
+import type { ITagsService, TagEntityPatch } from '../services/tags';
 
 const createTagSchema = z.object({
   name: z.string().min(1).regex(NO_SLASH_REGEX, 'name cannot contain slashes').trim(),
@@ -17,6 +18,14 @@ export type CreateTagBody = z.infer<typeof createTagSchema>;
 const isTagNameUnique = z.string().refine(validateTagNameIsUnique, {
   message: 'A tag with this name already exists',
 });
+
+interface UpdateContext extends Koa.Context {
+  request: UpdateRequest;
+}
+
+interface UpdateRequest extends Koa.Request {
+  body: TagEntityPatch & { uuid: string };
+}
 
 export default {
   async create(ctx) {
@@ -106,6 +115,31 @@ export default {
     }
 
     const parsedOutput = await permissionsManager.sanitizeOutput(deletedTags);
+
+    return parsedOutput;
+  },
+  async update(ctx: UpdateContext) {
+    const { userAbility } = ctx.state;
+    const {
+      body: { uuid, ...restBody },
+    } = ctx.request;
+
+    const permissionsManager =
+      // @ts-expect-error it does exist thx
+      strapi.admin.services.permission.createPermissionsManager({
+        ability: userAbility,
+        model: TAG_MODEL_UID,
+      });
+
+    const { update } = getService<ITagsService>('tags');
+
+    const updatedTag = await update(uuid, restBody);
+
+    if (!updatedTag) {
+      return ctx.notFound('tag not found');
+    }
+
+    const parsedOutput = await permissionsManager.sanitizeOutput(updatedTag);
 
     return parsedOutput;
   },

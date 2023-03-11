@@ -31,7 +31,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
 
   const { data } = useGetAllTagsQuery(undefined);
 
-  const { postNewTag, deleteTag } = useTagMutationApi();
+  const { postNewTag, deleteTag, updateTag } = useTagMutationApi();
 
   React.useLayoutEffect(() => {
     const container = document.getElementById(FILE_BROWSER_CONTAINER_ID);
@@ -130,6 +130,18 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
     }
   };
 
+  const handleTagRename: TagAccordionProps['onTagRename'] = async (uuid, { name }) => {
+    const res = await updateTag({ uuid, name });
+
+    if ('data' in res) {
+      return true;
+    } else if ('error' in res) {
+      // TODO: handle error
+    }
+
+    return false;
+  };
+
   return (
     <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
       <ToolbarButton asChild aria-disabled={disabled}>
@@ -172,7 +184,11 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                         ) : null}
                         {data?.map((tag) => (
                           <TagItem key={tag.uuid}>
-                            <TagAccordion {...tag} onTagDelete={handleTagDelete} />
+                            <TagAccordion
+                              {...tag}
+                              onTagDelete={handleTagDelete}
+                              onTagRename={handleTagRename}
+                            />
                           </TagItem>
                         ))}
                       </TagList>
@@ -279,32 +295,87 @@ const TagItem = styled.li<{ $isForm?: boolean }>`
 
 interface TagAccordionProps extends TagEntity {
   onTagDelete: (uuid: string) => void;
+  onTagRename: (uuid: string, { name }: { name: string }) => Promise<boolean>;
 }
 
-const TagAccordion = ({ uuid, files, createdBy, name, onTagDelete }: TagAccordionProps) => {
+const TagAccordion = ({
+  uuid,
+  files,
+  createdBy,
+  name,
+  onTagDelete,
+  onTagRename,
+}: TagAccordionProps) => {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [isEditing, setIsEditing] = React.useState(false);
+
   const handleTagDelete = (uuid: string) => () => {
     onTagDelete(uuid);
   };
+
+  const handleRenameClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleFormSubmit: NewTagFormProps['onFormSubmit'] = (e) => {
+    e.preventDefault();
+
+    const data = new FormData(e.currentTarget);
+
+    const tagNameValue = data.get('tagName');
+
+    if (tagNameValue && typeof tagNameValue === 'string') {
+      handleRename(uuid, tagNameValue);
+    }
+  };
+
+  const handleRename = async (uuid: string, name: string) => {
+    const success = await onTagRename(uuid, { name });
+
+    setIsEditing(!success);
+  };
+
+  const handleFormBlur: NewTagFormProps['onBlur'] = (e) => {
+    handleRename(uuid, e.currentTarget.value);
+  };
+
+  React.useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
   return (
     <Accordion.Item value={uuid}>
-      <AccordionHeader asChild>
+      <AccordionHeader asChild $isEditing={isEditing}>
         <div>
-          <AccordionTitle>{name}</AccordionTitle>
-          <AccordionActions>
-            <AccordionNameActions>
-              <DimmedIconButton label="Rename tag">
-                <Pencil />
-              </DimmedIconButton>
-              <DimmedIconButton onClick={handleTagDelete(uuid)} label="Delete tag">
-                <Cross />
-              </DimmedIconButton>
-            </AccordionNameActions>
-            <Accordion.Trigger asChild>
-              <DimmedIconButton label="Show information">
-                <InfoCircle />
-              </DimmedIconButton>
-            </Accordion.Trigger>
-          </AccordionActions>
+          {isEditing ? (
+            <NewTagForm
+              ref={inputRef}
+              initialValue={name}
+              onBlur={handleFormBlur}
+              onFormSubmit={handleFormSubmit}
+            />
+          ) : (
+            <>
+              <AccordionTitle>{name}</AccordionTitle>
+              <AccordionActions>
+                <AccordionNameActions>
+                  <DimmedIconButton onClick={handleRenameClick} label="Rename tag">
+                    <Pencil />
+                  </DimmedIconButton>
+                  <DimmedIconButton onClick={handleTagDelete(uuid)} label="Delete tag">
+                    <Cross />
+                  </DimmedIconButton>
+                </AccordionNameActions>
+                <Accordion.Trigger asChild>
+                  <DimmedIconButton label="Show information">
+                    <InfoCircle />
+                  </DimmedIconButton>
+                </Accordion.Trigger>
+              </AccordionActions>
+            </>
+          )}
         </div>
       </AccordionHeader>
       <Accordion.Content asChild>
@@ -341,9 +412,9 @@ const AccordionNameActions = styled.div`
   }
 `;
 
-const AccordionHeader = styled(Accordion.Header)`
+const AccordionHeader = styled(Accordion.Header)<{ $isEditing: boolean }>`
   width: 100%;
-  padding: 10px 15px;
+  padding: ${(props) => (props.$isEditing ? '13px 15px' : '10px 15px')};
   display: flex;
   justify-content: space-between;
   align-items: center;
