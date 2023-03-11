@@ -1,4 +1,4 @@
-import { FindParams } from '@strapi/database';
+import type { FindParams } from '@strapi/database';
 import { Strapi } from '@strapi/strapi';
 import { nanoid } from 'nanoid';
 import { setCreatorFields } from '@strapi/utils';

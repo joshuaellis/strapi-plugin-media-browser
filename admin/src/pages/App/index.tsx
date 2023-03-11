@@ -2,7 +2,6 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { NotFound } from '@strapi/helper-plugin';
 import { Switch, Route } from 'react-router-dom';
-import { useIntl } from 'react-intl';
 import { Helmet } from 'react-helmet';
 import { Main } from '@strapi/design-system';
 import { Provider } from 'react-redux';
@@ -15,16 +14,10 @@ import { store } from '../../store/store';
 import { BASE_URL } from '../../constants';
 
 const App: React.FunctionComponent = () => {
-  const { formatMessage } = useIntl();
-  const title = formatMessage({
-    id: prefixTranslation('plugin.name'),
-    defaultMessage: 'Media Library',
-  });
-
   return (
     <Provider store={store}>
       <MediaMain>
-        <Helmet title={title} />
+        <Helmet title={'Media Library'} />
         <Switch>
           <Route path={BASE_URL} component={Finder} />
           <Route component={NotFound} />

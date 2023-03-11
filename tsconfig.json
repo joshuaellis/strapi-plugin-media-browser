@@ -16,7 +16,7 @@
     "dist/",
 
     // Do not include admin files in the server compilation
-    "server/",
+    "server/**/*",
     // Do not include test files
     "**/*.test.ts"
   ]
