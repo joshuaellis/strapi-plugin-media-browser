@@ -14,7 +14,7 @@ const App: React.FunctionComponent = () => {
   return (
     <Provider store={store}>
       <MediaMain>
-        <Helmet title={'Media Library'} />
+        <Helmet title={'Media Browser'} />
         <Switch>
           <Route path={BASE_URL} component={Finder} />
         </Switch>

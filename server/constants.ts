@@ -1,4 +1,4 @@
-const PLUGIN_NAME = 'media-library';
+const PLUGIN_NAME = 'media-browser';
 const PLUGIN_PREFIX = `plugin::${PLUGIN_NAME}`;
 
 const ACTIONS = {

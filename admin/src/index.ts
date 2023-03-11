@@ -14,7 +14,7 @@ export default {
       icon: PluginIcon,
       intlLabel: {
         id: `${pluginId}.plugin.name`,
-        defaultMessage: 'Media Library',
+        defaultMessage: 'Media Browser',
       },
       Component: async () => {
         const component = await import(/* webpackChunkName: "[request]" */ './pages/App');

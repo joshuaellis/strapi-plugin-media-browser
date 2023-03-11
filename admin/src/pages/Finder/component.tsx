@@ -46,7 +46,7 @@ export const Finder: React.FunctionComponent = () => {
     canGoForward: state.finder.canGoForward,
   }));
 
-  const [_, subroute] = location.pathname.split('/plugins/media-library/');
+  const [_, subroute] = location.pathname.split('/plugins/media-browser/');
 
   /**
    * TODO: Handle back and forward when the name of the folder has changed (thus the subroute is _incorrect_).

@@ -8,7 +8,7 @@ const registerPermissionActions = async () => {
   const actions = [
     {
       section: 'plugins',
-      displayName: 'Access the Media Library',
+      displayName: 'Access the Media Browser',
       uid: 'read',
       pluginName: PLUGIN_NAME,
     },
@@ -49,9 +49,9 @@ const registerPermissionActions = async () => {
     },
     {
       section: 'settings',
-      displayName: 'Access the Media Library settings page',
+      displayName: 'Access the Media Browser settings page',
       uid: 'settings.read',
-      category: 'media library',
+      category: 'media browser',
       pluginName: PLUGIN_NAME,
     },
   ];

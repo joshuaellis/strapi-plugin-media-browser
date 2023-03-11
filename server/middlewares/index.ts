@@ -15,14 +15,14 @@ export default ({ strapi }: { strapi: Strapi }) => {
   });
 
   const localServerConfig = strapi.config.get(
-    'plugin.media-library.providerOptions.localServer',
+    'plugin.media-browser.providerOptions.localServer',
     {}
   );
 
   strapi.server.routes([
     {
       method: 'GET',
-      path: '/media-library/(.*)',
+      path: '/media-browser/(.*)',
       handler: [
         range,
         koaStatic(strapi.dirs.static.public, {

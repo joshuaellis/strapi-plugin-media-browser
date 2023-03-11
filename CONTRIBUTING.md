@@ -1,4 +1,4 @@
-# Contribute to Strapi Plugin Media Library
+# Contribute to Strapi Plugin Media Browser
 
 ## Contribution Prerequisites
 

@@ -2,7 +2,7 @@ const path = require("path");
 
 module.exports = {
   // ...
-  "media-library": {
+  "media-browser": {
     enabled: true,
     resolve: path.resolve(__dirname, "../../"),
   },
