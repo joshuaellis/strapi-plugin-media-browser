@@ -1,5 +1,6 @@
+import { Puzzle } from '@strapi/icons';
+
 import Initializer from './components/Initializer';
-import PluginIcon from './components/PluginIcon';
 import pluginId from './pluginId';
 import pluginPkg from '../../package.json';
 
@@ -11,7 +12,7 @@ export default {
   register(app) {
     app.addMenuLink({
       to: `/plugins/${pluginId}`,
-      icon: PluginIcon,
+      icon: Puzzle,
       intlLabel: {
         id: `${pluginId}.plugin.name`,
         defaultMessage: 'Media Browser',
