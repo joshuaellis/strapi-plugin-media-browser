@@ -1,10 +1,10 @@
 import { errors } from '@strapi/utils';
 
-import { streamToBuffer } from '../helpers/streaming';
-import { getService } from '../helpers/strapi';
 
-import { FileEntity } from './files';
-import { IProviderService } from './provider';
+import type { FileEntity } from './files';
+import type { IProviderService } from './provider';
+import { getService } from '../helpers/strapi';
+import { streamToBuffer } from '../helpers/streaming';
 
 const { ApplicationError } = errors;
 

@@ -1,8 +1,8 @@
 import type { Strapi } from '@strapi/strapi';
 import { mapValues } from 'lodash';
 
-import middleware from './middlewares';
 import { PLUGIN_NAME } from './constants';
+import middleware from './middlewares';
 
 export default ({ strapi }: { strapi: Strapi }) => {
   strapi.plugin(PLUGIN_NAME).provider = createProvider(

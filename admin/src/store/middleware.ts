@@ -1,5 +1,10 @@
-import { createAsyncThunk, createListenerMiddleware, TypedStartListening } from '@reduxjs/toolkit';
-import { Dispatch, RootState } from './store';
+import {
+  createAsyncThunk,
+  createListenerMiddleware,
+  type TypedStartListening,
+} from '@reduxjs/toolkit';
+
+import type { Dispatch, RootState } from './store';
 
 export const listenerMiddleware = createListenerMiddleware();
 

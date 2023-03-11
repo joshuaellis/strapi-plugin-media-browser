@@ -3,10 +3,10 @@ import { errors } from '@strapi/utils';
 import type { ReadStream } from 'fs-extra';
 import { isFunction } from 'lodash';
 
+import type { FileEntity } from './files';
 import { PLUGIN_NAME } from '../constants';
 import { streamToBuffer } from '../helpers/streaming';
 
-import { FileEntity } from './files';
 
 const { ApplicationError } = errors;
 

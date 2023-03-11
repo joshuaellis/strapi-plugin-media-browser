@@ -1,6 +1,7 @@
 import * as React from 'react';
+
+import { useDropzone, type DropEvent } from 'react-dropzone';
 import styled from 'styled-components';
-import { useDropzone, DropEvent } from 'react-dropzone';
 
 import { filterFilesFromDropzone } from '../../helpers/files';
 

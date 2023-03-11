@@ -1,6 +1,6 @@
-import { FOLDER_MODEL_UID } from '../constants';
-import { IFolderService } from '../services/folder';
 import { getService } from './strapi';
+import { FOLDER_MODEL_UID } from '../constants';
+import type { IFolderService } from '../services/folder';
 
 export const validateFolderNameIsUnique = (id?: string) => async (name?: string) => {
   try {

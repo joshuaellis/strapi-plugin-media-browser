@@ -1,14 +1,12 @@
 import * as React from 'react';
+
 import { VirtuosoGrid } from 'react-virtuoso';
 import styled from 'styled-components';
 
 import type { MediaFile } from '../../data/fileApi';
-
 import { useCallbackRef } from '../../hooks/useCallbackRef';
-
-import { UploadItem } from '../../modules/upload';
-
-import { CardAsset, CardAssetProps } from '../Cards/CardAsset';
+import type { UploadItem } from '../../modules/upload';
+import { CardAsset, type CardAssetProps } from '../Cards/CardAsset';
 import { CardUpload } from '../Cards/CardUpload';
 
 export interface AssetGridProps {

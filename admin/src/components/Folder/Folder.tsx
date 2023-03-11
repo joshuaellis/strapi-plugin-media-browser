@@ -1,15 +1,15 @@
 import * as React from 'react';
+
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { BASE_URL } from '../../constants';
-
-import { IconButton } from '../IconButton';
-
-import { Cross } from '../Icons/Cross';
-import { Pencil } from '../Icons/Pencil';
 
 import * as FolderBase from './FolderBase';
 import { FolderNew } from './FolderNew';
+import { BASE_URL } from '../../constants';
+import { IconButton } from '../IconButton';
+import { Cross } from '../Icons/Cross';
+import { Pencil } from '../Icons/Pencil';
+
 
 interface FolderProps {
   title: string;

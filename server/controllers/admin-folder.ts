@@ -3,14 +3,11 @@ import type { GenericController } from '@strapi/strapi/lib/core-api/controller';
 import { defaultsDeep } from 'lodash';
 import { z } from 'zod';
 
-import { getService, validateValueIsStrapiId } from '../helpers/strapi';
-import { validateFolderNameIsUnique, validateFolderExists } from '../helpers/folders';
-
 import { FOLDER_MODEL_UID } from '../constants';
-
+import { validateFolderNameIsUnique, validateFolderExists } from '../helpers/folders';
 import { NO_SLASH_REGEX } from '../helpers/regex';
-
-import { IFolderService } from '../services/folder';
+import { getService, validateValueIsStrapiId } from '../helpers/strapi';
+import type { IFolderService } from '../services/folder';
 
 const createFolderBodySchema = z
   .object({

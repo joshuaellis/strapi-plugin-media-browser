@@ -1,12 +1,13 @@
 import * as React from 'react';
+
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useTransition, animated } from '@react-spring/web';
 
+import { useQuery } from '../../hooks/useQuery';
+import * as Menu from '../DropdownMenu';
 import { Filter } from '../Icons/Filter';
 import { ToolbarButton } from '../ToolbarButton';
-import * as Menu from '../DropdownMenu';
 
-import { useQuery } from '../../hooks/useQuery';
 
 interface FiltersToolbarButtonProps {
   disabled?: boolean;

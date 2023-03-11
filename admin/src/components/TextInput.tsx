@@ -1,5 +1,7 @@
 import * as React from 'react';
+
 import styled, { css } from 'styled-components';
+
 import { VisuallyHidden } from './VisuallyHidden';
 
 export interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {

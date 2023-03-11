@@ -1,12 +1,13 @@
 import * as React from 'react';
+
 import styled from 'styled-components';
-import { useGetAllFoldersQuery, useFolderMutationApi } from '../data/folderApi';
+
 
 import { Folder } from './Folder/Folder';
 import { FolderNew } from './Folder/FolderNew';
-
 import { IconButton } from './IconButton';
 import { Plus } from './Icons/Plus';
+import { useGetAllFoldersQuery, useFolderMutationApi } from '../data/folderApi';
 
 /**
  * TODO: don't remove the "new folder" when the form is submit, rather move it to the alphabetically correct position.

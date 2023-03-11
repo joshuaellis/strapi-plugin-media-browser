@@ -1,6 +1,6 @@
+import type { Strapi } from '@strapi/strapi';
 import range from 'koa-range';
 import koaStatic from 'koa-static';
-import type { Strapi } from '@strapi/strapi';
 
 export default ({ strapi }: { strapi: Strapi }) => {
   strapi.server.app.on('error', (err) => {

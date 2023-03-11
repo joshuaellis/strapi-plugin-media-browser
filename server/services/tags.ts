@@ -1,11 +1,11 @@
 import type { FindParams } from '@strapi/database';
-import { Strapi } from '@strapi/strapi';
-import { nanoid } from 'nanoid';
+import type { Strapi } from '@strapi/strapi';
 import { setCreatorFields } from '@strapi/utils';
+import { nanoid } from 'nanoid';
 
 import { TAG_MODEL_UID } from '../constants';
-import { CreateTagBody } from '../controllers/admin-tag';
-import { StrapiUser } from '../types/strapi';
+import type { CreateTagBody } from '../controllers/admin-tag';
+import type { StrapiUser } from '../types/strapi';
 
 export interface TagEntity {
   createdAt: string;

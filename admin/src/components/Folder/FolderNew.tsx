@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { TextInput, TextInputProps } from '../TextInput';
 
 import * as FolderBase from './FolderBase';
+import { TextInput, type TextInputProps } from '../TextInput';
 
 interface FolderNewProps extends Pick<TextInputProps, 'onBlur' | 'initialValue'> {
   onFormSubmit?: React.FormEventHandler<HTMLFormElement>;

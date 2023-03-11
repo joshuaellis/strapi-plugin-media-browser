@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import Koa from 'koa';
 import type { GenericController } from '@strapi/strapi/lib/core-api/controller';
 import { errors } from '@strapi/utils';
-import { z } from 'zod';
+import type Koa from 'koa';
 import { isEmpty } from 'lodash';
+import { z } from 'zod';
 
-import { getService } from '../helpers/strapi';
 
 import { ACTIONS, FILE_MODEL_UID } from '../constants';
-import { IFilesService } from '../services/files';
-import { IFolderService } from '../services/folder';
+import { getService } from '../helpers/strapi';
+import type { IFilesService } from '../services/files';
+import type { IFolderService } from '../services/folder';
 
 const { ApplicationError } = errors;
 

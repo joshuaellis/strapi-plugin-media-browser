@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { nanoid } from 'nanoid';
-import { Strapi } from '@strapi/strapi';
+import type { Strapi } from '@strapi/strapi';
 import { setCreatorFields, joinBy } from '@strapi/utils';
+import { nanoid } from 'nanoid';
 
 import { FILE_MODEL_UID, FOLDER_MODEL_UID } from '../constants';
-
-import { CreateFolderBody, UpdateFolderId, UpdateFolderPatch } from '../controllers/admin-folder';
-
-import { StrapiUser } from '../types/strapi';
+import type { CreateFolderBody, UpdateFolderId, UpdateFolderPatch } from '../controllers/admin-folder';
+import type { StrapiUser } from '../types/strapi';
 
 export interface FolderEntity {
   name: string;
@@ -154,8 +152,7 @@ class FolderService implements IFolderService {
       }
       // location is updated => using transaction
     } else {
-      // @ts-ignore
-      const trx = await this.strapi.db.transaction();
+      const trx = this.strapi.db.transaction();
       try {
         // fetch existing folder
         const existingFolder = await this.strapi.db
@@ -250,9 +247,13 @@ class FolderService implements IFolderService {
             ])
           );
 
-        await trx.commit();
+        if ('commit' in trx) {
+          await trx.commit();
+        }
       } catch (e) {
-        await trx.rollback();
+        if ('rollback' in trx) {
+          await trx.rollback();
+        }
         throw e;
       }
 

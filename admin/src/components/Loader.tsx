@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import styled, { css, keyframes } from 'styled-components';
 
 const BLADES = 12;

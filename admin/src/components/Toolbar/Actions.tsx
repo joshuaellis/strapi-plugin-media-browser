@@ -1,9 +1,10 @@
 import * as React from 'react';
+
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
+import * as Menu from '../DropdownMenu';
 import { HorizontalDots } from '../Icons/HorizontalDots';
 import { ToolbarButton } from '../ToolbarButton';
-import * as Menu from '../DropdownMenu';
 
 export interface ActionItem {
   label: string;

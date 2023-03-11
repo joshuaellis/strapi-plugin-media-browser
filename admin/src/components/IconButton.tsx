@@ -1,5 +1,7 @@
 import * as React from 'react';
+
 import styled from 'styled-components';
+
 import { AccessibleIcon } from './AccessibleIcon';
 
 export interface IconButtonProps {

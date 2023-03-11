@@ -1,10 +1,9 @@
 import * as React from 'react';
 
-import { MediaFile } from '../../data/fileApi';
-
+import * as CardBase from './CardBase';
+import type { MediaFile } from '../../data/fileApi';
 import { VisuallyHidden } from '../VisuallyHidden';
 
-import * as CardBase from './CardBase';
 
 export interface CardAssetProps extends MediaFile {
   isSelected?: boolean;

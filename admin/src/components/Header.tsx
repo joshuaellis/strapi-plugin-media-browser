@@ -1,15 +1,16 @@
 import * as React from 'react';
-import styled from 'styled-components';
+
 import * as Toolbar from '@radix-ui/react-toolbar';
+import styled from 'styled-components';
 
 import { IconButton } from './IconButton';
+import { Download } from './Icons/Download';
 import { LeftArrow } from './Icons/LeftArrow';
 import { RightArrow } from './Icons/RightArrow';
 import { Search } from './Icons/Search';
+import { ActionsToolbarButton, type ActionsToolbarButtonProps } from './Toolbar/Actions';
 import { FiltersToolbarButton } from './Toolbar/Filters';
-import { Download } from './Icons/Download';
 import { TagsToolbarButton } from './Toolbar/Tags';
-import { ActionsToolbarButton, ActionsToolbarButtonProps } from './Toolbar/Actions';
 import { ToolbarButton } from './ToolbarButton';
 
 interface HeaderProps {

@@ -1,5 +1,4 @@
 import { getService } from './strapi';
-
 import type { ITagsService } from '../services/tags';
 
 export const validateTagNameIsUnique = async (name: string): Promise<boolean> => {

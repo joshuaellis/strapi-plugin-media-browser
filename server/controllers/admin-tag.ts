@@ -1,11 +1,11 @@
 import type { GenericController } from '@strapi/strapi/lib/core-api/controller';
 import { z } from 'zod';
-import { ACTIONS, TAG_MODEL_UID } from '../constants';
 
+import { ACTIONS, TAG_MODEL_UID } from '../constants';
 import { NO_SLASH_REGEX } from '../helpers/regex';
 import { getService } from '../helpers/strapi';
 import { validateTagNameIsUnique } from '../helpers/tags';
-import { ITagsService } from '../services/tags';
+import type { ITagsService } from '../services/tags';
 
 const createTagSchema = z.object({
   name: z.string().min(1).regex(NO_SLASH_REGEX, 'name cannot contain slashes').trim(),

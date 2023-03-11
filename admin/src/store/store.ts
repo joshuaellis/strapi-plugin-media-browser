@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import { strapiAdminApi } from './api';
+import { listenerMiddleware } from './middleware';
 import { finderReducer } from '../modules/finder';
 import { uploadReducer } from '../modules/upload';
 
-import { strapiAdminApi } from './api';
-import { listenerMiddleware } from './middleware';
 
 export const store = configureStore({
   reducer: {

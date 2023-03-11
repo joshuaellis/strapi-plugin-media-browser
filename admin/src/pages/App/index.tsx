@@ -1,17 +1,14 @@
 import * as React from 'react';
-import styled from 'styled-components';
-import { NotFound } from '@strapi/helper-plugin';
-import { Switch, Route } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+
 import { Main } from '@strapi/design-system';
+import { Helmet } from 'react-helmet';
 import { Provider } from 'react-redux';
+import { Switch, Route } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { Finder } from '../Finder';
-
-import { prefixTranslation } from '../../helpers/translations';
-
-import { store } from '../../store/store';
 import { BASE_URL } from '../../constants';
+import { store } from '../../store/store';
+import { Finder } from '../Finder';
 
 const App: React.FunctionComponent = () => {
   return (
@@ -20,7 +17,6 @@ const App: React.FunctionComponent = () => {
         <Helmet title={'Media Library'} />
         <Switch>
           <Route path={BASE_URL} component={Finder} />
-          <Route component={NotFound} />
         </Switch>
       </MediaMain>
     </Provider>

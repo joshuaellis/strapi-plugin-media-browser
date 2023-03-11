@@ -1,11 +1,8 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-import { uploadApi, UploadFileResponse } from '../data/uploadApi';
-
+import { uploadApi, type UploadFileResponse } from '../data/uploadApi';
 import { hashFile } from '../helpers/files';
 import { generatePreviewBlobUrl } from '../helpers/images';
-
 import { createTypedAsyncThunk } from '../store/middleware';
 
 export interface UploadItem {
@@ -106,11 +103,11 @@ export const uploadAssetThunk = createTypedAsyncThunk<
   { data: UploadFileResponse } | { error: unknown },
   { file: File; folder: string }
 >(UPLOAD_FILE_THUNK, async ({ file, folder }, { getState, dispatch, signal }) => {
-  const source = axios.CancelToken.source();
+  const controller = new AbortController();
 
   signal.addEventListener('abort', () => {
     // This will then trigger the `uploadAssetThunk.rejected` case.
-    source.cancel();
+    controller.abort();
   });
 
   const hash = await hashFile(file);
@@ -168,7 +165,7 @@ export const uploadAssetThunk = createTypedAsyncThunk<
         hash,
         folder: folder === 'root' ? '/' : folder,
       },
-      cancelToken: source.token,
+      signal: controller.signal,
     })
   );
 

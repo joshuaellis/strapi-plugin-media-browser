@@ -1,24 +1,23 @@
-import { Strapi } from '@strapi/strapi';
-import fse from 'fs-extra';
-import path from 'path';
 import os from 'os';
+import path from 'path';
+
+import type { Strapi } from '@strapi/strapi';
+import fse from 'fs-extra';
 import { extension } from 'mime-types';
 import { nanoid } from 'nanoid';
 
+import type { IFolderService } from './folder';
+import type { IImagesService } from './images';
+import type { IProviderService } from './provider';
 import {
   CREATED_BY_ATTRIBUTE,
   FILE_MODEL_UID,
   PLUGIN_NAME,
   UPDATED_BY_ATTRIBUTE,
 } from '../constants';
-
-import { UploadFileBody } from '../controllers/admin-file';
-
+import type { UploadFileBody } from '../controllers/admin-file';
 import { getService } from '../helpers/strapi';
-import { StrapiUser } from '../types/strapi';
-import { IImagesService } from './images';
-import { IFolderService } from './folder';
-import { IProviderService } from './provider';
+import type { StrapiUser } from '../types/strapi';
 
 export interface UploadFile {
   readonly size: number;

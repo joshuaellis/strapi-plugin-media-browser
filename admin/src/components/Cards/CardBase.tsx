@@ -1,13 +1,13 @@
 import * as React from 'react';
-import styled from 'styled-components';
-import { prefixFileUrlWithBackendUrl } from '@strapi/helper-plugin';
 
-import { Image } from '../Media/Image';
-import { IconButton, IconButtonProps } from '../IconButton';
+import { prefixFileUrlWithBackendUrl } from '@strapi/helper-plugin';
+import styled from 'styled-components';
+
+import type { MediaFile } from '../../data/fileApi';
+import { IconButton, type IconButtonProps } from '../IconButton';
 import { Cross } from '../Icons/Cross';
 import { Loader as AnimatedLoader } from '../Loader';
-
-import { MediaFile } from '../../data/fileApi';
+import { Image } from '../Media/Image';
 
 export const Root = styled.div<{
   $isChecked?: boolean;

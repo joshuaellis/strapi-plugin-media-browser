@@ -5,24 +5,20 @@
  */
 
 import * as React from 'react';
+
 import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { FileBrowser } from '../../components/FileBrowser';
 import { Header } from '../../components/Header';
 import { SideBar } from '../../components/SidePanel';
-
-import { useTypedDispatch, useTypedSelector } from '../../store/hooks';
-
-import { goBack, goForward, pushState, replaceSelectedItems } from '../../modules/finder';
-
+import type { ActionItem, ActionsToolbarButtonProps } from '../../components/Toolbar/Actions';
+import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
 import { useFileMutationApi, useGetAllFilesAtFolderQuery } from '../../data/fileApi';
 import { useQuery } from '../../hooks/useQuery';
-
+import { goBack, goForward, pushState, replaceSelectedItems } from '../../modules/finder';
+import { useTypedDispatch, useTypedSelector } from '../../store/hooks';
 import axios from '../../utils/axiosInstance';
-import { ActionItem, ActionsToolbarButtonProps } from '../../components/Toolbar/Actions';
-
-import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
 
 export const Finder: React.FunctionComponent = () => {
   const location = useLocation();

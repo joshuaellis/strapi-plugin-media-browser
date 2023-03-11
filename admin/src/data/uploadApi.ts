@@ -1,13 +1,9 @@
-import type { CancelToken } from 'axios';
+import type { UploadItem } from '../modules/upload';
+import { AxiosArgs, strapiAdminApi } from '../store/api';
 
-import { UploadItem } from '../modules/upload';
-
-import { strapiAdminApi } from '../store/api';
-
-interface UploadFileData {
+interface UploadFileData extends Pick<AxiosArgs, 'signal'> {
   file: File;
   fileInfo: Pick<UploadItem, 'assetType' | 'hash' | 'folder'>;
-  cancelToken?: CancelToken;
 }
 
 export interface UploadFileResponse {
@@ -35,7 +31,7 @@ export interface UploadFileResponse {
 export const uploadApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
     uploadFile: build.mutation<UploadFileResponse, UploadFileData>({
-      query: ({ file, fileInfo, cancelToken }) => {
+      query: ({ file, fileInfo, signal }) => {
         const formData = new FormData();
 
         formData.append('files', file);
@@ -51,7 +47,7 @@ export const uploadApi = strapiAdminApi.injectEndpoints({
           headers: {
             'Content-Type': 'multipart/form-data',
           },
-          cancelToken,
+          signal,
         };
       },
       invalidatesTags: (res) => [{ type: 'Files', folder: res?.folderPath }],

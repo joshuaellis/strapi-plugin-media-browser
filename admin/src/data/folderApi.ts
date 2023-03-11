@@ -1,7 +1,5 @@
+import type { CreateFolderBody } from '../../../server/controllers/admin-folder';
 import { strapiAdminApi } from '../store/api';
-
-import { CreateFolderBody } from '../../../server/controllers/admin-folder';
-
 import type { CreateFolderResponse, Folder } from '../types/data';
 
 const folderApi = strapiAdminApi.injectEndpoints({

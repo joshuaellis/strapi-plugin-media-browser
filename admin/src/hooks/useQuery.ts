@@ -1,4 +1,5 @@
 import * as React from 'react';
+
 import { useHistory, useLocation } from 'react-router-dom';
 
 export const useQuery = () => {

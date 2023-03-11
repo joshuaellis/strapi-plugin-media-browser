@@ -1,16 +1,14 @@
 import * as React from 'react';
 
-import { MediaFile } from '../data/fileApi';
-
-import { uploadAssetThunk, deleteUploadItems } from '../modules/upload';
+import type { CardAssetProps } from './Cards/CardAsset';
+import { AssetGrid } from './Grids/AssetGrid';
+import { UploadDropzone } from './Upload/UploadDropzone';
+import type { MediaFile } from '../data/fileApi';
 import { addSelectedItem, replaceSelectedItems } from '../modules/finder';
-
+import { uploadAssetThunk, deleteUploadItems } from '../modules/upload';
 import { useTypedDispatch, useTypedSelector } from '../store/hooks';
 import { selectUploadsBasedOnRoute } from '../store/selectors';
 
-import { CardAssetProps } from './Cards/CardAsset';
-import { AssetGrid } from './Grids/AssetGrid';
-import { UploadDropzone } from './Upload/UploadDropzone';
 
 interface FileBrowserProps {
   files: MediaFile[];
