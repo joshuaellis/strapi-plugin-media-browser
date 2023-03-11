@@ -37,7 +37,7 @@ In your `config/plugins` file add:
 
 ```json
   "media-browser": {
-    enabled: true,
+    "enabled": true,
   },
 ```
 
