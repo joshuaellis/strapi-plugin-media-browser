@@ -9,9 +9,6 @@ export default defineConfig({
       entry: ['admin/src/index.ts'],
       name: 'ml-browser',
       formats: ['cjs', 'es'],
-      fileName(format) {
-        return `[name].${format === 'es' ? 'js' : format}`;
-      },
     },
     outDir: 'dist/admin',
     rollupOptions: {

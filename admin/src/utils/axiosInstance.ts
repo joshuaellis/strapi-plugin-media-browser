@@ -11,11 +11,9 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
   async (config) => {
-    config.headers = {
-      Authorization: `Bearer ${auth.getToken()}`,
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    };
+    config.headers.set('Authorization', `Bearer ${auth.getToken()}`);
+    config.headers.set('Accept', 'application/json');
+    config.headers.set('Content-Type', 'application/json');
 
     return config;
   },

@@ -3,6 +3,17 @@
   "version": "0.0.1",
   "sideEffects": false,
   "description": "A convenient way to browse, manage and select all your Strapi assets, inspired by MacOS.",
+  "keywords": [
+    "strapi",
+    "media",
+    "browser",
+    "assets",
+    "library",
+    "tags",
+    "files",
+    "images",
+    "videos"
+  ],
   "strapi": {
     "name": "Media Browser",
     "description": "A convenient way to browse, manage and select all your Strapi assets, inspired by MacOS.",
@@ -90,9 +101,11 @@
     "npm": ">=6.0.0"
   },
   "scripts": {
+    "dev": "rm -rf dist && concurrently \"yarn dev:admin\" \"yarn dev:server\"",
     "dev:admin": "vite build --watch",
     "dev:server": "tsc -p tsconfig.server.json -w",
-    "build": "yarn build:admin && yarn build:server",
+    "clean": "cd demo && yarn clean && cd .. && rm -rf dist node_modules",
+    "build": "rm -rf dist && yarn build:admin && yarn build:server",
     "build:admin": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
     "lint": "TIMING=1 eslint \"**/*.ts*\"",
