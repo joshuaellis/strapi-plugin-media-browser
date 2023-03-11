@@ -111,5 +111,6 @@
     "*.{js,ts,tsx}": [
       "eslint"
     ]
-  }
+  },
+  "packageManager": "yarn@3.4.1"
 }
