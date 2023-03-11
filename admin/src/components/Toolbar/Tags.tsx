@@ -1,22 +1,21 @@
 import * as React from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
-import styled, { css, keyframes } from 'styled-components';
-import { animated, useTransition } from '@react-spring/web';
-import * as Accordion from '@radix-ui/react-accordion';
 
-import { Tag } from '../Icons/Tag';
-import { ToolbarButton } from '../ToolbarButton';
-import { VisuallyHidden } from '../VisuallyHidden';
+import * as Accordion from '@radix-ui/react-accordion';
+import * as Dialog from '@radix-ui/react-dialog';
+import { animated, useTransition } from '@react-spring/web';
+import styled, { css, keyframes } from 'styled-components';
+
+import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
+import { useGetAllTagsQuery, useTagMutationApi, type TagEntity } from '../../data/tagApi';
+import { IconButton } from '../IconButton';
 import { Cross } from '../Icons/Cross';
 import { InfoCircle } from '../Icons/InfoCircle';
 import { Pencil } from '../Icons/Pencil';
-import { IconButton } from '../IconButton';
+import { Tag } from '../Icons/Tag';
 import { TextButton } from '../TextButton';
-import { TextInput, TextInputProps } from '../TextInput';
-
-import { useGetAllTagsQuery, TagEntity, useTagMutationApi } from '../../data/tagApi';
-
-import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
+import { TextInput, type TextInputProps } from '../TextInput';
+import { ToolbarButton } from '../ToolbarButton';
+import { VisuallyHidden } from '../VisuallyHidden';
 
 interface TagsToolbarButtonProps {
   disabled?: boolean;
@@ -32,7 +31,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
 
   const { data } = useGetAllTagsQuery(undefined);
 
-  const { postNewTag } = useTagMutationApi();
+  const { postNewTag, deleteTag } = useTagMutationApi();
 
   React.useLayoutEffect(() => {
     const container = document.getElementById(FILE_BROWSER_CONTAINER_ID);
@@ -109,6 +108,8 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
       if ('data' in res) {
         /* This assumes success and we therefore reset the form */
         hideNewTagAndRestoreFocus(true);
+      } else if ('error' in res) {
+        // TODO: handle error
       }
     }
   };
@@ -119,6 +120,14 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
     }
 
     setIsOpen(internalIsOpen);
+  };
+
+  const handleTagDelete: TagAccordionProps['onTagDelete'] = async (uuid) => {
+    const res = await deleteTag({ uuid });
+
+    if ('error' in res) {
+      // TODO: handle error
+    }
   };
 
   return (
@@ -132,7 +141,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
         {transitions(({ opacity, x }, item) =>
           item ? (
             <>
-              <Dialog.Overlay>
+              <Dialog.Overlay forceMount asChild>
                 <DialogOverlay style={{ opacity }} />
               </Dialog.Overlay>
               <Dialog.Content forceMount asChild>
@@ -163,7 +172,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                         ) : null}
                         {data?.map((tag) => (
                           <TagItem key={tag.uuid}>
-                            <TagAccordion {...tag} />
+                            <TagAccordion {...tag} onTagDelete={handleTagDelete} />
                           </TagItem>
                         ))}
                       </TagList>
@@ -268,9 +277,14 @@ const TagItem = styled.li<{ $isForm?: boolean }>`
       : ''}
 `;
 
-type TagAccordionProps = TagEntity;
+interface TagAccordionProps extends TagEntity {
+  onTagDelete: (uuid: string) => void;
+}
 
-const TagAccordion = ({ uuid, files, createdBy, name }: TagAccordionProps) => {
+const TagAccordion = ({ uuid, files, createdBy, name, onTagDelete }: TagAccordionProps) => {
+  const handleTagDelete = (uuid: string) => () => {
+    onTagDelete(uuid);
+  };
   return (
     <Accordion.Item value={uuid}>
       <AccordionHeader asChild>
@@ -281,7 +295,7 @@ const TagAccordion = ({ uuid, files, createdBy, name }: TagAccordionProps) => {
               <DimmedIconButton label="Rename tag">
                 <Pencil />
               </DimmedIconButton>
-              <DimmedIconButton label="Delete tag">
+              <DimmedIconButton onClick={handleTagDelete(uuid)} label="Delete tag">
                 <Cross />
               </DimmedIconButton>
             </AccordionNameActions>

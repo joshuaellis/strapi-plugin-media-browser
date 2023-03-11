@@ -42,17 +42,26 @@ const tagApi = strapiAdminApi.injectEndpoints({
       }),
       invalidatesTags: ['Tags'],
     }),
+    deleteNewTag: build.mutation<TagEntity[], { uuid: string }>({
+      query: ({ uuid }) => ({
+        url: `tags/${uuid}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Tags'],
+    }),
   }),
   overrideExisting: false,
 });
 
-const { useGetAllTagsQuery, usePostNewTagMutation } = tagApi;
+const { useGetAllTagsQuery, usePostNewTagMutation, useDeleteNewTagMutation } = tagApi;
 
 export { useGetAllTagsQuery };
 
 export const useTagMutationApi = () => {
   const [postNewTag] = usePostNewTagMutation();
+  const [deleteTag] = useDeleteNewTagMutation();
   return {
     postNewTag,
+    deleteTag,
   };
 };

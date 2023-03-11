@@ -29,7 +29,7 @@ export default {
 
     const { create } = getService<ITagsService>('tags');
 
-    const folder = await create(parsedBody, user);
+    const tag = await create(parsedBody, user);
 
     const permissionsManager =
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -39,7 +39,7 @@ export default {
         model: TAG_MODEL_UID,
       });
 
-    const output = await permissionsManager.sanitizeOutput(folder);
+    const output = await permissionsManager.sanitizeOutput(tag);
 
     return output;
   },
@@ -85,5 +85,28 @@ export default {
     const sanitizedResults = await pm.sanitizeOutput(results);
 
     return sanitizedResults;
+  },
+  async delete(ctx) {
+    const { userAbility } = ctx.state;
+    const { uuid } = ctx.params;
+
+    const permissionsManager =
+      // @ts-expect-error it does exist thx
+      strapi.admin.services.permission.createPermissionsManager({
+        ability: userAbility,
+        model: TAG_MODEL_UID,
+      });
+
+    const { delete: deleteTag } = getService<ITagsService>('tags');
+
+    const deletedTags = await deleteTag([uuid]);
+
+    if (deletedTags.tags.length === 0) {
+      return ctx.notFound('tag not found');
+    }
+
+    const parsedOutput = await permissionsManager.sanitizeOutput(deletedTags);
+
+    return parsedOutput;
   },
 } as GenericController;

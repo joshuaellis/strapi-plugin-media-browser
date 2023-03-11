@@ -8,6 +8,7 @@ import type { CreateTagBody } from '../controllers/admin-tag';
 import type { StrapiUser } from '../types/strapi';
 
 export interface TagEntity {
+  readonly id: string;
   createdAt: string;
   createdBy: {
     firstname: string;
@@ -28,6 +29,9 @@ interface ExtendedFindParams<TEntity> extends Omit<FindParams<TEntity>, 'populat
 export interface ITagsService {
   findAll(query: ExtendedFindParams<TagEntity>): Promise<Partial<TagEntity>[]>;
   create(data: CreateTagBody, user?: StrapiUser): Promise<Pick<TagEntity, 'name' | 'uuid'>>;
+  delete(
+    uuids: string[]
+  ): Promise<{ totalTagNumber: number; tags: Pick<TagEntity, 'uuid' | 'id'>[] }>;
 }
 
 class TagsService implements ITagsService {
@@ -69,6 +73,35 @@ class TagsService implements ITagsService {
 
     return tagEntity;
   };
+
+  delete = async (
+    uuids: string[]
+  ): Promise<{ totalTagNumber: number; tags: Pick<TagEntity, 'id' | 'uuid'>[] }> => {
+    const tags = (await this.strapi.db
+      .query(TAG_MODEL_UID)
+      .findMany({ select: ['id', 'uuid'], where: { uuid: { $in: uuids } } })) as Pick<
+      TagEntity,
+      'id' | 'uuid'
+    >[];
+
+    if (tags.length === 0) {
+      return {
+        tags: [],
+        totalTagNumber: 0,
+      };
+    }
+
+    const { count: totalTagNumber } = await this.strapi.db.query(TAG_MODEL_UID).deleteMany({
+      where: {
+        $or: tags.map((tag) => ({ uuid: tag.uuid })),
+      },
+    });
+
+    return {
+      tags,
+      totalTagNumber,
+    };
+  };
 }
 
 export default ({ strapi }: { strapi: Strapi }): ITagsService => {
@@ -77,5 +110,6 @@ export default ({ strapi }: { strapi: Strapi }): ITagsService => {
   return {
     findAll: tagsService.findAll,
     create: tagsService.create,
+    delete: tagsService.delete,
   };
 };

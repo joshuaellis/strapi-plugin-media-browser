@@ -155,5 +155,21 @@ export default {
         ],
       },
     },
+    {
+      method: 'DELETE',
+      path: '/tags/:uuid',
+      handler: 'admin-tag.delete',
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin',
+          {
+            name: 'admin::hasPermissions',
+            config: {
+              actions: [ACTIONS.delete],
+            },
+          },
+        ],
+      },
+    },
   ],
 };
