@@ -47,7 +47,7 @@ In your `config/plugins` file add:
 
 ## Contributing
 
-Contributions, issues and feature requests are welcome! See our [guide](https://github.com/joshuaellis/strapi-plugin-media-library/blob/main/CONTRIBUTING.md) for more instructions!
+Contributions, issues and feature requests are welcome! See our [guide](https://github.com/joshuaellis/strapi-plugin-media-browser/blob/main/CONTRIBUTING.md) for more instructions!
 
 ## Roadmap
 
