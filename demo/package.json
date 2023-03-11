@@ -4,12 +4,12 @@
   "version": "0.1.0",
   "description": "A Strapi application",
   "scripts": {
+    "clean": "rm -rf .cache build node_modules",
     "develop": "strapi develop",
     "start": "strapi start",
     "build": "strapi build",
     "strapi": "strapi"
   },
-  "devDependencies": {},
   "dependencies": {
     "@strapi/plugin-i18n": "0.0.0-98632e10278ad8257bfe1251a01f93dc29986cd2",
     "@strapi/plugin-users-permissions": "0.0.0-98632e10278ad8257bfe1251a01f93dc29986cd2",
@@ -31,5 +31,6 @@
     "node": ">=14.19.1 <=18.x.x",
     "npm": ">=6.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "packageManager": "yarn@3.4.1"
 }
