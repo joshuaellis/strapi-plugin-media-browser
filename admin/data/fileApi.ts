@@ -106,10 +106,11 @@ export { useGetAllFilesAtFolderQuery };
 
 export const useFileMutationApi = () => {
   const [deleteFile] = useDeleteFilesMutation();
-  const [updateFile] = useUpdateFilesMutation();
+  const [updateFile, { isLoading }] = useUpdateFilesMutation();
 
   return {
     deleteFile,
+    isUpdateFileLoading: isLoading,
     updateFile,
   };
 };

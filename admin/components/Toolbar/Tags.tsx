@@ -8,6 +8,7 @@ import styled, { css, keyframes } from 'styled-components';
 import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
 import { useFileMutationApi } from '../../data/fileApi';
 import { useGetAllTagsQuery, useTagMutationApi, type TagEntity } from '../../data/tagApi';
+import { composeEventHandlers } from '../../helpers/events';
 import { useQuery } from '../../hooks/useQuery';
 import { useTypedSelector } from '../../store/hooks';
 import { selectSelectedItemsWithTags } from '../../store/selectors';
@@ -40,7 +41,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
   const { data } = useGetAllTagsQuery(undefined);
 
   const { postNewTag, deleteTag, updateTag } = useTagMutationApi();
-  const { updateFile } = useFileMutationApi();
+  const { updateFile, isUpdateFileLoading } = useFileMutationApi();
 
   React.useLayoutEffect(() => {
     const container = document.getElementById(FILE_BROWSER_CONTAINER_ID);
@@ -167,7 +168,10 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
       },
     });
 
-    if ('error' in res) {
+    if ('data' in res) {
+      setIsOpen(false);
+      // show success toast
+    } else if ('error' in res) {
       // TODO: handle error
     }
   };
@@ -214,7 +218,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                               !isChecked &&
                               'indeterminate';
                             return (
-                              <TagItem as="label" key={tag.uuid}>
+                              <TagItem $disabled={isUpdateFileLoading} as="label" key={tag.uuid}>
                                 <AccordionHeader
                                   as="span"
                                   style={{ justifyContent: 'flex-start', gap: '10px' }}
@@ -222,6 +226,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                                   <Checkbox
                                     initialState={isChecked || isIndeterminate || 'unchecked'}
                                     value={tag.uuid}
+                                    disabled={isUpdateFileLoading}
                                   />
                                   <AccordionTitle as="span">{tag.name}</AccordionTitle>
                                 </AccordionHeader>
@@ -230,7 +235,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                           })}
                         </TagList>
                       </TagContainer>
-                      <TextButton>Apply tags</TextButton>
+                      <TextButton aria-busy={isUpdateFileLoading}>Apply tags</TextButton>
                     </TagContainer>
                   ) : (
                     <>
@@ -344,15 +349,19 @@ const TagList = styled.ul`
   gap: 10px;
 `;
 
-const TagItem = styled.li<{ $isForm?: boolean }>`
+const TagItem = styled.li<{ $isForm?: boolean; $disabled?: boolean }>`
   background-color: ${(props) => (props.$isForm ? 'transparent' : 'rgba(255, 255, 255, 0.04)')};
   border-radius: 5px;
-  padding: ${(props) => (props.$isForm ? '12px 15px' : '')};
-  border: ${(props) => (props.$isForm ? '1px solid rgba(255, 255, 255, 0.2)' : 'none')};
 
   ${(props) =>
     props.$isForm
       ? css`
+          pointer-events: ${props.$disabled ? 'none' : 'auto'};
+          opacity: ${props.$disabled ? 0.5 : 1};
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 12px 15px;
+          cursor: ${props.$disabled ? 'not-allowed' : 'pointer'};
+
           &:focus-within {
             outline: 2px solid #0855c9;
           }
@@ -592,14 +601,13 @@ const NewTagForm = React.forwardRef<HTMLInputElement, NewTagFormProps>(
   }
 );
 
-interface CheckboxProps {
-  value: string;
+interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   initialState?: CheckboxState;
 }
 
 type CheckboxState = 'checked' | 'unchecked' | 'indeterminate';
 
-const Checkbox = ({ value, initialState = 'unchecked' }: CheckboxProps) => {
+const Checkbox = ({ initialState = 'unchecked', ...props }: CheckboxProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null!);
   const [checkedType, setCheckedType] = React.useState(initialState);
 
@@ -618,9 +626,9 @@ const Checkbox = ({ value, initialState = 'unchecked' }: CheckboxProps) => {
         ref={inputRef}
         type="checkbox"
         name="tags"
-        value={value}
-        onChange={handleChange}
+        {...props}
         checked={checkedType === 'checked'}
+        onChange={composeEventHandlers(handleChange, props.onChange)}
       />
       <CheckboxInner $variant={checkedType} />
     </CheckboxBorder>
