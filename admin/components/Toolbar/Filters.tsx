@@ -8,7 +8,6 @@ import * as Menu from '../DropdownMenu';
 import { Filter } from '../Icons/Filter';
 import { ToolbarButton } from '../ToolbarButton';
 
-
 interface FiltersToolbarButtonProps {
   disabled?: boolean;
 }

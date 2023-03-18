@@ -7,7 +7,6 @@ import type { FileEntity } from './files';
 import { PLUGIN_NAME } from '../constants';
 import { streamToBuffer } from '../helpers/streaming';
 
-
 const { ApplicationError } = errors;
 
 export interface ProviderUploadFile extends FileEntity {

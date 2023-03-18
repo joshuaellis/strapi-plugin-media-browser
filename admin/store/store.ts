@@ -5,7 +5,6 @@ import { listenerMiddleware } from './middleware';
 import { finderReducer } from '../modules/finder';
 import { uploadReducer } from '../modules/upload';
 
-
 export const store = configureStore({
   reducer: {
     // Add the generated reducer as a specific top-level slice

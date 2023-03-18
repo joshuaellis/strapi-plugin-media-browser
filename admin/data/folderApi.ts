@@ -1,4 +1,4 @@
-import type { CreateFolderBody } from '../../../server/controllers/admin-folder';
+import type { CreateFolderBody } from '../../server/controllers/admin-folder';
 import { strapiAdminApi } from '../store/api';
 import type { CreateFolderResponse, Folder } from '../types/data';
 

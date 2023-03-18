@@ -4,7 +4,11 @@ import { setCreatorFields, joinBy } from '@strapi/utils';
 import { nanoid } from 'nanoid';
 
 import { FILE_MODEL_UID, FOLDER_MODEL_UID } from '../constants';
-import type { CreateFolderBody, UpdateFolderId, UpdateFolderPatch } from '../controllers/admin-folder';
+import type {
+  CreateFolderBody,
+  UpdateFolderId,
+  UpdateFolderPatch,
+} from '../controllers/admin-folder';
 import type { StrapiUser } from '../types/strapi';
 
 export interface FolderEntity {

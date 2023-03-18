@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import styled from 'styled-components';
 
-
 import { Folder } from './Folder/Folder';
 import { FolderNew } from './Folder/FolderNew';
 import { IconButton } from './IconButton';

@@ -9,7 +9,6 @@ import { uploadAssetThunk, deleteUploadItems } from '../modules/upload';
 import { useTypedDispatch, useTypedSelector } from '../store/hooks';
 import { selectUploadsBasedOnRoute } from '../store/selectors';
 
-
 interface FileBrowserProps {
   files: MediaFile[];
 }

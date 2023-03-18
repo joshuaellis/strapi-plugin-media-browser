@@ -4,7 +4,6 @@ import * as CardBase from './CardBase';
 import type { MediaFile } from '../../data/fileApi';
 import { VisuallyHidden } from '../VisuallyHidden';
 
-
 export interface CardAssetProps extends MediaFile {
   isSelected?: boolean;
   onClick?: (uuid: string, event: React.MouseEvent<HTMLLabelElement>) => void;
