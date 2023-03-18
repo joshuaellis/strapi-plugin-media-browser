@@ -36,22 +36,26 @@ const updateFileBodySchema = z.object({
   action: z.literal('update'),
   uuid: z.union([z.string(), z.array(z.string())]),
   patch: z.object({
-    tags: z.union([
-      z.object({ set: z.array(z.string()).optional() }),
-      z.object({
-        connect: z.array(z.string()).optional(),
-        disconnect: z.array(z.string()).optional(),
-      }),
-    ]),
+    tags: z
+      .union([
+        z.object({ set: z.array(z.string()).optional() }),
+        z.object({
+          connect: z.array(z.string()).optional(),
+          disconnect: z.array(z.string()).optional(),
+        }),
+      ])
+      .optional(),
   }),
 });
+
+export type UpdateFileBody = z.infer<typeof updateFileBodySchema>;
 
 interface UpdateContext extends Koa.Context {
   request: UpdateRequest;
 }
 
 interface UpdateRequest extends Koa.Request {
-  body: z.infer<typeof updateFileBodySchema>;
+  body: UpdateFileBody;
 }
 
 export default {

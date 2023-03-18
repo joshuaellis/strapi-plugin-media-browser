@@ -10,13 +10,15 @@ import { nanoid } from 'nanoid';
 import type { IFolderService } from './folder';
 import type { IImagesService } from './images';
 import type { IProviderService } from './provider';
+import { TagEntity } from './tags';
 import {
   CREATED_BY_ATTRIBUTE,
   FILE_MODEL_UID,
   PLUGIN_NAME,
   UPDATED_BY_ATTRIBUTE,
 } from '../constants';
-import type { UploadFileBody } from '../controllers/admin-file';
+import type { UpdateFileBody, UploadFileBody } from '../controllers/admin-file';
+import { tranformFilePatch } from '../helpers/files';
 import { getService } from '../helpers/strapi';
 import type { StrapiUser } from '../types/strapi';
 
@@ -44,14 +46,10 @@ export interface FileEntity {
   width?: number;
   height?: number;
   provider?: string;
-  tags?: string[];
+  tags?: Partial<TagEntity>[];
   [CREATED_BY_ATTRIBUTE]?: {
     id: number;
   };
-}
-
-interface FileEntityPatch extends Omit<FileEntity, 'tags'> {
-  tags?: { set?: string[] } | { connect?: string[]; disconnect?: string[] };
 }
 
 export interface IFilesService {
@@ -68,7 +66,7 @@ export interface IFilesService {
   deleteFile: (uuid: string) => Promise<FileEntity | undefined>;
   updateFile: (
     uuid: string | number,
-    patch?: Partial<FileEntityPatch>
+    patch?: UpdateFileBody['patch']
   ) => Promise<FileEntity | undefined>;
   findOne: (uuid: string, query?: FindParams<FileEntity>) => Promise<FileEntity | undefined>;
   /**
@@ -218,7 +216,7 @@ class FilesService implements IFilesService {
 
   updateFile = async (
     uuid: string | number,
-    data: Partial<FileEntityPatch> = {}
+    data: UpdateFileBody['patch'] = {}
   ): Promise<FileEntity | undefined> => {
     let fileID: number | undefined = undefined;
 
@@ -238,7 +236,14 @@ class FilesService implements IFilesService {
       return undefined;
     }
 
-    const updatedFile = await this.strapi.entityService.update(FILE_MODEL_UID, fileID, data);
+    const patch = await tranformFilePatch(data);
+
+    const updatedFile = await this.strapi.db.query(FILE_MODEL_UID).update({
+      where: {
+        id: fileID,
+      },
+      data: patch,
+    });
 
     return updatedFile;
   };

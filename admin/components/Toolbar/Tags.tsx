@@ -6,6 +6,7 @@ import { animated, useTransition } from '@react-spring/web';
 import styled, { css, keyframes } from 'styled-components';
 
 import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
+import { useFileMutationApi } from '../../data/fileApi';
 import { useGetAllTagsQuery, useTagMutationApi, type TagEntity } from '../../data/tagApi';
 import { useQuery } from '../../hooks/useQuery';
 import { useTypedSelector } from '../../store/hooks';
@@ -39,6 +40,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
   const { data } = useGetAllTagsQuery(undefined);
 
   const { postNewTag, deleteTag, updateTag } = useTagMutationApi();
+  const { updateFile } = useFileMutationApi();
 
   React.useLayoutEffect(() => {
     const container = document.getElementById(FILE_BROWSER_CONTAINER_ID);
@@ -155,6 +157,19 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
     const data = new FormData(e.currentTarget);
 
     const connectedTagUUIDs = Array.from(data.getAll('tags')).map((uuid) => uuid.toString());
+
+    const res = await updateFile({
+      uuid: selectedItems.map((item) => item.uuid),
+      patch: {
+        tags: {
+          set: connectedTagUUIDs,
+        },
+      },
+    });
+
+    if ('error' in res) {
+      // TODO: handle error
+    }
   };
 
   return (
@@ -206,7 +221,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                                 >
                                   <Checkbox
                                     initialState={isChecked || isIndeterminate || 'unchecked'}
-                                    value={tag.name}
+                                    value={tag.uuid}
                                   />
                                   <AccordionTitle as="span">{tag.name}</AccordionTitle>
                                 </AccordionHeader>

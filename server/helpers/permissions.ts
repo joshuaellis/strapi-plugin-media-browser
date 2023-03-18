@@ -15,7 +15,8 @@ export const findEntityAndCheckPermissions =
   (strapi: Strapi) =>
   async (uuid: string, { ability, action, model }: FindEntityAndCheckPermissionsArgs) => {
     const file = await getService<IFilesService>('files').findOne(uuid, {
-      select: [CREATED_BY_ATTRIBUTE, 'folder', 'id'],
+      select: ['id'],
+      populate: [CREATED_BY_ATTRIBUTE],
     });
 
     if (!file) {
