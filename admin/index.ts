@@ -2,7 +2,7 @@ import { Puzzle } from '@strapi/icons';
 
 import Initializer from './components/Initializer';
 import pluginId from './pluginId';
-import pluginPkg from '../../package.json';
+import pluginPkg from '../package.json';
 
 const name = pluginPkg.strapi.name;
 

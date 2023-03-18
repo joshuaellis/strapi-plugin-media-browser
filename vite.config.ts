@@ -6,7 +6,7 @@ export default defineConfig({
     emptyOutDir: false,
     target: 'esnext',
     lib: {
-      entry: ['admin/src/index.ts'],
+      entry: ['admin/index.ts'],
       name: 'ml-browser',
       formats: ['cjs', 'es'],
     },

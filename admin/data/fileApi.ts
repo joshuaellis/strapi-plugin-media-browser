@@ -29,6 +29,7 @@ const fileSchema = z.object({
   previewUrl: z.string().optional().nullable(),
   provider: z.string().optional().nullable(),
   provider_metadata: z.null().optional().nullable(),
+  tags: z.array(z.object({ uuid: z.string() })),
   size: z.number(),
   updatedAt: z.string().optional().nullable(),
   url: z.string(),
@@ -37,7 +38,11 @@ const fileSchema = z.object({
 
 export type MediaFile = z.infer<typeof fileSchema>;
 
-const fileApi = strapiAdminApi.injectEndpoints({
+interface MediaFileUpdate extends Omit<Partial<MediaFile>, 'id' | 'tags'> {
+  tags: { set: string[] } | { connect: string[]; disconnect: string[] };
+}
+
+export const fileApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
     getAllFilesAtFolder: build.query<MediaFile[], { folder: string; sortBy: string }>({
       query: ({ folder, sortBy }) => {
@@ -70,6 +75,9 @@ const fileApi = strapiAdminApi.injectEndpoints({
           ? res.map((file) => ({ type: 'Files', folder: file.folderPath }))
           : [{ type: 'Files', folder: '' }],
     }),
+    updateFiles: build.mutation<MediaFile[], { uuid: string | string[]; data: MediaFileUpdate }>(
+      {}
+    ),
   }),
   overrideExisting: false,
 });

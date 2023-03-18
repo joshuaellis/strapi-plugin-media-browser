@@ -9,15 +9,6 @@
     "strict": true
   },
 
-  "include": ["admin", "custom.d.ts"],
-
-  "exclude": [
-    "node_modules/",
-    "dist/",
-
-    // Do not include admin files in the server compilation
-    "server/**/*",
-    // Do not include test files
-    "**/*.test.ts"
-  ]
+  "include": ["admin/**/*", "custom.d.ts"],
+  "exclude": ["node_modules"]
 }
