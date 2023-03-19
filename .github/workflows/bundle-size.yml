@@ -37,14 +37,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Install
-        run: yarn install
-
-      - name: Build
-        run: yarn build
-
       - uses: preactjs/compressed-size-action@v2
         with:
-          strip-hash: "(?:\\w{8})"
+          strip-hash: "\\.(?:(\\w{8})\\.)|(?:\\.(\\w{8}))"
           pattern: 'dist/admin/*.{mjs,js}'
           minimum-change-threshold: 10
