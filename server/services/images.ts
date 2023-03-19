@@ -1,6 +1,5 @@
 import { errors } from '@strapi/utils';
 
-
 import type { FileEntity } from './files';
 import type { IProviderService } from './provider';
 import { getService } from '../helpers/strapi';

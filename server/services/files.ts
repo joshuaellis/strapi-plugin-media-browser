@@ -1,6 +1,7 @@
 import os from 'os';
 import path from 'path';
 
+import { FindParams } from '@strapi/database';
 import type { Strapi } from '@strapi/strapi';
 import fse from 'fs-extra';
 import { extension } from 'mime-types';
@@ -9,13 +10,15 @@ import { nanoid } from 'nanoid';
 import type { IFolderService } from './folder';
 import type { IImagesService } from './images';
 import type { IProviderService } from './provider';
+import { TagEntity } from './tags';
 import {
   CREATED_BY_ATTRIBUTE,
   FILE_MODEL_UID,
   PLUGIN_NAME,
   UPDATED_BY_ATTRIBUTE,
 } from '../constants';
-import type { UploadFileBody } from '../controllers/admin-file';
+import type { UpdateFileBody, UploadFileBody } from '../controllers/admin-file';
+import { tranformFilePatch } from '../helpers/files';
 import { getService } from '../helpers/strapi';
 import type { StrapiUser } from '../types/strapi';
 
@@ -27,6 +30,7 @@ export interface UploadFile {
 }
 
 export interface FileEntity {
+  id?: number;
   uuid: string;
   assetType: 'image' | 'file' | 'video';
   name: string;
@@ -42,6 +46,10 @@ export interface FileEntity {
   width?: number;
   height?: number;
   provider?: string;
+  tags?: Partial<TagEntity>[];
+  [CREATED_BY_ATTRIBUTE]?: {
+    id: number;
+  };
 }
 
 export interface IFilesService {
@@ -56,11 +64,16 @@ export interface IFilesService {
    * Delete a file based on it's UUID
    */
   deleteFile: (uuid: string) => Promise<FileEntity | undefined>;
+  updateFile: (
+    uuid: string | number,
+    patch?: UpdateFileBody['patch']
+  ) => Promise<FileEntity | undefined>;
+  findOne: (uuid: string, query?: FindParams<FileEntity>) => Promise<FileEntity | undefined>;
   /**
    * Find many files based on a query or omit the query
    * to find all files in the DB.
    */
-  findAll: (query?: any) => Promise<FileEntity[]>;
+  findAll: (query?: FindParams<FileEntity>) => Promise<FileEntity[]>;
 }
 class FilesService implements IFilesService {
   private strapi: Strapi;
@@ -180,9 +193,8 @@ class FilesService implements IFilesService {
      * TODO: You shouldn't be able to delete a file when it's used in an actual entity.
      */
 
-    const [file] = await this.strapi.entityService.findMany(FILE_MODEL_UID, {
-      fields: ['id', 'hash', 'ext'],
-      filters: {
+    const file = await this.strapi.db.query(FILE_MODEL_UID).findOne({
+      where: {
         uuid,
       },
     });
@@ -202,11 +214,55 @@ class FilesService implements IFilesService {
     return deletedFile;
   };
 
+  updateFile = async (
+    uuid: string | number,
+    data: UpdateFileBody['patch'] = {}
+  ): Promise<FileEntity | undefined> => {
+    let fileID: number | undefined = undefined;
+
+    if (typeof uuid === 'string') {
+      const file = (await this.strapi.db.query(FILE_MODEL_UID).findOne({
+        where: {
+          uuid,
+        },
+      })) as FileEntity | undefined;
+
+      fileID = file?.id;
+    } else {
+      fileID = uuid;
+    }
+
+    if (!fileID) {
+      return undefined;
+    }
+
+    const patch = await tranformFilePatch(data);
+
+    const updatedFile = await this.strapi.db.query(FILE_MODEL_UID).update({
+      where: {
+        id: fileID,
+      },
+      data: patch,
+    });
+
+    return updatedFile;
+  };
+
   /**
    * Fetching
    */
-  findAll = async (query: unknown) => {
+  findAll = async (query?: FindParams<FileEntity>) => {
     return await this.strapi.entityService.findMany(FILE_MODEL_UID, query);
+  };
+
+  findOne = async (uuid: string, query?: FindParams<FileEntity>) => {
+    return await this.strapi.db.entityManager.findOne(FILE_MODEL_UID, {
+      ...query,
+      where: {
+        ...query?.where,
+        uuid,
+      },
+    });
   };
 }
 
@@ -217,5 +273,7 @@ export default ({ strapi }: { strapi: Strapi }): IFilesService => {
     upload: service.upload,
     findAll: service.findAll,
     deleteFile: service.deleteFile,
+    findOne: service.findOne,
+    updateFile: service.updateFile,
   };
 };

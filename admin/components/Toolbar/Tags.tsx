@@ -6,7 +6,12 @@ import { animated, useTransition } from '@react-spring/web';
 import styled, { css, keyframes } from 'styled-components';
 
 import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
+import { useFileMutationApi } from '../../data/fileApi';
 import { useGetAllTagsQuery, useTagMutationApi, type TagEntity } from '../../data/tagApi';
+import { composeEventHandlers } from '../../helpers/events';
+import { useQuery } from '../../hooks/useQuery';
+import { useTypedSelector } from '../../store/hooks';
+import { selectSelectedItemsWithTags } from '../../store/selectors';
 import { IconButton } from '../IconButton';
 import { Cross } from '../Icons/Cross';
 import { InfoCircle } from '../Icons/InfoCircle';
@@ -29,9 +34,14 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null!);
 
+  const [query] = useQuery();
+  const selectedItems = useTypedSelector(selectSelectedItemsWithTags(query));
+  const hasSelectedItems = selectedItems.length > 0;
+
   const { data } = useGetAllTagsQuery(undefined);
 
   const { postNewTag, deleteTag, updateTag } = useTagMutationApi();
+  const { updateFile, isUpdateFileLoading } = useFileMutationApi();
 
   React.useLayoutEffect(() => {
     const container = document.getElementById(FILE_BROWSER_CONTAINER_ID);
@@ -142,6 +152,30 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
     return false;
   };
 
+  const handleApplyTagsSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+
+    const data = new FormData(e.currentTarget);
+
+    const connectedTagUUIDs = Array.from(data.getAll('tags')).map((uuid) => uuid.toString());
+
+    const res = await updateFile({
+      uuid: selectedItems.map((item) => item.uuid),
+      patch: {
+        tags: {
+          set: connectedTagUUIDs,
+        },
+      },
+    });
+
+    if ('data' in res) {
+      setIsOpen(false);
+      // show success toast
+    } else if ('error' in res) {
+      // TODO: handle error
+    }
+  };
+
   return (
     <Dialog.Root open={isOpen} onOpenChange={handleOpenChange}>
       <ToolbarButton asChild aria-disabled={disabled}>
@@ -169,40 +203,78 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                   <VisuallyHidden>
                     <Dialog.Description>{'Create, delete & manage your tags.'}</Dialog.Description>
                   </VisuallyHidden>
-                  <TagContainer>
-                    <Divider />
-                    <Accordion.Root type="multiple" asChild>
-                      <TagList>
-                        {showNewTagForm ? (
-                          <TagItem $isForm>
-                            <NewTagForm
-                              ref={inputRef}
-                              onBlur={handleNewTagBlur}
-                              onFormSubmit={handleNewTagFormSubmit}
-                            />
-                          </TagItem>
-                        ) : null}
-                        {data?.map((tag) => (
-                          <TagItem key={tag.uuid}>
-                            <TagAccordion
-                              {...tag}
-                              onTagDelete={handleTagDelete}
-                              onTagRename={handleTagRename}
-                            />
-                          </TagItem>
-                        ))}
-                      </TagList>
-                    </Accordion.Root>
-                    <Divider />
-                  </TagContainer>
-                  <TextButton
-                    ref={triggerRef}
-                    disabled={showNewTagForm}
-                    aria-disabled={showNewTagForm}
-                    onClick={handleNewTagClick}
-                  >
-                    New Tag
-                  </TextButton>
+                  {hasSelectedItems ? (
+                    <TagContainer as="form" onSubmit={handleApplyTagsSubmit}>
+                      <TagContainer>
+                        <Divider />
+                        <TagList as="fieldset">
+                          <VisuallyHidden as="legend">Tags to apply</VisuallyHidden>
+                          {data?.map((tag) => {
+                            const isChecked =
+                              selectedItems.every((item) => item.tags.includes(tag.uuid)) &&
+                              'checked';
+                            const isIndeterminate =
+                              selectedItems.some((item) => item.tags.includes(tag.uuid)) &&
+                              !isChecked &&
+                              'indeterminate';
+                            return (
+                              <TagItem $disabled={isUpdateFileLoading} as="label" key={tag.uuid}>
+                                <AccordionHeader
+                                  as="span"
+                                  style={{ justifyContent: 'flex-start', gap: '10px' }}
+                                >
+                                  <Checkbox
+                                    initialState={isChecked || isIndeterminate || 'unchecked'}
+                                    value={tag.uuid}
+                                    disabled={isUpdateFileLoading}
+                                  />
+                                  <AccordionTitle as="span">{tag.name}</AccordionTitle>
+                                </AccordionHeader>
+                              </TagItem>
+                            );
+                          })}
+                        </TagList>
+                      </TagContainer>
+                      <TextButton aria-busy={isUpdateFileLoading}>Apply tags</TextButton>
+                    </TagContainer>
+                  ) : (
+                    <>
+                      <TagContainer>
+                        <Divider />
+                        <Accordion.Root type="multiple" asChild>
+                          <TagList>
+                            {showNewTagForm ? (
+                              <TagItem $isForm>
+                                <NewTagForm
+                                  ref={inputRef}
+                                  onBlur={handleNewTagBlur}
+                                  onFormSubmit={handleNewTagFormSubmit}
+                                />
+                              </TagItem>
+                            ) : null}
+                            {data?.map((tag) => (
+                              <TagItem key={tag.uuid}>
+                                <TagAccordion
+                                  {...tag}
+                                  onTagDelete={handleTagDelete}
+                                  onTagRename={handleTagRename}
+                                />
+                              </TagItem>
+                            ))}
+                          </TagList>
+                        </Accordion.Root>
+                        <Divider />
+                      </TagContainer>
+                      <TextButton
+                        ref={triggerRef}
+                        disabled={showNewTagForm}
+                        aria-disabled={showNewTagForm}
+                        onClick={handleNewTagClick}
+                      >
+                        New Tag
+                      </TextButton>
+                    </>
+                  )}
                 </DialogContent>
               </Dialog.Content>
             </>
@@ -277,15 +349,19 @@ const TagList = styled.ul`
   gap: 10px;
 `;
 
-const TagItem = styled.li<{ $isForm?: boolean }>`
+const TagItem = styled.li<{ $isForm?: boolean; $disabled?: boolean }>`
   background-color: ${(props) => (props.$isForm ? 'transparent' : 'rgba(255, 255, 255, 0.04)')};
   border-radius: 5px;
-  padding: ${(props) => (props.$isForm ? '12px 15px' : '')};
-  border: ${(props) => (props.$isForm ? '1px solid rgba(255, 255, 255, 0.2)' : 'none')};
 
   ${(props) =>
     props.$isForm
       ? css`
+          pointer-events: ${props.$disabled ? 'none' : 'auto'};
+          opacity: ${props.$disabled ? 0.5 : 1};
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          padding: 12px 15px;
+          cursor: ${props.$disabled ? 'not-allowed' : 'pointer'};
+
           &:focus-within {
             outline: 2px solid #0855c9;
           }
@@ -294,8 +370,8 @@ const TagItem = styled.li<{ $isForm?: boolean }>`
 `;
 
 interface TagAccordionProps extends TagEntity {
-  onTagDelete: (uuid: string) => void;
-  onTagRename: (uuid: string, { name }: { name: string }) => Promise<boolean>;
+  onTagDelete?: (uuid: string) => void;
+  onTagRename?: (uuid: string, { name }: { name: string }) => Promise<boolean>;
 }
 
 const TagAccordion = ({
@@ -310,7 +386,9 @@ const TagAccordion = ({
   const [isEditing, setIsEditing] = React.useState(false);
 
   const handleTagDelete = (uuid: string) => () => {
-    onTagDelete(uuid);
+    if (onTagDelete) {
+      onTagDelete(uuid);
+    }
   };
 
   const handleRenameClick = () => {
@@ -330,9 +408,12 @@ const TagAccordion = ({
   };
 
   const handleRename = async (uuid: string, name: string) => {
-    const success = await onTagRename(uuid, { name });
-
-    setIsEditing(!success);
+    if (onTagRename) {
+      const success = await onTagRename(uuid, { name });
+      setIsEditing(!success);
+    } else {
+      setIsEditing(false);
+    }
   };
 
   const handleFormBlur: NewTagFormProps['onBlur'] = (e) => {
@@ -412,7 +493,7 @@ const AccordionNameActions = styled.div`
   }
 `;
 
-const AccordionHeader = styled(Accordion.Header)<{ $isEditing: boolean }>`
+const AccordionHeader = styled(Accordion.Header)<{ $isEditing?: boolean }>`
   width: 100%;
   padding: ${(props) => (props.$isEditing ? '13px 15px' : '10px 15px')};
   display: flex;
@@ -428,6 +509,7 @@ const AccordionHeader = styled(Accordion.Header)<{ $isEditing: boolean }>`
 
 const AccordionTitle = styled.h3`
   color: inherit;
+  padding: 3px 0;
 `;
 
 const AccordionActions = styled.div`
@@ -518,3 +600,57 @@ const NewTagForm = React.forwardRef<HTMLInputElement, NewTagFormProps>(
     );
   }
 );
+
+interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  initialState?: CheckboxState;
+}
+
+type CheckboxState = 'checked' | 'unchecked' | 'indeterminate';
+
+const Checkbox = ({ initialState = 'unchecked', ...props }: CheckboxProps) => {
+  const inputRef = React.useRef<HTMLInputElement>(null!);
+  const [checkedType, setCheckedType] = React.useState(initialState);
+
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setCheckedType(e.target.checked ? 'checked' : 'unchecked');
+  };
+
+  React.useEffect(() => {
+    inputRef.current.indeterminate = checkedType === 'indeterminate';
+  }, [checkedType]);
+
+  return (
+    <CheckboxBorder>
+      <VisuallyHidden
+        as="input"
+        ref={inputRef}
+        type="checkbox"
+        name="tags"
+        {...props}
+        checked={checkedType === 'checked'}
+        onChange={composeEventHandlers(handleChange, props.onChange)}
+      />
+      <CheckboxInner $variant={checkedType} />
+    </CheckboxBorder>
+  );
+};
+
+const CheckboxBorder = styled.span`
+  width: 16px;
+  height: 16px;
+  border: solid 1px #fafafa;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: 1px;
+`;
+
+const CheckboxInner = styled.span<{ $variant: CheckboxState }>`
+  background: ${(props) => (props.$variant !== 'unchecked' ? '#fafafa' : 'transparent')};
+  border-radius: 1px;
+  padding: 4px;
+  clip-path: ${(props) =>
+    props.$variant === 'indeterminate' ? 'polygon(0% 0%, 0% 100%, 100% 0%)' : 'unset'};
+`;

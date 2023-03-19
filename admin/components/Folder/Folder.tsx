@@ -10,7 +10,6 @@ import { IconButton } from '../IconButton';
 import { Cross } from '../Icons/Cross';
 import { Pencil } from '../Icons/Pencil';
 
-
 interface FolderProps {
   title: string;
   id: number;

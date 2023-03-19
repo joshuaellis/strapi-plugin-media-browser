@@ -45,7 +45,7 @@ export default {
           {
             name: 'admin::hasPermissions',
             config: {
-              actions: [ACTIONS.delete],
+              actions: [ACTIONS.delete, ACTIONS.update],
             },
           },
         ],

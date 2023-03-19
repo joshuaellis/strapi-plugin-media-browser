@@ -8,7 +8,7 @@ import type { CreateTagBody } from '../controllers/admin-tag';
 import type { StrapiUser } from '../types/strapi';
 
 export interface TagEntity {
-  readonly id: string;
+  readonly id: number;
   createdAt: string;
   createdBy: {
     firstname: string;

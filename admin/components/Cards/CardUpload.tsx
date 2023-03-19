@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as CardBase from './CardBase';
 import type { UploadItem } from '../../modules/upload';
 
-
 interface CardUploadProps extends UploadItem {
   onCancelClick: (name: string) => void;
 }

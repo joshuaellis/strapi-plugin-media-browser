@@ -28,12 +28,13 @@ const Button = styled.button`
   border-radius: 5px;
   transition: filter 200ms ease-out;
 
-  &[aria-disabled='true'] {
+  &[aria-disabled='true'],
+  &[aria-busy='true'] {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  &:not([aria-disabled='true']):hover {
+  &:not([aria-disabled='true']):not([aria-busy='true']):hover {
     filter: brightness(120%);
   }
 `;

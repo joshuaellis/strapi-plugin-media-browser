@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { GenericController } from '@strapi/strapi/lib/core-api/controller';
 import { errors } from '@strapi/utils';
 import type Koa from 'koa';
 import { isEmpty } from 'lodash';
 import { z } from 'zod';
 
-
 import { ACTIONS, FILE_MODEL_UID } from '../constants';
+import { findEntityAndCheckPermissions } from '../helpers/permissions';
 import { getService } from '../helpers/strapi';
 import type { IFilesService } from '../services/files';
 import type { IFolderService } from '../services/folder';
@@ -29,7 +28,34 @@ interface DeleteRequest extends Koa.Request {
   body: {
     action: 'delete';
     uuid: string | string[];
+    patch?: never;
   };
+}
+
+const updateFileBodySchema = z.object({
+  action: z.literal('update'),
+  uuid: z.union([z.string(), z.array(z.string())]),
+  patch: z.object({
+    tags: z
+      .union([
+        z.object({ set: z.array(z.string()).optional() }),
+        z.object({
+          connect: z.array(z.string()).optional(),
+          disconnect: z.array(z.string()).optional(),
+        }),
+      ])
+      .optional(),
+  }),
+});
+
+export type UpdateFileBody = z.infer<typeof updateFileBodySchema>;
+
+interface UpdateContext extends Koa.Context {
+  request: UpdateRequest;
+}
+
+interface UpdateRequest extends Koa.Request {
+  body: UpdateFileBody;
 }
 
 export default {
@@ -44,7 +70,12 @@ export default {
     const { id } = (await getFolderByName(folderName)) ?? {};
 
     const defaultQuery = {
-      populate: { folder: true },
+      populate: {
+        folder: true,
+        tags: {
+          fields: ['uuid'],
+        },
+      },
       filters: {
         folder: !id ? null : id,
       },
@@ -62,10 +93,12 @@ export default {
       return ctx.forbidden();
     }
 
-    const query = pm.addPermissionsQueryTo({
+    const pmQuery = pm.addPermissionsQueryTo({
       ...defaultQuery,
       ...ctx.query,
     });
+
+    const query = await pm.sanitizeQuery(pmQuery);
 
     const fileService: IFilesService = getService('files');
 
@@ -125,11 +158,52 @@ export default {
     return parsedOutput;
   },
 
-  async update(ctx: DeleteContext) {
+  async updateFile(ctx: UpdateContext) {
+    const {
+      request: { body },
+      state: { userAbility },
+    } = ctx;
+
+    const { uuid, patch } = await updateFileBodySchema.parseAsync(body);
+
+    const { updateFile } = getService<IFilesService>('files');
+
+    const uuidsToUpdate = Array.isArray(uuid) ? uuid : [uuid];
+
+    const fileFinder = findEntityAndCheckPermissions(strapi);
+
+    let permissionsManager: ReturnType<
+      // @ts-ignore it does exist thx
+      typeof strapi.admin.services.permission.createPermissionsManager
+    > = undefined;
+    const updatedFiles = await Promise.all(
+      uuidsToUpdate.map(async (id) => {
+        const { file, pm } = await fileFinder(id, {
+          ability: userAbility,
+          action: ACTIONS.update,
+          model: FILE_MODEL_UID,
+        });
+        permissionsManager = pm;
+        return updateFile(file.id!, patch);
+      })
+    );
+
+    if (updatedFiles.length === 0) {
+      return ctx.notFound('file not found');
+    }
+
+    const parsedOutput = await permissionsManager.sanitizeOutput(updatedFiles);
+
+    return parsedOutput;
+  },
+
+  async update(ctx: DeleteContext | UpdateContext) {
     const { body } = ctx.request;
 
     if (body.action === 'delete') {
       return this.deleteFile(ctx);
+    } else if (body.action === 'update') {
+      return this.updateFile(ctx);
     }
   },
 
@@ -156,7 +230,18 @@ export default {
 
     const uuidsToDelete = Array.isArray(uuid) ? uuid : [uuid];
 
-    const deletedFiles = await Promise.all(uuidsToDelete.map((id) => deleteFile(id)));
+    const fileFinder = findEntityAndCheckPermissions(strapi);
+
+    const deletedFiles = await Promise.all(
+      uuidsToDelete.map(async (id) => {
+        await fileFinder(id, {
+          ability: userAbility,
+          action: ACTIONS.update,
+          model: FILE_MODEL_UID,
+        });
+        return deleteFile(id);
+      })
+    );
 
     if (deletedFiles.length === 0) {
       return ctx.notFound('file not found');
