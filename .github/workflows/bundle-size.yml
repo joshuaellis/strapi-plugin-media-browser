@@ -45,4 +45,5 @@ jobs:
 
       - uses: preactjs/compressed-size-action@v2
         with:
-          pattern: 'dist/admin/+([0-9]{,4})*'
+          strip-hash: "\\-(?:(\\w{8})\\)"
+          pattern: 'dist/admin/*.{cjs,js}'
