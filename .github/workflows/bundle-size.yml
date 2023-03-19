@@ -45,5 +45,5 @@ jobs:
 
       - uses: preactjs/compressed-size-action@v2
         with:
-          strip-hash: "-\\w{8}"
+          strip-hash: "\\w{8}"
           pattern: 'dist/admin/*.{mjs,js}'
