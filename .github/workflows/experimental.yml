@@ -1,8 +1,6 @@
 name: 'Experimental Releases'
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,22 +21,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Restore yarn cache
-        uses: actions/cache@v3
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          cache: 'yarn'
 
       - name: Install
-        run: yarn install
+        run: yarn install --immutable
 
       - name: Install
         run: yarn build
