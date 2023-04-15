@@ -4,6 +4,7 @@ import { useDropzone, type DropEvent } from 'react-dropzone';
 import styled from 'styled-components';
 
 import { filterFilesFromDropzone } from '../../helpers/files';
+import { notify } from '../Notifications';
 
 interface UploadDropzoneProps {
   children: React.ReactNode;
@@ -37,7 +38,11 @@ export const UploadDropzone = ({ children, onFileDrop }: UploadDropzoneProps) =>
     const files = await filterFilesFromDropzone(fileList);
 
     if (files.length !== fileList.length) {
-      // TODO: show error message that something has gone wrong.
+      notify({
+        status: 'error',
+        title: 'There was an issue dropping your files.',
+        description: 'Please try to drop them all again.',
+      });
     }
 
     return files;

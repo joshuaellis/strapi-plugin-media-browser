@@ -20,7 +20,7 @@ const initialState: FinderState = {
   selectedItems: [],
 };
 
-export const finderSlice = createSlice({
+const finderSlice = createSlice({
   name: 'finder',
   initialState,
   reducers: {

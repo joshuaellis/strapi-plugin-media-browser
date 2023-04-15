@@ -6,6 +6,7 @@ import { Folder } from './Folder/Folder';
 import { FolderNew } from './Folder/FolderNew';
 import { IconButton } from './IconButton';
 import { Plus } from './Icons/Plus';
+import { notify } from './Notifications';
 import { useGetAllFoldersQuery, useFolderMutationApi } from '../data/folderApi';
 
 /**
@@ -86,7 +87,12 @@ export const SideBar = () => {
     const res = await deleteFolder(id.toString());
 
     if ('error' in res) {
-      // TODO: handle error
+      console.error(res.error);
+      notify({
+        status: 'error',
+        title: "Couldn't delete folder",
+        closable: false,
+      });
     }
   };
 
@@ -102,7 +108,12 @@ export const SideBar = () => {
       return true;
     } else {
       if ('error' in res) {
-        // TODO: handle error
+        console.error(res.error);
+        notify({
+          status: 'error',
+          title: "Couldn't rename folder",
+          closable: false,
+        });
       }
       return false;
     }

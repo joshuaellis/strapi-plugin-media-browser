@@ -17,6 +17,7 @@ import { Cross } from '../Icons/Cross';
 import { InfoCircle } from '../Icons/InfoCircle';
 import { Pencil } from '../Icons/Pencil';
 import { Tag } from '../Icons/Tag';
+import { notify } from '../Notifications';
 import { TextButton } from '../TextButton';
 import { TextInput, type TextInputProps } from '../TextInput';
 import { ToolbarButton } from '../ToolbarButton';
@@ -119,7 +120,12 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
         /* This assumes success and we therefore reset the form */
         hideNewTagAndRestoreFocus(true);
       } else if ('error' in res) {
-        // TODO: handle error
+        console.error(res.error);
+        notify({
+          status: 'error',
+          title: "Couldn't delete folder",
+          closable: false,
+        });
       }
     }
   };
@@ -136,7 +142,12 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
     const res = await deleteTag({ uuid });
 
     if ('error' in res) {
-      // TODO: handle error
+      console.error(res.error);
+      notify({
+        status: 'error',
+        title: "Couldn't delete tag",
+        closable: false,
+      });
     }
   };
 
@@ -146,7 +157,12 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
     if ('data' in res) {
       return true;
     } else if ('error' in res) {
-      // TODO: handle error
+      console.error(res.error);
+      notify({
+        status: 'error',
+        title: "Couldn't rename tag",
+        closable: false,
+      });
     }
 
     return false;
@@ -170,9 +186,19 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
 
     if ('data' in res) {
       setIsOpen(false);
+      notify({
+        status: 'success',
+        title: 'Applied tags to files',
+        closable: false,
+      });
       // show success toast
     } else if ('error' in res) {
-      // TODO: handle error
+      console.error(res.error);
+      notify({
+        status: 'error',
+        title: "Couldn't apply tags to files",
+        closable: false,
+      });
     }
   };
 

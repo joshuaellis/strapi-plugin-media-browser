@@ -6,11 +6,20 @@ import { Provider } from 'react-redux';
 import { Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
 
+import { Notifications } from '../../components/Notifications';
 import { BASE_URL } from '../../constants';
 import { store } from '../../store/store';
 import { Finder } from '../Finder';
 
 const App: React.FunctionComponent = () => {
+  React.useLayoutEffect(() => {
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   return (
     <Provider store={store}>
       <MediaMain>
@@ -19,6 +28,7 @@ const App: React.FunctionComponent = () => {
           <Route path={BASE_URL} component={Finder} />
         </Switch>
       </MediaMain>
+      <Notifications />
     </Provider>
   );
 };
