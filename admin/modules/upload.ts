@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
+import { notify } from '../components/Notifications';
 import { uploadApi, type UploadFileResponse } from '../data/uploadApi';
 import { hashFile } from '../helpers/files';
 import { generatePreviewBlobUrl } from '../helpers/images';
@@ -71,7 +72,13 @@ const uploadSlice = createSlice({
           delete state.currentUploads[folder][hash];
         }
       });
-      // TODO: show error message in the console.
+
+      notify({
+        status: 'error',
+        title: 'Oh no!',
+        description: `There was an error uploading ${action.meta.arg.file.name}`,
+        closable: false,
+      });
     });
     builder.addCase(uploadAssetThunk.fulfilled, (state, action) => {
       if ('data' in action.payload) {

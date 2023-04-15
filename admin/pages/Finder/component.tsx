@@ -11,6 +11,7 @@ import styled from 'styled-components';
 
 import { FileBrowser } from '../../components/FileBrowser';
 import { Header } from '../../components/Header';
+import { notify } from '../../components/Notifications';
 import { SideBar } from '../../components/SidePanel';
 import type { ActionItem, ActionsToolbarButtonProps } from '../../components/Toolbar/Actions';
 import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
@@ -125,9 +126,13 @@ export const Finder: React.FunctionComponent = () => {
             throw response.error;
           }
         } catch (err) {
-          /**
-           * TODO: Handle errors
-           */
+          console.error(err);
+
+          notify({
+            status: 'error',
+            title: 'There was an issue downloading',
+            description: `${file.name} was unable to be downloaded`,
+          });
         }
       })
     );
@@ -159,9 +164,13 @@ export const Finder: React.FunctionComponent = () => {
        * and should be empty.
        */
       dispatch(replaceSelectedItems());
-    } else {
-      // res.error
-      // TODO: handle error
+    } else if ('error' in res) {
+      console.error(res.error);
+      notify({
+        status: 'error',
+        title: "Couldn't delete file",
+        closable: false,
+      });
     }
   };
 
