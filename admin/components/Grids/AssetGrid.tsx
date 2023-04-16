@@ -12,7 +12,8 @@ import { CardUpload } from '../Cards/CardUpload';
 export interface AssetGridProps {
   cards: Array<MediaFile | UploadItem>;
   onCancelClick: (name: string) => void;
-  onCardSelect: Pick<CardAssetProps, 'onClick'>['onClick'];
+  onCardSelect: CardAssetProps['onClick'];
+  onCardDoubleClick: CardAssetProps['onDoubleClick'];
   onContainerClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
@@ -21,9 +22,11 @@ export const AssetGrid = ({
   onCancelClick,
   onCardSelect,
   onContainerClick,
+  onCardDoubleClick,
 }: AssetGridProps) => {
   const handleCancelClick = useCallbackRef(onCancelClick);
   const handleCardSelect = useCallbackRef(onCardSelect);
+  const handleDoubleClick = useCallbackRef(onCardDoubleClick);
 
   return (
     <Container onClick={onContainerClick}>
@@ -43,6 +46,7 @@ export const AssetGrid = ({
               item={item}
               onCancelClick={handleCancelClick}
               onCardSelect={handleCardSelect}
+              onCardDoubleClick={handleDoubleClick}
             />
           );
         }}
@@ -55,27 +59,30 @@ export const AssetGrid = ({
   );
 };
 
-interface VirtualCellProps extends Pick<AssetGridProps, 'onCancelClick' | 'onCardSelect'> {
+interface VirtualCellProps
+  extends Pick<AssetGridProps, 'onCancelClick' | 'onCardSelect' | 'onCardDoubleClick'> {
   item: MediaFile | UploadItem;
 }
 
-const VirtualCell = React.memo(({ item, onCancelClick, onCardSelect }: VirtualCellProps) => {
-  if ('id' in item) {
-    /**
-     * It's a file from the DB
-     */
-    return <CardAsset {...item} onClick={onCardSelect} />;
-  }
+const VirtualCell = React.memo(
+  ({ item, onCancelClick, onCardSelect, onCardDoubleClick }: VirtualCellProps) => {
+    if ('id' in item) {
+      /**
+       * It's a file from the DB
+       */
+      return <CardAsset {...item} onClick={onCardSelect} onDoubleClick={onCardDoubleClick} />;
+    }
 
-  if ('status' in item) {
-    /**
-     * It's being uploaded
-     */
-    return <CardUpload {...item} onCancelClick={onCancelClick} />;
-  }
+    if ('status' in item) {
+      /**
+       * It's being uploaded
+       */
+      return <CardUpload {...item} onCancelClick={onCancelClick} />;
+    }
 
-  return null;
-});
+    return null;
+  }
+);
 
 const Container = styled.div`
   width: 100%;

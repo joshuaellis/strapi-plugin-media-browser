@@ -261,7 +261,7 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                           })}
                         </TagList>
                       </TagContainer>
-                      <TextButton aria-busy={isUpdateFileLoading}>Apply tags</TextButton>
+                      <SubmitButton aria-busy={isUpdateFileLoading}>Apply tags</SubmitButton>
                     </TagContainer>
                   ) : (
                     <>
@@ -291,14 +291,14 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
                         </Accordion.Root>
                         <Divider />
                       </TagContainer>
-                      <TextButton
+                      <SubmitButton
                         ref={triggerRef}
                         disabled={showNewTagForm}
                         aria-disabled={showNewTagForm}
                         onClick={handleNewTagClick}
                       >
                         New Tag
-                      </TextButton>
+                      </SubmitButton>
                     </>
                   )}
                 </DialogContent>
@@ -393,6 +393,10 @@ const TagItem = styled.li<{ $isForm?: boolean; $disabled?: boolean }>`
           }
         `
       : ''}
+`;
+
+const SubmitButton = styled(TextButton)`
+  width: 100%;
 `;
 
 interface TagAccordionProps extends TagEntity {

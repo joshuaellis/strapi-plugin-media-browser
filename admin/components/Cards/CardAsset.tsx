@@ -7,6 +7,7 @@ import { VisuallyHidden } from '../VisuallyHidden';
 export interface CardAssetProps extends MediaFile {
   isSelected?: boolean;
   onClick?: (uuid: string, event: React.MouseEvent<HTMLLabelElement>) => void;
+  onDoubleClick?: (uuid: string, event: React.MouseEvent<HTMLLabelElement>) => void;
 }
 
 export const CardAsset = ({
@@ -16,6 +17,7 @@ export const CardAsset = ({
   alternativeText,
   isSelected = false,
   onClick,
+  onDoubleClick,
   uuid,
 }: CardAssetProps) => {
   const handleClick: React.MouseEventHandler<HTMLLabelElement> = (event) => {
@@ -26,17 +28,17 @@ export const CardAsset = ({
     event.stopPropagation();
   };
 
+  const handleDoubleClick: React.MouseEventHandler<HTMLLabelElement> = (event) => {
+    event.preventDefault();
+
+    if (onDoubleClick) {
+      onDoubleClick(uuid, event);
+    }
+  };
+
   return (
     <CardBase.Root $isChecked={isSelected}>
-      <CardBase.Container
-        onDoubleClick={(e) => {
-          /**
-           * TODO: this should open a modal with the image and it's details
-           */
-          e.preventDefault();
-        }}
-        onClick={handleClick}
-      >
+      <CardBase.Container onDoubleClick={handleDoubleClick} onClick={handleClick}>
         <CardBase.Media
           /* @ts-expect-error TODO: when we have all the file types, remove me. */
           type={assetType}

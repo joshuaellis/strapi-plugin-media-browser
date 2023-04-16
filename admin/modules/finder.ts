@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
+import type { MediaFile } from '../data/fileApi';
 import { startTypedListening } from '../store/middleware';
 
 export interface FinderState {
@@ -9,6 +10,7 @@ export interface FinderState {
   canGoForward: boolean;
   canGoBack: boolean;
   selectedItems: string[];
+  fileDetails: MediaFile | null;
 }
 
 const initialState: FinderState = {
@@ -18,6 +20,33 @@ const initialState: FinderState = {
   canGoForward: false,
   canGoBack: false,
   selectedItems: [],
+  fileDetails: {
+    uuid: 'sSUanV57UNd0MM_L74Unb',
+    alternativeText: null,
+    assetType: 'image',
+    caption: null,
+    createdAt: '2023-01-27T18:01:42.576Z',
+    ext: '.webp',
+    folder: null,
+    folderPath: '/',
+    hash: 'b09ccb6c6a74906f232e35e97759fe54c8dbe1e3',
+    height: 973870125,
+    id: 51,
+    mime: 'image/webp',
+    name: 'pizza.webp',
+    previewUrl: null,
+    provider: 'local',
+    provider_metadata: null,
+    tags: [
+      {
+        uuid: 'Bavt2VsbKeqGkZf0fpGf4',
+      },
+    ],
+    size: 767.2,
+    updatedAt: '2023-03-18T22:42:11.232Z',
+    url: '/uploads/b09ccb6c6a74906f232e35e97759fe54c8dbe1e3.webp',
+    width: 169424903,
+  },
 };
 
 const finderSlice = createSlice({
@@ -75,6 +104,12 @@ const finderSlice = createSlice({
     removeSelectedItem(state, action: PayloadAction<string>) {
       state.selectedItems = state.selectedItems.filter((item) => item !== action.payload);
     },
+    showFileDetails(state, action: PayloadAction<MediaFile>) {
+      state.fileDetails = action.payload;
+    },
+    hideFileDetails(state) {
+      state.fileDetails = null;
+    },
   },
 });
 
@@ -88,6 +123,8 @@ export const {
   addSelectedItem,
   removeSelectedItem,
   replaceSelectedItems,
+  showFileDetails,
+  hideFileDetails,
 } = finderSlice.actions;
 
 /**

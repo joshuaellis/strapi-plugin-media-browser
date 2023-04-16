@@ -9,6 +9,7 @@ import * as React from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
+import { AssetDetails } from '../../components/AssetDetails';
 import { FileBrowser } from '../../components/FileBrowser';
 import { Header } from '../../components/Header';
 import { notify } from '../../components/Notifications';
@@ -17,7 +18,13 @@ import type { ActionItem, ActionsToolbarButtonProps } from '../../components/Too
 import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
 import { useFileMutationApi, useGetAllFilesAtFolderQuery } from '../../data/fileApi';
 import { useQuery } from '../../hooks/useQuery';
-import { goBack, goForward, pushState, replaceSelectedItems } from '../../modules/finder';
+import {
+  goBack,
+  goForward,
+  hideFileDetails,
+  pushState,
+  replaceSelectedItems,
+} from '../../modules/finder';
 import { useTypedDispatch, useTypedSelector } from '../../store/hooks';
 import axios from '../../utils/axiosInstance';
 
@@ -27,6 +34,7 @@ export const Finder: React.FunctionComponent = () => {
   const dispatch = useTypedDispatch();
   const selectedItems = useTypedSelector((state) => state.finder.selectedItems);
   const folder = useTypedSelector((state) => state.finder.currentPlace);
+  const fileDetails = useTypedSelector((state) => state.finder.fileDetails);
 
   const [query] = useQuery();
   const selectedUUIDs = useTypedSelector((state) => state.finder.selectedItems);
@@ -174,6 +182,10 @@ export const Finder: React.FunctionComponent = () => {
     }
   };
 
+  const handleCloseClick = () => {
+    dispatch(hideFileDetails());
+  };
+
   const actionItems: ActionsToolbarButtonProps['items'] = [
     {
       label: 'Delete',
@@ -210,6 +222,7 @@ export const Finder: React.FunctionComponent = () => {
       <SideBar />
       <Container id={FILE_BROWSER_CONTAINER_ID}>
         <FileBrowser files={filesWithSelection} />
+        <AssetDetails asset={fileDetails} onCloseClick={handleCloseClick} />
       </Container>
     </>
   );
