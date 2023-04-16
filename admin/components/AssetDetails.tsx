@@ -2,18 +2,46 @@ import * as React from 'react';
 
 import * as Dialog from '@radix-ui/react-dialog';
 import { animated, useTransition } from '@react-spring/web';
+import { prefixFileUrlWithBackendUrl } from '@strapi/helper-plugin';
 import styled from 'styled-components';
 
 import { IconButton } from './IconButton';
 import { Cross } from './Icons/Cross';
+import { notify } from './Notifications';
+import { Tabs, TabsList, TabTrigger, TabsContent } from './Tabs';
 import { TextButton } from './TextButton';
 import * as CardBase from '../components/Cards/CardBase';
 import { MediaFile } from '../data/fileApi';
+import { downloadFile } from '../helpers/files';
 
 interface AssetDetailsProps {
   asset: MediaFile | null;
   onCloseClick: () => void;
 }
+
+const TAB_ITEMS = [
+  {
+    label: 'Details',
+    value: 'details',
+  },
+  {
+    label: 'References',
+    value: 'references',
+  },
+] as const;
+
+type TabItems = (typeof TAB_ITEMS)[number];
+
+type TabValues = {
+  [key in TabItems['label']]: Extract<TabItems, { label: key }>['value'];
+};
+
+const TAB_VALUES = TAB_ITEMS.reduce((acc, curr) => {
+  /* @ts-ignore */
+  acc[curr.label] = curr.value;
+
+  return acc;
+}, {} as TabValues);
 
 export const AssetDetails = ({ asset, onCloseClick }: AssetDetailsProps) => {
   const handleOpenChange = (open: boolean) => {
@@ -41,6 +69,33 @@ export const AssetDetails = ({ asset, onCloseClick }: AssetDetailsProps) => {
       mass: 1,
     },
   });
+
+  const handleDownloadClick = () => {
+    if (asset) {
+      downloadFile(asset);
+    }
+  };
+
+  const handleCopyClick = async () => {
+    if (asset) {
+      try {
+        await navigator.clipboard.writeText(prefixFileUrlWithBackendUrl(asset.url));
+
+        notify({
+          status: 'success',
+          title: 'URL copied to clipboard',
+          closable: false,
+        });
+      } catch (err) {
+        console.error('failed to copy url to clipboard', err);
+        notify({
+          status: 'error',
+          title: 'Failed to copy url to clipboard',
+          closable: false,
+        });
+      }
+    }
+  };
 
   return (
     <Dialog.Root open={asset !== null} onOpenChange={handleOpenChange}>
@@ -87,14 +142,25 @@ export const AssetDetails = ({ asset, onCloseClick }: AssetDetailsProps) => {
                         </MetaItem>
                       </MetaList>
                       <AssetActions>
-                        <TextButton size="S" variant="secondary">
+                        <TextButton onClick={handleDownloadClick} size="S" variant="secondary">
                           Download
                         </TextButton>
-                        <TextButton size="S" variant="secondary">
+                        <TextButton onClick={handleCopyClick} size="S" variant="secondary">
                           Copy URL
                         </TextButton>
                       </AssetActions>
                     </AssetPreview>
+                    <TabsSection>
+                      <Tabs defaultValue="details">
+                        <TabsList items={TAB_ITEMS as unknown as TabTrigger[]} />
+                        <TabsContent value={TAB_VALUES.Details}>
+                          <h1>aha you found me</h1>
+                        </TabsContent>
+                        <TabsContent value={TAB_VALUES.References}>
+                          <h1>references</h1>
+                        </TabsContent>
+                      </Tabs>
+                    </TabsSection>
                   </DialogMain>
                   <Divider />
                   <DialogFooter>
@@ -141,7 +207,7 @@ const DialogAnimatedContainer = styled(animated.div)`
   border: 1px solid rgba(255, 255, 255, 0.2);
   width: 100%;
   height: 100%;
-  padding: 18px 25px 25px;
+  padding: 20px 25px 25px;
   display: flex;
   flex-direction: column;
 `;
@@ -205,6 +271,10 @@ const MetaDescription = styled.dd`
 const AssetActions = styled.div`
   display: flex;
   gap: 10px;
+`;
+
+const TabsSection = styled.div`
+  flex-basis: 60%;
 `;
 
 const DialogFooter = styled.footer`

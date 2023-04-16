@@ -41,8 +41,8 @@ const Button = styled.button<{ $variant: Variants; $size: Sizes }>`
       case 'R':
         return css`
           padding: 10px 20px;
-          font-size: 16px;
-          line-height: 16px;
+          font-size: 14px;
+          line-height: 14px;
         `;
       default:
         return '';
