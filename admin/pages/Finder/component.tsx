@@ -16,7 +16,8 @@ import { notify } from '../../components/Notifications';
 import { SideBar } from '../../components/SidePanel';
 import type { ActionItem, ActionsToolbarButtonProps } from '../../components/Toolbar/Actions';
 import { FILE_BROWSER_CONTAINER_ID } from '../../constants';
-import { useFileMutationApi, useGetAllFilesAtFolderQuery } from '../../data/fileApi';
+import { makeGetAllFilesQuery, useFileMutationApi, useGetAllFilesQuery } from '../../data/fileApi';
+import { useGetAllFoldersQueryState } from '../../data/folderApi';
 import { downloadFile } from '../../helpers/files';
 import { useQuery } from '../../hooks/useQuery';
 import {
@@ -38,10 +39,8 @@ export const Finder: React.FunctionComponent = () => {
 
   const [query] = useQuery();
   const selectedUUIDs = useTypedSelector((state) => state.finder.selectedItems);
-  const { data: files = [] } = useGetAllFilesAtFolderQuery({
-    folder: folder === 'root' ? '' : folder,
-    sortBy: query.get('sortBy') ?? 'none',
-  });
+  const sortByQuery = query.get('sortBy');
+  const { data: files = [] } = useGetAllFilesQuery(makeGetAllFilesQuery(folder, sortByQuery));
 
   const { deleteFile } = useFileMutationApi();
 
@@ -56,6 +55,9 @@ export const Finder: React.FunctionComponent = () => {
   }));
 
   const [_, subroute] = location.pathname.split('/plugins/media-browser/');
+  const { data = [] } = useGetAllFoldersQueryState(undefined);
+
+  const newRoute = data.find((folder) => folder.name === subroute);
 
   /**
    * TODO: Handle back and forward when the name of the folder has changed (thus the subroute is _incorrect_).
@@ -71,9 +73,9 @@ export const Finder: React.FunctionComponent = () => {
       return;
     } else {
       // this should only occur on link movements, not back/forward clicks
-      dispatch(pushState(subroute ?? 'root'));
+      dispatch(pushState(newRoute ? { name: newRoute.name, id: newRoute.id } : null));
     }
-  }, [dispatch, subroute]);
+  }, [dispatch, newRoute]);
 
   const handleBackClick = () => {
     if (canGoBack) {
@@ -159,6 +161,7 @@ export const Finder: React.FunctionComponent = () => {
     },
     {
       label: 'Get Info',
+      // TODO: add this when the dialog is finished
       // eslint-disable-next-line no-console
       onClick: () => console.log('get info'),
       type: 'item',

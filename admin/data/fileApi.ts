@@ -1,5 +1,8 @@
+import { FindParams } from '@strapi/database';
 import { z } from 'zod';
 
+import { FileEntity } from '../../server/services/files';
+import { FinderFolder } from '../modules/finder';
 import { strapiAdminApi } from '../store/api';
 
 const folderSchema = z.object({
@@ -42,12 +45,19 @@ interface MediaFileUpdate extends Omit<Partial<MediaFile>, 'id' | 'tags'> {
   tags: { set: string[] } | { connect: string[]; disconnect: string[] };
 }
 
+const entityReferenceSchema = z.object({
+  id: z.number(),
+});
+
+export type EntityReference = z.infer<typeof entityReferenceSchema>;
+
 export const fileApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
-    getAllFilesAtFolder: build.query<MediaFile[], { folder: string; sortBy: string }>({
-      query: ({ folder, sortBy }) => {
+    getAllFiles: build.query<MediaFile[], { params: FindParams<FileEntity> }>({
+      query: ({ params = {} }) => {
         return {
-          url: `files/${folder}?sort=${sortBy === 'none' ? 'createdAt%3Adesc' : `${sortBy}%3Aasc`}`,
+          url: `files`,
+          params,
         };
       },
       transformResponse: (res: Partial<MediaFile>[]) =>
@@ -60,6 +70,18 @@ export const fileApi = strapiAdminApi.injectEndpoints({
         res
           ? res.map((file) => ({ type: 'Files', folder: file.folderPath }))
           : [{ type: 'Files', folder: '' }],
+    }),
+    getFile: build.query<EntityReference[], { uuid: string; params: FindParams<MediaFile> }>({
+      query: ({ uuid, params = {} }) => ({
+        url: `files/${uuid}`,
+        params,
+      }),
+      transformResponse: (res: Partial<EntityReference>[]) =>
+        res
+          .filter((file) => {
+            return entityReferenceSchema.safeParse(file).success;
+          })
+          .map((file) => entityReferenceSchema.parse(file)),
     }),
     deleteFiles: build.mutation<MediaFile[], { uuid: string | string[] }>({
       query: ({ uuid }) => ({
@@ -100,9 +122,31 @@ export const fileApi = strapiAdminApi.injectEndpoints({
   overrideExisting: false,
 });
 
-const { useGetAllFilesAtFolderQuery, useDeleteFilesMutation, useUpdateFilesMutation } = fileApi;
+const { useGetAllFilesQuery, useDeleteFilesMutation, useUpdateFilesMutation, useGetFileQuery } =
+  fileApi;
 
-export { useGetAllFilesAtFolderQuery };
+const makeGetAllFilesQuery = (folder?: FinderFolder | null, sortByQuery?: string | null) => ({
+  params: {
+    populate: {
+      folder: true,
+      tags: {
+        fields: ['uuid'],
+      },
+    },
+    filters: {
+      folder: folder?.id ?? null,
+    },
+    orderBy: sortByQuery
+      ? {
+          [sortByQuery]: 'asc',
+        }
+      : {
+          createdAt: 'desc',
+        },
+  },
+});
+
+export { useGetAllFilesQuery, useGetFileQuery, makeGetAllFilesQuery };
 
 export const useFileMutationApi = () => {
   const [deleteFile] = useDeleteFilesMutation();

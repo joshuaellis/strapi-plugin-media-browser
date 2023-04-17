@@ -5,7 +5,7 @@ export default {
   routes: [
     {
       method: 'GET',
-      path: '/files/:folder',
+      path: '/files/:uuid',
       handler: 'admin-file.find',
       config: {
         policies: [
@@ -22,7 +22,7 @@ export default {
     {
       method: 'GET',
       path: '/files',
-      handler: 'admin-file.find',
+      handler: 'admin-file.findMany',
       config: {
         policies: [
           'admin::isAuthenticatedAdmin',

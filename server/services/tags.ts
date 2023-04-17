@@ -34,12 +34,8 @@ export interface TagEntityPatch extends Omit<TagEntity, 'files' | 'uuid'> {
  */
 type UpdatedTag = Pick<TagEntity, 'name' | 'uuid'>;
 
-interface ExtendedFindParams<TEntity> extends Omit<FindParams<TEntity>, 'populate'> {
-  populate?: (keyof TEntity)[] | { [Key in keyof TEntity]?: { count: boolean } | boolean };
-}
-
 export interface ITagsService {
-  findAll(query: ExtendedFindParams<TagEntity>): Promise<Partial<TagEntity>[]>;
+  findAll(query: FindParams<TagEntity>): Promise<Partial<TagEntity>[]>;
   create(data: CreateTagBody, user?: StrapiUser): Promise<UpdatedTag>;
   delete(uuids: string[]): Promise<{ totalTagNumber: number; tags: UpdatedTag[] }>;
   update(uuid: string, patch: TagEntityPatch): Promise<UpdatedTag | undefined>;
@@ -52,8 +48,7 @@ class TagsService implements ITagsService {
     this.strapi = strapi;
   }
 
-  findAll = async (query: ExtendedFindParams<TagEntity>): Promise<Partial<TagEntity>[]> => {
-    // @ts-expect-error because the object configuration is missing from TS, we've added it.
+  findAll = async (query: FindParams<TagEntity>): Promise<Partial<TagEntity>[]> => {
     return this.strapi.db.query(TAG_MODEL_UID).findMany(query);
   };
 
@@ -73,7 +68,6 @@ class TagsService implements ITagsService {
     const tagEntity = await this.strapi.db.entityManager.create(TAG_MODEL_UID, {
       select: ['uuid', 'name'],
       populate: {
-        // @ts-expect-error bad typing from library
         createdBy: true,
         files: {
           count: true,

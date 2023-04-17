@@ -11,7 +11,7 @@ import { notify } from './Notifications';
 import { Tabs, TabsList, TabTrigger, TabsContent } from './Tabs';
 import { TextButton } from './TextButton';
 import * as CardBase from '../components/Cards/CardBase';
-import { MediaFile } from '../data/fileApi';
+import { MediaFile, useGetFileQuery } from '../data/fileApi';
 import { downloadFile } from '../helpers/files';
 
 interface AssetDetailsProps {
@@ -44,6 +44,21 @@ const TAB_VALUES = TAB_ITEMS.reduce((acc, curr) => {
 }, {} as TabValues);
 
 export const AssetDetails = ({ asset, onCloseClick }: AssetDetailsProps) => {
+  const { data, error } = useGetFileQuery(
+    {
+      uuid: asset?.uuid ?? '',
+      params: {
+        populate: {
+          related: true,
+        },
+        select: ['id'],
+      },
+    },
+    {
+      skip: !asset,
+    }
+  );
+
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       onCloseClick();
@@ -96,6 +111,19 @@ export const AssetDetails = ({ asset, onCloseClick }: AssetDetailsProps) => {
       }
     }
   };
+
+  React.useEffect(() => {
+    if (error && 'data' in error) {
+      const name = asset?.name.split(asset.ext)[0] ?? '';
+
+      notify({
+        status: 'error',
+        title: `Couldn't get references for ${name}`,
+        description: error.data?.message,
+        closable: false,
+      });
+    }
+  }, [error, asset]);
 
   return (
     <Dialog.Root open={asset !== null} onOpenChange={handleOpenChange}>

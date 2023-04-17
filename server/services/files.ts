@@ -50,6 +50,9 @@ export interface FileEntity {
   [CREATED_BY_ATTRIBUTE]?: {
     id: number;
   };
+  [UPDATED_BY_ATTRIBUTE]?: {
+    id: number;
+  };
 }
 
 export interface IFilesService {

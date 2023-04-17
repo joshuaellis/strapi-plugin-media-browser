@@ -62,25 +62,8 @@ export default {
   async find(ctx) {
     const {
       state: { userAbility },
-      params: { folder: folderName },
+      params: { uuid },
     } = ctx;
-
-    const { getFolderByName } = getService<IFolderService>('folder');
-
-    const { id } = (await getFolderByName(folderName)) ?? {};
-
-    const defaultQuery = {
-      populate: {
-        folder: true,
-        tags: {
-          fields: ['uuid'],
-        },
-      },
-      filters: {
-        folder: !id ? null : id,
-      },
-      sort: { createdAt: 'desc' },
-    };
 
     // @ts-ignore it does exist thx
     const pm = strapi.admin.services.permission.createPermissionsManager({
@@ -94,7 +77,36 @@ export default {
     }
 
     const pmQuery = pm.addPermissionsQueryTo({
-      ...defaultQuery,
+      ...ctx.query,
+    });
+
+    const query = await pm.sanitizeQuery(pmQuery);
+
+    const fileService: IFilesService = getService('files');
+
+    const result = await fileService.findOne(uuid, query);
+
+    const sanitizedResult = await pm.sanitizeOutput(result);
+
+    return sanitizedResult;
+  },
+  async findMany(ctx) {
+    const {
+      state: { userAbility },
+    } = ctx;
+
+    // @ts-ignore it does exist thx
+    const pm = strapi.admin.services.permission.createPermissionsManager({
+      ability: userAbility,
+      action: ACTIONS.read,
+      model: FILE_MODEL_UID,
+    });
+
+    if (!pm.isAllowed) {
+      return ctx.forbidden();
+    }
+
+    const pmQuery = pm.addPermissionsQueryTo({
       ...ctx.query,
     });
 
