@@ -57,19 +57,6 @@ export default {
       state: { userAbility },
     } = ctx;
 
-    const defaultQuery: Parameters<typeof findAll>[0] = {
-      select: ['uuid', 'name'],
-      populate: {
-        createdBy: true,
-        files: {
-          count: true,
-        },
-      },
-      orderBy: {
-        name: 'asc',
-      },
-    };
-
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore it does exist thx
     const pm = strapi.admin.services.permission.createPermissionsManager({
@@ -83,7 +70,6 @@ export default {
     }
 
     const query = pm.addPermissionsQueryTo({
-      ...defaultQuery,
       ...ctx.query,
     });
 

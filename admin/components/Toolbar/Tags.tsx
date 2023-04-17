@@ -39,7 +39,18 @@ export const TagsToolbarButton = ({ disabled }: TagsToolbarButtonProps) => {
   const selectedItems = useTypedSelector(selectSelectedItemsWithTags(query));
   const hasSelectedItems = selectedItems.length > 0;
 
-  const { data } = useGetAllTagsQuery(undefined);
+  const { data } = useGetAllTagsQuery({
+    select: ['uuid', 'name'],
+    populate: {
+      createdBy: true,
+      files: {
+        count: true,
+      },
+    },
+    orderBy: {
+      name: 'asc',
+    },
+  });
 
   const { postNewTag, deleteTag, updateTag } = useTagMutationApi();
   const { updateFile, isUpdateFileLoading } = useFileMutationApi();

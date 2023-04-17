@@ -1,3 +1,4 @@
+import { FindParams } from '@strapi/database';
 import { z } from 'zod';
 
 import { strapiAdminApi } from '../store/api';
@@ -20,10 +21,11 @@ export type TagEntity = z.infer<typeof tagSchema>;
 
 const tagApi = strapiAdminApi.injectEndpoints({
   endpoints: (build) => ({
-    getAllTags: build.query<TagEntity[], undefined>({
-      query: () => {
+    getAllTags: build.query<TagEntity[], FindParams<TagEntity>>({
+      query: (params = {}) => {
         return {
           url: `tags`,
+          params,
         };
       },
       transformResponse: (res: Partial<TagEntity>[]) =>
